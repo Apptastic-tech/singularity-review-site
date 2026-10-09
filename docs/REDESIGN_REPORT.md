@@ -2,6 +2,8 @@
 
 The editorial redesign is implemented. The clean build and publishing regressions pass. Rendered browser verification is still blocked by this execution environment, so the visual quality gate has not passed.
 
+The acceptance ledger records two met gates, zero unmet runnable gates, and three abandoned browser-dependent gates requiring operator handoff. Abandoned gates are not passing checks.
+
 ## Implemented behavior
 
 The homepage and category pages use a centered large-card feed. Article pages use the requested headline, dek, hero, reading body, topics, follow links, and Read next flow. A deferred vanilla script provides the menu, header visibility, and progressive next-page loading. All content paths and frontmatter keys remain unchanged. Original JPG URLs remain available for sharing and RSS. The new brand uses the event-horizon mark, self-hosted reading and UI fonts, and the documented ink, paper, and amber palette.
