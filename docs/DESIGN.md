@@ -29,13 +29,13 @@ Inter Tight Variable provides UI, metadata, chips, navigation, and labels, with 
 
 `src/images/brand/wordmark.svg` pairs a thin amber orbit and off-center dot with tracked SINGULARITY and italic Review. The SVG uses portable sans and serif fallbacks, so its external-image rendering does not depend on font downloads. The header renders it at about 22px to 28px tall. `src/favicon.svg` uses the mark alone. Run `node scripts/prepare-brand.mjs` to regenerate the 180x180 Apple touch icon with sharp. Supply a background image as its argument to also regenerate the 1200x630 default social image with the wordmark and tagline overlay.
 
-Article photographs show physical settings for the stories: infrastructure, knowledge, and governance. The feed crops them square on mobile and 16:9 from 640px upward. Article heroes retain their intrinsic ratio. Original JPG URLs remain available for social sharing and RSS.
+Article photographs show physical settings for the stories: infrastructure, knowledge, and governance. The feed crops them 4:5 on mobile (capped at 68svh) and 4:3 from 640px upward. Article heroes retain their intrinsic ratio. Original JPG URLs remain available for social sharing and RSS.
 
 ## Spacing and interaction
 
 - Feed width: up to 760px. Mobile gutters: 8px per side.
 - Card radius: 20px, with a 1px border. No elevation or decorative glows.
-- Cards: minimum 84svh on mobile; 78svh on desktop, with the first at 82svh. Content may increase their height to prevent clipping.
+- Cards: height follows content. The photograph dominates: 4:5 on mobile (max 68svh), 4:3 at full card width from 640px, feed column up to 760px.
 - Card padding: 20px to 24px on mobile, 28px to 32px on desktop. Space between cards: 28px to 40px.
 - Mobile top bar: 56px. Its category bar follows it as one sticky unit.
 - Buttons, burger, social icons, navigation and footer links: at least 48x48px. Category chips and topic labels: at least 44px tall, with category links at least 48px wide.

@@ -16,7 +16,7 @@ The information architecture and interaction patterns supplied for ux-news.com i
 
 ## Deliberate changes
 
-Cards and photographs are substantially larger. Mobile cards use 8px gutters, square crops, 32px titles, and a minimum height of 84svh. The desktop feed reaches 760px and uses full-width 16:9 photographs. The first card gets additional height on desktop.
+Cards and photographs are substantially larger than the reference. On mobile, cards use 8px gutters, a tall 4:5 photograph (capped at 68svh so the headline stays in view), and 32px headlines. On desktop the feed column reaches 760px with 4:3 photographs at full card width and 44px headlines. Card height follows the content, so there is no empty space below the excerpt.
 
 The design uses warm paper text on near-black ink, singularity amber, Newsreader reading typography, and Inter Tight controls. No purple. All tap targets are at least 48x48px except the explicitly 44px category chips. The top bar remains 56px on mobile. Body text is 19px or larger, and its desktop measure is limited to 65ch.
 

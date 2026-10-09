@@ -30,8 +30,8 @@ button, a { -webkit-tap-highlight-color: transparent; }
 [hidden] { display: none !important; }
 :focus-visible { outline: 2px solid var(--signal); outline-offset: 4px; }
 ::selection { color: var(--signal-ink); background: var(--signal); }
-.skip { position: fixed; left: 16px; top: -100px; z-index: 100; background: var(--signal); color: var(--signal-ink); min-height: 48px; padding: 10px 20px; font: 600 16px/28px var(--sans); border-radius: 8px; }
-.skip:focus { top: 8px; }
+.skip { position: fixed; left: 16px; top: 8px; transform: translateY(-200%); z-index: 100; background: var(--signal); color: var(--signal-ink); min-height: 48px; padding: 10px 20px; font: 600 16px/28px var(--sans); border-radius: 8px; }
+.skip:focus { transform: none; }
 .feed-width { width: calc(100% - 16px); max-width: 760px; margin-inline: auto; }
 .reading-width { width: calc(100% - 40px); max-width: 760px; margin-inline: auto; }
 .meta, .kicker, .chip, .pill, .social-link, .site-header, .footer-links, .footer-copy, .tags, figcaption, .no-js-nav { font-family: var(--sans); }
@@ -62,16 +62,16 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .chip[aria-current] { background: var(--signal); border-color: var(--signal); color: var(--signal-ink); }
 .no-js-nav { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; padding: 8px; gap: 8px; font-size: 15px; }
 .no-js-nav a { padding: 12px; min-height: 48px; }
-.feed-intro { padding: 24px 12px 22px; }
+.feed-intro { padding: 24px 12px 22px; scroll-snap-align: start; }
 .feed-intro h1 { max-width: 32ch; font-size: 22px; line-height: 1.3; font-weight: 400; margin: 0; }
 .feed-intro h1::first-line { color: var(--paper); }
 .category-intro h1 { font-size: 42px; font-weight: 600; }
 .category-intro p { margin: 8px 0; }
 .feed { display: flex; flex-direction: column; gap: 28px; padding-bottom: 32px; }
 .card { overflow: hidden; background: var(--ink-1); border: 1px solid var(--line); border-radius: var(--radius); scroll-snap-align: center; scroll-margin-block: 16px; }
-.card-link { display: flex; flex-direction: column; min-height: 84svh; color: var(--paper); text-decoration: none; }
+.card-link { display: flex; flex-direction: column; color: var(--paper); text-decoration: none; }
 .card-link:focus-visible { outline-offset: -4px; border-radius: var(--radius); }
-.card-media { overflow: hidden; background: var(--ink-2); aspect-ratio: 1; flex-shrink: 0; }
+.card-media { overflow: hidden; background: var(--ink-2); aspect-ratio: 4 / 5; max-height: 68svh; width: 100%; flex-shrink: 0; }
 .card-media picture, .card-media img { width: 100%; height: 100%; }
 .card-image { object-fit: cover; transition: transform 500ms ease; }
 .card-body { display: flex; flex-direction: column; flex: 1; padding: 22px 20px 24px; }
@@ -79,7 +79,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .card-meta time { font: 400 13px/1.5 var(--sans); color: var(--muted); }
 .card-title { margin: 0 0 12px; font: 600 32px/1.08 var(--serif); letter-spacing: -.025em; text-wrap: pretty; }
 .card-dek { margin: 0; color: var(--muted); font-size: 19px; line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-.card-read { display: flex; align-items: center; justify-content: space-between; padding-top: 22px; margin-top: auto; color: var(--paper); font: 500 13px/1.5 var(--sans); }
+.card-read { display: flex; align-items: center; justify-content: space-between; min-height: 48px; padding-top: 18px; margin-top: auto; color: var(--paper); font: 500 13px/1.5 var(--sans); }
 .card-read span { font-size: 22px; color: var(--signal); }
 @media (hover: hover) { .card-link:hover .card-image { transform: scale(1.025); } .card-link:hover .card-title { text-decoration: underline; text-decoration-color: var(--ember); text-decoration-thickness: 1px; text-underline-offset: 5px; } }
 .pagination { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 16px; padding-bottom: 32px; }
@@ -140,9 +140,7 @@ figcaption { color: var(--muted); font-size: 13px; padding: 12px 20px 0; }
   .feed-intro h1 { max-width: none; font-size: 25px; }
   .category-intro h1 { font-size: 48px; }
   .feed { gap: 40px; padding-bottom: 48px; }
-  .card-media { aspect-ratio: 16 / 9; }
-  .card-link { min-height: 78svh; }
-  .card--featured .card-link { min-height: 82svh; }
+  .card-media { aspect-ratio: 4 / 3; max-height: none; }
   .card-body { padding: 28px 32px 30px; }
   .card-title { font-size: 44px; max-width: 27ch; }
   .card-dek { font-size: 21px; }
