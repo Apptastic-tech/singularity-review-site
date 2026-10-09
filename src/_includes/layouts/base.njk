@@ -39,8 +39,8 @@
   {% if hero %}{% preloadHero hero, "(min-width: 1152px) 1120px, 100vw", title %}
   {% elif feedItems and feedItems.length %}{% preloadHero feedItems[0].data.hero, "(min-width: 776px) 760px, calc(100vw - 16px)", feedItems[0].data.title %}
   {% elif cat and cat.articles.length %}{% preloadHero cat.articles[0].data.hero, "(min-width: 776px) 760px, calc(100vw - 16px)", cat.articles[0].data.title %}{% endif %}
-  <link rel="stylesheet" href="/css/style.css">
-  <script src="/js/site.js" defer></script>
+  <link rel="stylesheet" href="{{ '/css/style.css' | asset }}">
+  <script src="{{ '/js/site.js' | asset }}" defer></script>
   {% if jsonld %}<script type="application/ld+json">{{ jsonld | safe }}</script>{% endif %}
 </head>
 <body>

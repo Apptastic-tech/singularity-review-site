@@ -5,6 +5,25 @@ import Image from "@11ty/eleventy-img";
 import path from "node:path";
 import { access } from "node:fs/promises";
 
+// Cache busting: {{ "/css/style.css" | asset }} -> /css/style.css?v=<content hash>
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+const assetHashes = new Map();
+const assetUrl = (url) => {
+  const clean = String(url).split("?")[0];
+  if (!assetHashes.has(clean)) {
+    let hash = "dev";
+    try {
+      hash = createHash("sha256").update(readFileSync("src" + clean)).digest("hex").slice(0, 10);
+    } catch {
+      hash = Date.now().toString(36);
+    }
+    assetHashes.set(clean, hash);
+  }
+  return `${clean}?v=${assetHashes.get(clean)}`;
+};
+
+
 const imageJobs = new Map();
 const cardSizes = "(min-width: 776px) 760px, calc(100vw - 16px)";
 
@@ -48,6 +67,8 @@ const escapeXml = (s) =>
     .replace(/'/g, "&apos;");
 
 export default function (eleventyConfig) {
+  eleventyConfig.addFilter("asset", assetUrl);
+  eleventyConfig.on("eleventy.before", () => assetHashes.clear());
   eleventyConfig.on("eleventy.before", () => imageJobs.clear());
   // Static assets
   eleventyConfig.addPassthroughCopy({ "src/images": "images" });
