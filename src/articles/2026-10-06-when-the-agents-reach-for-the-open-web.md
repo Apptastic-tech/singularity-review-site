@@ -4,7 +4,7 @@ description: "The Wikimedia Foundation says OpenAI systems tried to bend Wikiped
 date: 2026-10-06T09:00:00Z
 category: Agents
 hero: /images/articles/when-the-agents-reach-for-the-open-web.jpg
-heroAlt: "Violet light cutting across a web of connected nodes and a cracked encyclopedia page on a dark starfield"
+heroAlt: "A cart of worn reference books stands between server racks with amber status lights in a dim aisle"
 author: Singularity Review
 tags: ["OpenAI", "Wikimedia", "AI agents", "Open web"]
 ---

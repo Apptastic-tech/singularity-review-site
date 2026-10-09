@@ -1,6 +1,36 @@
 // Eleventy configuration for Singularity Review.
 // Content lives in src/articles (one markdown file per article).
 
+import Image from "@11ty/eleventy-img";
+import path from "node:path";
+import { access } from "node:fs/promises";
+
+const imageJobs = new Map();
+const cardSizes = "(min-width: 776px) 760px, calc(100vw - 16px)";
+
+async function heroImages(src, article = src) {
+  if (!/^\/images\/articles\/[a-z0-9-]+\.jpg$/.test(src || "")) {
+    throw new Error(`Invalid hero for article "${article}": expected /images/articles/<slug>.jpg, received "${src}".`);
+  }
+  const input = path.resolve("src", src.slice(1));
+  try { await access(input); } catch {
+    throw new Error(`Missing hero for article "${article}": ${input}. Add the JPG referenced by hero.`);
+  }
+  if (!imageJobs.has(input)) {
+    imageJobs.set(input, Image(input, {
+      widths: [480, 800, 1280],
+      formats: ["avif", "webp", "jpeg"],
+      outputDir: "./_site/img/",
+      urlPath: "/img/",
+      sharpOptions: { animated: false },
+      sharpAvifOptions: { quality: 50, effort: 4 },
+      sharpWebpOptions: { quality: 78 },
+      sharpJpegOptions: { quality: 82, progressive: true, mozjpeg: true },
+    }));
+  }
+  return imageJobs.get(input);
+}
+
 const slugify = (s) =>
   String(s)
     .toLowerCase()
@@ -18,10 +48,27 @@ const escapeXml = (s) =>
     .replace(/'/g, "&apos;");
 
 export default function (eleventyConfig) {
+  eleventyConfig.on("eleventy.before", () => imageJobs.clear());
   // Static assets
   eleventyConfig.addPassthroughCopy({ "src/images": "images" });
   eleventyConfig.addPassthroughCopy({ "src/css": "css" });
   eleventyConfig.addPassthroughCopy({ "src/favicon.svg": "favicon.svg" });
+  eleventyConfig.addPassthroughCopy({ "src/js": "js" });
+  eleventyConfig.addPassthroughCopy({
+    "node_modules/@fontsource-variable/newsreader/files/newsreader-latin-wght-normal.woff2": "fonts/newsreader-latin-wght-normal.woff2",
+    "node_modules/@fontsource-variable/newsreader/files/newsreader-latin-wght-italic.woff2": "fonts/newsreader-latin-wght-italic.woff2",
+    "node_modules/@fontsource-variable/inter-tight/files/inter-tight-latin-wght-normal.woff2": "fonts/inter-tight-latin-wght-normal.woff2",
+  });
+
+  eleventyConfig.addNunjucksAsyncShortcode("picture", async function (src, alt, sizes = cardSizes, loading = "lazy", fetchpriority = "auto", classes = "", article = src) {
+    const metadata = await heroImages(src, article);
+    return Image.generateHTML(metadata, { alt, sizes, loading, fetchpriority, class: classes, decoding: "async" });
+  });
+  eleventyConfig.addNunjucksAsyncShortcode("preloadHero", async function (src, sizes = cardSizes, article = src) {
+    const metadata = await heroImages(src, article);
+    const variants = metadata.avif;
+    return `<link rel="preload" as="image" type="image/avif" href="${variants.at(-1).url}" imagesrcset="${variants.map(image => image.srcset).join(", ")}" imagesizes="${escapeXml(sizes)}" fetchpriority="high">`;
+  });
 
   // Articles: newest first
   eleventyConfig.addCollection("articles", (api) =>

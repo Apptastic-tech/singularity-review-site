@@ -1,11 +1,13 @@
-<article class="card{% if featured %} card--featured{% endif %}">
-  <a class="card-media" href="{{ item.url }}" tabindex="-1" aria-hidden="true">
-    <img src="{{ item.data.hero }}" alt="{{ item.data.heroAlt }}" width="1280" height="720" {% if featured %}fetchpriority="high"{% else %}loading="lazy" decoding="async"{% endif %}>
+<article class="card{% if featured %} card--featured{% endif %}" data-card>
+  <a class="card-link" href="{{ item.url }}" aria-labelledby="title-{{ item.data.title | slugify }}">
+    <div class="card-media">
+      {% picture item.data.hero, item.data.heroAlt, "(min-width: 776px) 760px, calc(100vw - 16px)", "eager" if featured else "lazy", "high" if featured else "auto", "card-image", item.data.title %}
+    </div>
+    <div class="card-body">
+      <div class="card-meta"><span class="kicker">{{ item.data.category }}</span><time datetime="{{ item.date | isoDate }}">{{ item.date | readableDate }}</time></div>
+      <h2 class="card-title" id="title-{{ item.data.title | slugify }}">{{ item.data.title }}</h2>
+      <p class="card-dek">{{ item.data.description }}</p>
+      <span class="card-read" aria-hidden="true">Read story <span>↗</span></span>
+    </div>
   </a>
-  <div class="card-body">
-    <p class="kicker"><a href="/category/{{ item.data.category | slugify }}/">{{ item.data.category }}</a></p>
-    <h2 class="card-title"><a href="{{ item.url }}">{{ item.data.title }}</a></h2>
-    <p class="card-dek">{{ item.data.description }}</p>
-    <p class="meta"><time datetime="{{ item.date | isoDate }}">{{ item.date | readableDate }}</time></p>
-  </div>
 </article>

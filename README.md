@@ -12,7 +12,6 @@ Live preview: https://singularity-review.web.app
 ## Quick start
 
 ```bash
-npm install
 npm start        # dev server at http://localhost:8080
 npm run build    # output in _site/
 ```
@@ -20,6 +19,18 @@ npm run build    # output in _site/
 ## Publishing an article
 
 Add one markdown file to `src/articles/` (named `YYYY-MM-DD-slug.md`) and its hero image to `src/images/articles/slug.jpg`. Full details, frontmatter reference, and a template: see [CONTENT_GUIDE.md](CONTENT_GUIDE.md) and [content-template/](content-template/).
+
+## Redesign v2
+
+The reading feed uses large single-column cards, a sticky header that follows scroll direction, category chips, an accessible mobile menu, and progressive infinite loading. Homepage pagination publishes `/page/2/` onward only when needed. Without JavaScript, Load more remains a normal page link. Category pages and Read next reuse the same cards.
+
+Newsreader Variable and Inter Tight Variable are self-hosted from the installed packages into `/fonts/`. All article images are processed automatically at build time by `@11ty/eleventy-img` into cached AVIF, WebP, and JPEG variants in `_site/img/`, while original image URLs stay published for social sharing and RSS. The first hero receives a responsive preload; later images are lazy. Missing hero files cause a clear build error.
+
+Prepare a new hero with `node scripts/prepare-hero.mjs <input-image> <slug>`. Rebuild the Apple touch icon with `node scripts/prepare-brand.mjs`; pass an original background image to also recreate the default social image. Exact original image generation prompts are recorded in [scripts/image-prompts.json](scripts/image-prompts.json).
+
+See [docs/DESIGN.md](docs/DESIGN.md) for the visual system and [docs/UX_REFERENCE.md](docs/UX_REFERENCE.md) for the interaction reference. See [GATES.md](GATES.md) for verification outcomes. Dependencies are already installed in this working checkout.
+
+Build verification: `npm run build` followed by `node scripts/verify-site.mjs`. Future-post regression checks: `node scripts/verify-content.mjs`. Browser verification requires an existing Playwright runtime and permission to launch a local browser and server; no dependencies are installed by these scripts.
 
 ## Deploy
 
@@ -38,11 +49,12 @@ Pushing to `main` runs a CI build check (`.github/workflows/ci.yml`) but does no
 src/
   articles/              one .md file per article (+ articles.11tydata.js defaults)
   images/articles/       hero and inline images
-  images/brand/          avatar and cover
+  images/brand/          wordmark, Apple touch icon, default social image
   _data/site.js          site title, tagline, URL, social links
-  _includes/             layouts and card partial
+  _includes/             layouts, social icons, and whole-card partial
   css/style.css          all styles
-  index.njk              homepage feed
+  js/site.js             small deferred navigation and loading enhancements
+  index.njk              homepage feed, ten stories per page
   category.njk           category pages (generated per category)
   about.md               About page
   rss.njk, sitemap.njk   feeds

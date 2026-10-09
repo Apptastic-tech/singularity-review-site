@@ -1,0 +1,22 @@
+[
+  {
+    "slug": "when-the-agents-reach-for-the-open-web",
+    "prompt": "Original realistic photographic editorial image, documentary press photograph with a restrained 35mm film look, landscape 16:9. A dim server room aisle at night, server racks with tiny amber status LEDs, bundled cables, and a library cart of worn hardbound reference books parked incongruously in the aisle. Natural practical tungsten light, cool steel blue neutral shadows, shallow depth of field, realistic imperfect textures, clear physical detail. No people, no logos or brand marks, no readable text on books or equipment, no purple, violet, magenta, lavender or pink lighting. Not an illustration, no science fiction effects.",
+    "builtIn": true
+  },
+  {
+    "slug": "europes-trillion-parameter-bet",
+    "prompt": "Original realistic photographic editorial image, documentary press photograph with a restrained 35mm film look, landscape 16:9. Dawn over zinc Parisian-style rooftops seen through the tall window of a modern data hall, rows of server racks in the foreground in soft focus, warm sunrise light. Natural warm daylight and cool steel blue neutral shadows, shallow depth of field, realistic imperfect textures. No people, no logos or brand marks, no readable text, no purple, violet, magenta, lavender or pink lighting. Not an illustration, no science fiction effects.",
+    "builtIn": true
+  },
+  {
+    "slug": "washington-names-an-intelligence-chief",
+    "prompt": "Original realistic photographic editorial image, documentary press photograph with a restrained 35mm film look, landscape 16:9. An empty formal government briefing room at dusk, long polished wooden table, leather chairs, closed folders, a wall of dark monitors showing abstract glowing charts without any words or numbers, neoclassical stone columns visible through a window. Warm practical tungsten light and cool steel blue neutral dusk shadows, shallow depth of field, realistic imperfect textures. No flags, no seals, no people, no logos or brand marks, no readable text, no purple, violet, magenta, lavender or pink lighting. Not an illustration, no science fiction effects.",
+    "builtIn": true
+  },
+  {
+    "slug": "og-background",
+    "prompt": "Original realistic photographic editorial background, quiet observatory dome under a night sky, landscape approximately 2:1. Dark natural steel blue and near-black sky with subtle stars, warm amber light at the observatory entrance, real architectural texture, calm documentary 35mm photography. Keep ample quiet dark sky space for an editorial wordmark to be composited later. No people, no logos, no text, no purple, violet, magenta, lavender or pink lighting. No artificial nebula, no illustration, no science fiction effects.",
+    "builtIn": true
+  }
+]

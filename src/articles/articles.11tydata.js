@@ -21,7 +21,7 @@ export default {
         publisher: {
           "@type": "Organization",
           name: data.site.title,
-          logo: { "@type": "ImageObject", url: `${data.site.url}/images/brand/avatar.jpg` },
+          logo: { "@type": "ImageObject", url: `${data.site.url}/images/brand/apple-touch-icon.png` },
         },
         mainEntityOfPage: `${data.site.url}${data.page.url || ""}`,
       }).replace(/</g, "\\u003c"),

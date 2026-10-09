@@ -10,13 +10,11 @@ eleventyComputed:
   title: "{{ cat.name }}"
   description: "{{ cat.name }} coverage from Singularity Review: AI news for people living through the singularity."
 ---
-<section class="hero-intro wrap">
-  <p class="eyebrow">Section</p>
-  <h1 class="intro-title">{{ cat.name }}</h1>
-  <p class="intro-text">{{ cat.articles.length }} {{ "story" if cat.articles.length == 1 else "stories" }}, newest first.</p>
-</section>
-<section class="feed wrap" aria-label="{{ cat.name }} articles">
-  <div class="grid">
-    {%- for item in cat.articles %}{% set featured = false %}{% include "card.njk" %}{% endfor %}
-  </div>
+<header class="feed-intro category-intro feed-width">
+  <p class="kicker">The {{ cat.name }} section</p>
+  <h1>{{ cat.name }}</h1>
+  <p class="meta">{{ cat.articles.length }} {{ "story" if cat.articles.length == 1 else "stories" }}, newest first</p>
+</header>
+<section class="feed feed-width" aria-label="{{ cat.name }} articles" data-feed>
+  {% asyncEach item in cat.articles %}{% set featured = loop.first %}{% include "card.njk" %}{% endeach %}
 </section>

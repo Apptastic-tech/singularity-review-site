@@ -1,18 +1,28 @@
 ---
 layout: layouts/base.njk
+pagination:
+  data: collections.articles
+  size: 10
+  alias: feedItems
+permalink: "{% if pagination.pageNumber == 0 %}/{% else %}/page/{{ pagination.pageNumber + 1 }}/{% endif %}"
+homeFeed: true
 eleventyExcludeFromCollections: true
 ---
-<section class="hero-intro wrap">
-  <p class="eyebrow">Daily briefing</p>
-  <h1 class="intro-title">{{ site.tagline }}</h1>
-  <p class="intro-text">Catching every AI headline is impossible. We cut to what matters, every day.</p>
-</section>
-
-<section class="feed wrap" aria-label="Latest articles">
-  {%- for item in collections.articles %}
-    {%- set featured = loop.first %}
-    {%- if loop.index == 2 %}<div class="grid">{% endif %}
+<header class="feed-intro feed-width">
+  <h1>{{ site.tagline }}</h1>
+  {% if pagination.pageNumber > 0 %}<p class="meta">Page {{ pagination.pageNumber + 1 }}</p>{% endif %}
+</header>
+<section class="feed feed-width" aria-label="Latest articles" data-feed>
+  {% asyncEach item in feedItems %}
+    {% set featured = loop.first %}
     {% include "card.njk" %}
-    {%- if loop.last and loop.length > 1 %}</div>{% endif %}
-  {%- endfor %}
+  {% endeach %}
 </section>
+<nav class="pagination feed-width" aria-label="Article pages">
+  {% if pagination.href.previous %}<a class="pill" href="{{ pagination.href.previous }}">Previous page</a>{% endif %}
+  {% if pagination.href.next %}
+  <div data-sentinel></div>
+  <a class="pill load-more" href="{{ pagination.href.next }}" data-load-more>Load more</a>
+  <p class="load-status meta" role="status" aria-live="polite" data-load-status></p>
+  {% endif %}
+</nav>

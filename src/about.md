@@ -5,9 +5,9 @@ description: "Singularity Review cuts through the noise and reports on what actu
 permalink: /about/
 eleventyExcludeFromCollections: true
 ---
-<div class="about wrap-narrow prose">
+<div class="about reading-width prose">
 
-<p class="eyebrow">About</p>
+<p class="kicker">About</p>
 
 # AI news for people living through the singularity
 

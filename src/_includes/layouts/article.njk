@@ -1,46 +1,30 @@
 ---
 layout: layouts/base.njk
 ---
+{% from "icons.njk" import socialLink %}
 <article class="article">
-  <header class="article-header wrap-narrow">
-    <p class="kicker"><a href="/category/{{ category | slugify }}/">{{ category }}</a></p>
+  <header class="article-header reading-width">
+    <a class="kicker category-link" href="/category/{{ category | slugify }}/">{{ category }}</a>
     <h1 class="article-title">{{ title }}</h1>
     <p class="article-dek">{{ description }}</p>
-    <p class="meta">
-      By {{ author }} <span aria-hidden="true">&middot;</span>
-      <time datetime="{{ page.date | isoDate }}">{{ page.date | readableDate }}</time>
-      <span aria-hidden="true">&middot;</span> {{ content | readingTime }} min read
-    </p>
+    <p class="byline meta"><span>By {{ author }}</span><time datetime="{{ page.date | isoDate }}">{{ page.date | readableDate }}</time><span>{{ content | readingTime }} min read</span></p>
   </header>
   <figure class="article-hero">
-    <img src="{{ hero }}" alt="{{ heroAlt }}" width="1280" height="720" fetchpriority="high">
-    {%- if heroCaption %}<figcaption>{{ heroCaption }}</figcaption>{% endif %}
+    {% picture hero, heroAlt, "(min-width: 1152px) 1120px, 100vw", "eager", "high", "hero-image", title %}
+    {% if heroCaption %}<figcaption>{{ heroCaption }}</figcaption>{% endif %}
   </figure>
-  <div class="prose wrap-narrow">
-    {{ content | safe }}
-  </div>
-  <footer class="article-footer wrap-narrow">
-    {%- set articleTags = tags | default([]) -%}
-    {%- if articleTags.length %}
-    <ul class="tags" aria-label="Tags">
-      {%- for t in articleTags %}<li>{{ t }}</li>{% endfor %}
-    </ul>
-    {%- endif %}
+  <div class="prose reading-width">{{ content | safe }}</div>
+  <footer class="article-footer reading-width">
+    {% if tags.length %}<ul class="tags" aria-label="Article topics">{% for tag in tags %}<li>{{ tag }}</li>{% endfor %}</ul>{% endif %}
     <div class="follow">
-      <p>Follow Singularity Review for the stories that matter, every day.</p>
-      <p class="follow-links">
-        <a class="btn" href="{{ site.facebook }}" rel="noopener" target="_blank">Facebook</a>
-        <a class="btn" href="{{ site.instagram }}" rel="noopener" target="_blank">Instagram</a>
-      </p>
+      <p class="kicker">Stay in the loop</p>
+      <p>Follow the stories that matter.</p>
+      <div class="follow-links">{{ socialLink(site.facebook, "Facebook", true) }}{{ socialLink(site.instagram, "Instagram", true) }}</div>
     </div>
   </footer>
 </article>
-{%- set more = collections.articles | exclude(page.url) | limit(3) %}
-{%- if more.length %}
-<section class="more wrap" aria-labelledby="more-heading">
-  <h2 id="more-heading" class="section-title">More from Singularity Review</h2>
-  <div class="grid">
-    {%- for item in more %}{% set featured = false %}{% include "card.njk" %}{% endfor %}
-  </div>
-</section>
-{%- endif %}
+{% set more = collections.articles | exclude(page.url) | limit(4) %}
+{% if more.length %}<section class="read-next feed-width" aria-labelledby="next-heading">
+  <h2 class="section-title" id="next-heading">Read next</h2>
+  <div class="feed">{% asyncEach item in more %}{% set featured = false %}{% include "card.njk" %}{% endeach %}</div>
+</section>{% endif %}

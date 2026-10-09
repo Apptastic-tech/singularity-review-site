@@ -8,7 +8,7 @@ heroAlt: "Plain description of what the hero image shows"
 author: Singularity Review
 tags: ["Tag one", "Tag two"]
 ---
-First paragraph of the story. It gets the violet drop cap automatically.
+First paragraph of the story. The layout already prints the title and dek.
 
 Second paragraph. Use normal markdown: **bold**, *italic*, [links](https://example.com), lists, and quotes.
 
