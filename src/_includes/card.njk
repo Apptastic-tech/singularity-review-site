@@ -1,0 +1,11 @@
+<article class="card{% if featured %} card--featured{% endif %}">
+  <a class="card-media" href="{{ item.url }}" tabindex="-1" aria-hidden="true">
+    <img src="{{ item.data.hero }}" alt="{{ item.data.heroAlt }}" width="1280" height="720" {% if featured %}fetchpriority="high"{% else %}loading="lazy" decoding="async"{% endif %}>
+  </a>
+  <div class="card-body">
+    <p class="kicker"><a href="/category/{{ item.data.category | slugify }}/">{{ item.data.category }}</a></p>
+    <h2 class="card-title"><a href="{{ item.url }}">{{ item.data.title }}</a></h2>
+    <p class="card-dek">{{ item.data.description }}</p>
+    <p class="meta"><time datetime="{{ item.date | isoDate }}">{{ item.date | readableDate }}</time></p>
+  </div>
+</article>

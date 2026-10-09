@@ -1,0 +1,18 @@
+---
+layout: layouts/base.njk
+eleventyExcludeFromCollections: true
+---
+<section class="hero-intro wrap">
+  <p class="eyebrow">Daily briefing</p>
+  <h1 class="intro-title">{{ site.tagline }}</h1>
+  <p class="intro-text">Catching every AI headline is impossible. We cut to what matters, every day.</p>
+</section>
+
+<section class="feed wrap" aria-label="Latest articles">
+  {%- for item in collections.articles %}
+    {%- set featured = loop.first %}
+    {%- if loop.index == 2 %}<div class="grid">{% endif %}
+    {% include "card.njk" %}
+    {%- if loop.last and loop.length > 1 %}</div>{% endif %}
+  {%- endfor %}
+</section>

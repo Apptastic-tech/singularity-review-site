@@ -1,0 +1,12 @@
+{
+  "projects": {
+    "default": "apptastic-mobi"
+  },
+  "targets": {
+    "apptastic-mobi": {
+      "hosting": {
+        "site": ["singularity-review"]
+      }
+    }
+  }
+}

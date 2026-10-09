@@ -1,0 +1,46 @@
+---
+layout: layouts/base.njk
+---
+<article class="article">
+  <header class="article-header wrap-narrow">
+    <p class="kicker"><a href="/category/{{ category | slugify }}/">{{ category }}</a></p>
+    <h1 class="article-title">{{ title }}</h1>
+    <p class="article-dek">{{ description }}</p>
+    <p class="meta">
+      By {{ author }} <span aria-hidden="true">&middot;</span>
+      <time datetime="{{ page.date | isoDate }}">{{ page.date | readableDate }}</time>
+      <span aria-hidden="true">&middot;</span> {{ content | readingTime }} min read
+    </p>
+  </header>
+  <figure class="article-hero">
+    <img src="{{ hero }}" alt="{{ heroAlt }}" width="1280" height="720" fetchpriority="high">
+    {%- if heroCaption %}<figcaption>{{ heroCaption }}</figcaption>{% endif %}
+  </figure>
+  <div class="prose wrap-narrow">
+    {{ content | safe }}
+  </div>
+  <footer class="article-footer wrap-narrow">
+    {%- set articleTags = tags | default([]) -%}
+    {%- if articleTags.length %}
+    <ul class="tags" aria-label="Tags">
+      {%- for t in articleTags %}<li>{{ t }}</li>{% endfor %}
+    </ul>
+    {%- endif %}
+    <div class="follow">
+      <p>Follow Singularity Review for the stories that matter, every day.</p>
+      <p class="follow-links">
+        <a class="btn" href="{{ site.facebook }}" rel="noopener" target="_blank">Facebook</a>
+        <a class="btn" href="{{ site.instagram }}" rel="noopener" target="_blank">Instagram</a>
+      </p>
+    </div>
+  </footer>
+</article>
+{%- set more = collections.articles | exclude(page.url) | limit(3) %}
+{%- if more.length %}
+<section class="more wrap" aria-labelledby="more-heading">
+  <h2 id="more-heading" class="section-title">More from Singularity Review</h2>
+  <div class="grid">
+    {%- for item in more %}{% set featured = false %}{% include "card.njk" %}{% endfor %}
+  </div>
+</section>
+{%- endif %}

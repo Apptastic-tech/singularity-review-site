@@ -1,0 +1,22 @@
+---
+layout: layouts/base.njk
+pagination:
+  data: collections.categories
+  size: 1
+  alias: cat
+permalink: "/category/{{ cat.slug }}/"
+eleventyExcludeFromCollections: true
+eleventyComputed:
+  title: "{{ cat.name }}"
+  description: "{{ cat.name }} coverage from Singularity Review: AI news for people living through the singularity."
+---
+<section class="hero-intro wrap">
+  <p class="eyebrow">Section</p>
+  <h1 class="intro-title">{{ cat.name }}</h1>
+  <p class="intro-text">{{ cat.articles.length }} {{ "story" if cat.articles.length == 1 else "stories" }}, newest first.</p>
+</section>
+<section class="feed wrap" aria-label="{{ cat.name }} articles">
+  <div class="grid">
+    {%- for item in cat.articles %}{% set featured = false %}{% include "card.njk" %}{% endfor %}
+  </div>
+</section>

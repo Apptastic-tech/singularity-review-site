@@ -1,0 +1,19 @@
+{
+  "name": "singularity-review-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Singularity Review. AI news for people living through the singularity.",
+  "type": "module",
+  "scripts": {
+    "build": "eleventy",
+    "start": "eleventy --serve",
+    "clean": "rm -rf _site",
+    "deploy": "npm run clean && npm run build && firebase deploy --only hosting:site --project apptastic-mobi"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "@11ty/eleventy": "^3.1.6"
+  }
+}
