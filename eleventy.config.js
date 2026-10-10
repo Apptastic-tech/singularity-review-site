@@ -129,8 +129,7 @@ export default function (eleventyConfig) {
     if (url.startsWith('/articles/') && author && author !== defaultAuthor) return 'featured';
     return 'news';
   });
-  eleventyConfig.addFilter('initials', name => String(name || 'Singularity Review').trim().split(/\s+/)
-    .filter(Boolean).map(word => Array.from(word)[0]).filter(Boolean).slice(0, 2).join('').toUpperCase());
+
 
   // Categories: [{ name, slug, articles: [...] }], sorted by most recent article
   // Named (non-house) authors: [{ name, slug, articles }], newest article first.

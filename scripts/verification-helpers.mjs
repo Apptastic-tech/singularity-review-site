@@ -23,10 +23,10 @@ export const carouselLinks = html => [...html.matchAll(/class="carousel-story" h
 export const articleUrl = article => `/articles/${article.slug}/`;
 
 const menu = [
-  ['/', 'Singularity headline news'],
-  ['/featured/', 'Featured author articles'],
-  ['/what-is-singularity/', 'What is singularity'],
-  ['/about/', 'Who we are'],
+  ['/', 'News'],
+  ['/featured/', 'Featured'],
+  ['/what-is-singularity/', 'Explainer'],
+  ['/about/', 'About'],
 ];
 export function verifyNavigation(html, active = '/') {
   for (const className of ['desktop-nav', 'menu-links', 'no-js-nav', 'footer-links']) {

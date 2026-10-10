@@ -3,13 +3,14 @@ layout: layouts/base.njk
 ---
 {% from "icons.njk" import socialLink %}
 {% from "share.njk" import shareBar with context %}
+{% from "byline.njk" import byline %}
 {%- set shareUrl = page.url | absoluteUrl(site.url) -%}
 <article class="article">
   <header class="article-header reading-width">
     <a class="category-label category-link" href="/category/{{ category | slugify }}/">{{ category }}</a>
     <h1 class="article-title">{{ title }}</h1>
     <p class="article-dek">{{ description }}</p>
-    <p class="byline meta"><span>By {% if authorUrl %}<a class="byline-author" href="{{ authorUrl }}" rel="author">{{ author }}</a>{% else %}{{ author }}{% endif %}</span><time datetime="{{ page.date | isoDate }}">{{ page.date | readableDate }}</time><span>{{ content | readingTime }} min read</span></p>
+    <p class="byline meta">{{ byline(author, authorUrl, page.date, content | readingTime) }}</p>
     {{ shareBar(shareUrl, title, "compact") }}
   </header>
   <figure class="article-hero" data-article-hero>

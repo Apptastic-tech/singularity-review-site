@@ -1,6 +1,6 @@
 export default [
-  { label: 'Singularity headline news', url: '/', section: 'news' },
-  { label: 'Featured author articles', url: '/featured/', section: 'featured' },
-  { label: 'What is singularity', url: '/what-is-singularity/', section: 'singularity' },
-  { label: 'Who we are', url: '/about/', section: 'about' },
+  { label: 'News', url: '/', section: 'news' },
+  { label: 'Featured', url: '/featured/', section: 'featured' },
+  { label: 'Explainer', url: '/what-is-singularity/', section: 'singularity' },
+  { label: 'About', url: '/about/', section: 'about' },
 ];

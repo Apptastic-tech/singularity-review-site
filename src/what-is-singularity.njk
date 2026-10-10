@@ -1,14 +1,13 @@
 ---
 layout: layouts/base.njk
-title: What is singularity
+title: Explainer
 description: "A measured guide to the technological singularity: where the idea came from, why it matters for AI and which questions remain open."
 permalink: /what-is-singularity/
 eleventyExcludeFromCollections: true
 ---
 <article class="explainer">
   <header class="explainer-header reading-width">
-    <h1>What is singularity</h1>
-    <p class="explainer-lead">What happens when technology can improve the intelligence that creates it?</p>
+    <h1>What is the singularity?</h1>
   </header>
   <div class="prose reading-width">
     <p>The technological singularity is a hypothetical turning point at which technological change, often driven by intelligence beyond human capabilities, becomes so rapid or profound that familiar ways of predicting the future break down. It is a family of ideas, rather than a single agreed scientific theory or a date on the calendar.</p>
@@ -34,7 +33,7 @@ eleventyExcludeFromCollections: true
     {% if experts.length %}<div class="expert-grid">
       {% for expert in experts %}<article class="expert-card">
         <header class="expert-heading">
-          {% if expert.photo %}<img class="expert-photo" style="object-position: {{ expert.photoPosition or 'center 25%' }}" src="{{ expert.photo }}" alt="{{ expert.photoAlt or expert.name }}" width="96" height="120" loading="lazy">{% else %}<div class="expert-photo expert-photo--initials" aria-hidden="true">{{ expert.name | initials }}</div>{% endif %}
+          {% if expert.photo %}<img class="expert-photo" style="object-position: {{ expert.photoPosition or 'center 25%' }}" src="{{ expert.photo }}" alt="{{ expert.photoAlt or expert.name }}" width="96" height="120" loading="lazy">{% endif %}
           <div class="expert-identity">
             <h3>{{ expert.name }}</h3>
             <p class="expert-role">{{ expert.role }}</p>

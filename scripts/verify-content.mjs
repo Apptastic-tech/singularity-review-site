@@ -67,8 +67,10 @@ try {
   assert.deepEqual(carouselLinks(await html('index.html')), featured.map(articleUrl));
   assert.match(archive, /data-carousel-controls/);
   assert.match(archive, /aria-label="1 of \d+"/);
-  assert.match(archive, /class="author-avatar" src="\/images\/brand\/apple-touch-icon.png"/);
-  assert.match(archive, /class="author-avatar" aria-hidden="true">SR</);
+  assert.doesNotMatch(archive, /author-avatar|authorPhoto|<img[^>]+apple-touch-icon/);
+  assert.match(archive, /class="carousel-byline meta">By <a class="byline-author" href="\/authors\/ada-example\/" rel="author">Ada Example<\/a> <span aria-hidden="true">·<\/span> <time/);
+  assert.match(archive, /class="card-byline meta">By <a class="byline-author" href="\/authors\/ada-example\/"/);
+  assert.match(archive, /By Singularity Review <span aria-hidden="true">·<\/span>/);
   assert.ok(!archive.includes('/articles/draft-fixture/'));
   verifyNavigation(archive, '/featured/');
   verifyNavigation(await html('articles/house-featured/index.html'), '/');
@@ -109,7 +111,7 @@ try {
   await fixture('only-featured', 'section: featured\n');
   rebuild();
   assert.match(await html('index.html'), /No headline articles are published yet/);
-  assert.match(await html('index.html'), /<h1>Latest news<\/h1>/);
+  assert.match(await html('index.html'), /<h1>News<\/h1>/);
   assert.equal(carouselLinks(await html('index.html')).length, 1, 'A homepage without headlines still displays featured articles');
   assert.match(await html('index.html'), /src="\/js\/carousel\.js\?v=[^"]+" defer/);
   assert.ok(!(await html('featured/index.html')).includes('data-carousel-controls'));

@@ -43,7 +43,7 @@ if (headlines.length) {
   assert.ok(home.includes(lead.source.match(/^title: (.+)$/m)[1].replace(/^"|"$/g, '')), 'Lead is the actual newest news story');
   const firstCard = home.slice(home.indexOf('<article class="card'), home.indexOf('</article>', home.indexOf('<article class="card')));
   assert.ok(firstCard.indexOf('class="card-title"') < firstCard.indexOf('class="card-media"'), 'Lead headline precedes the photo');
-  assert.match(firstCard, /class="lead-byline meta"/);
+  assert.match(firstCard, /class="card-byline meta lead-byline"/);
   assert.match(firstCard, /<time datetime=/);
 }
 assert.doesNotMatch(home, /<h1>Singularity headline news<\/h1>/);
@@ -104,8 +104,8 @@ for (const size of [32, 48]) {
 const favicon = await text('src/favicon.svg');
 assert.match(favicon, /<image[^>]+href="data:image\/png;base64,/);
 assert.ok(!/<(?:circle|ellipse|path)\b/.test(favicon), 'Favicon embeds the real photographic crop');
-assert.match(await text('src/images/brand/wordmark.svg'), /data:image\/webp;base64,/);
-assert.match(home, /class="brand-mark"[^>]+blackhole-mark-80\.webp\?v=[a-f0-9]{10}/);
+assert.doesNotMatch(await text('src/images/brand/wordmark.svg'), /<image|font-style="italic"/);
+assert.doesNotMatch(home, /class="brand-mark"/);
 assert.match(home, /class="night-cover" data-cover/);
 assert.match(home, /class="cover-sky-image"[^>]+width="\d+" height="\d+"/);
 const coverSky = home.match(/<img[^>]*class="cover-sky-image"[^>]*>/)?.[0];
@@ -135,7 +135,7 @@ assert.ok(forbiddenTreatment.test('a { text-decoration: underline; }'), 'Style a
 assert.ok(!forbiddenTreatment.test(css), 'No link lines, capsules or glass surfaces');
 assert.ok(!/\.desktop-nav\s*>\s*a[^{}]*::after/.test(css), 'Navigation has no decorative active rule');
 assert.match(css, /\.reaction\s*\{[^}]*border:\s*0;[^}]*background:\s*transparent;/);
-assert.match(css, /\.tags li\s*\{[^}]*text-transform:\s*uppercase;/);
+assert.doesNotMatch(css, /\.tags li\s*\{[^}]*letter-spacing/);
 assert.match(css, /\.feed-width\s*\{[^}]*width:\s*100%;[^}]*max-width:\s*1248px/);
 assert.match(css, /@view-transition\s*\{\s*navigation:\s*auto;/);
 assert.match(css, /view-transition-name:\s*masthead/);

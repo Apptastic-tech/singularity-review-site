@@ -88,9 +88,9 @@ try {
   const masthead = await page.evaluate(() => {
     const brand = document.querySelector('.brand').getBoundingClientRect();
     const toggle = document.querySelector('[data-menu-toggle]').getBoundingClientRect();
-    return { center: brand.x + brand.width / 2, toggleWidth: toggle.width, toggleHeight: toggle.height };
+    return { left: brand.x, toggleWidth: toggle.width, toggleHeight: toggle.height };
   });
-  assert.ok(Math.abs(masthead.center - 195) < 1, 'Equal left and right masthead slots');
+  assert.equal(masthead.left, 20, 'Wordmark is left aligned in the compact masthead');
   assert.ok(masthead.toggleWidth >= 44 && masthead.toggleHeight >= 44, 'Menu hit area');
   const coverHeight = await page.locator('.night-cover').evaluate(el => el.getBoundingClientRect().height);
   await page.locator('[data-motion-toggle]').click();
@@ -104,11 +104,11 @@ try {
   assert.ok(await page.locator('.menu-links a').first().evaluate(el => parseFloat(getComputedStyle(el).fontSize) >= 32));
   assert.equal(await page.locator('[data-menu-toggle]').getAttribute('aria-expanded'),'true');
   assert.equal(await page.evaluate(()=>document.querySelector('main').inert),true);
-  assert.equal(await page.evaluate(()=>document.activeElement.textContent),'Singularity headline news');
+  assert.equal(await page.evaluate(()=>document.activeElement.textContent),'News');
   await page.keyboard.press('Shift+Tab');
   assert.equal(await page.evaluate(()=>document.activeElement.hasAttribute('data-menu-toggle')),true);
   await page.keyboard.press('Shift+Tab');
-  assert.equal(await page.evaluate(()=>document.activeElement.textContent.trim()),'RSS');
+  assert.equal(await page.evaluate(()=>document.activeElement.textContent.trim()),'About');
   await page.keyboard.press('Escape');
   assert.equal(await page.locator('[data-menu-toggle]').getAttribute('aria-expanded'),'false');
   await page.waitForFunction(() => !document.querySelector('main').inert);
@@ -136,7 +136,7 @@ try {
   await page.waitForFunction(expected=>document.querySelectorAll('[data-card]').length===expected, headlineCount);
   assert.equal(await page.locator('[data-load-more]').count(),0);
   assert.equal(await page.locator('.desktop-nav a').count(), 4);
-  assert.equal(await page.locator('.desktop-nav [aria-current]').textContent(), 'Singularity headline news');
+  assert.equal(await page.locator('.desktop-nav [aria-current]').textContent(), 'News');
   const noJS=await browser.newContext({javaScriptEnabled:false,viewport:{width:390,height:844}});
   const fallback=await noJS.newPage();await fallback.goto(url);
   assert.ok(await fallback.locator('.card-image').first().isVisible());
@@ -249,25 +249,28 @@ try {
       if (width >= 960) {
         assert.equal(headerGap.activeDecoration, 'none');
         assert.ok(['none', 'normal'].includes(headerGap.activeAfter), 'Current destination has no decorative rule');
-        assert.ok(headerGap.activeWeight >= 700 && headerGap.navSize >= 19, 'Large weighted navigation');
+        assert.equal(headerGap.activeWeight, 400, 'Navigation keeps the same regular weight');
+        assert.equal(headerGap.navSize, 16, 'Short destination labels fit the single masthead row');
+        assert.equal(await page.locator('.site-header').evaluate(el => el.getBoundingClientRect().height), 72);
+        assert.equal(await page.locator('.site-header img').count(), 0);
       }
-      if (route === '/featured/') assert.equal(await page.locator('.shelf-heading h2').textContent(), "Editor's picks");
+      if (route === '/featured/') assert.equal(await page.locator('.shelf-heading h2').textContent(), 'Featured');
       if (route === '/what-is-singularity/' && experts.length) {
         const portraits = await page.locator('.expert-photo').evaluateAll(elements => elements.map(element => ({
           width: element.getBoundingClientRect().width,
           height: element.getBoundingClientRect().height,
           position: element.style.objectPosition
         })));
-        assert.equal(portraits.length, experts.length);
+        assert.equal(portraits.length, experts.filter(expert => expert.photo).length);
         for (const [index, portrait] of portraits.entries()) {
           assert.equal(portrait.width, width >= 960 ? 104 : 96);
           assert.equal(portrait.height, portrait.width * 1.25);
-          if (experts[index].photo) assert.equal(portrait.position, experts[index].photoPosition || 'center 25%');
+          if (experts.filter(expert => expert.photo)[index].photo) assert.equal(portrait.position, experts.filter(expert => expert.photo)[index].photoPosition || 'center 25%');
         }
         const columns = await page.locator('.expert-grid').evaluate(element => getComputedStyle(element).gridTemplateColumns.split(' ').length);
         assert.equal(columns, width >= 960 ? 2 : 1);
-        assert.equal(await page.locator('.photo-credit a').count(), experts.filter(expert => expert.photo && expert.credit).length * 3);
-        assert.equal(await page.locator('.expert-photo--initials').count(), experts.filter(expert => !expert.photo).length);
+        assert.equal(await page.locator('.explainer .photo-credit a').count(), experts.filter(expert => expert.photo && expert.credit).length * 3);
+        assert.equal(await page.locator('.expert-photo--initials').count(), 0);
       }
       await page.screenshot({path:path.join(root, `.audit/browser-check/${route.split('/')[1]}-${name}.png`),fullPage:true});
     }

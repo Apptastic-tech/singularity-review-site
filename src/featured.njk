@@ -1,13 +1,13 @@
 ---
 layout: layouts/base.njk
-title: Featured author articles
+title: Featured
 description: "Personal perspectives, reviews and analysis from the authors of Singularity Review."
 permalink: /featured/
 hasCarousel: true
 eleventyExcludeFromCollections: true
 ---
 <header class="feed-intro feed-width">
-  <h1>Featured author articles</h1>
+  <h1>Featured</h1>
 </header>
 {% ifAsync collections.featured.length %}
   {% set carouselItems = collections.featured %}
@@ -16,4 +16,4 @@ eleventyExcludeFromCollections: true
     <h2 class="archive-title" id="featured-archive">All featured articles</h2>
     {% asyncEach item in collections.featured %}{% set featured = false %}{% include "card.njk" %}{% endeach %}
   </section>
-{% else %}<p class="empty-state reading-width">Our authors' next articles will appear here. Read the latest <a href="/">Singularity headline news</a>.</p>{% endif %}
+{% else %}<p class="empty-state reading-width">Our authors' next articles will appear here. Read the latest <a href="/">News</a>.</p>{% endif %}

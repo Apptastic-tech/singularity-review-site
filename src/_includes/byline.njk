@@ -1,0 +1,3 @@
+{% macro byline(name, url, date, minutes) -%}
+By {% if url %}<a class="byline-author" href="{{ url }}" rel="author">{{ name }}</a>{% else %}{{ name }}{% endif %} <span aria-hidden="true">·</span> <time datetime="{{ date | isoDate }}">{{ date | readableDate }}</time>{% if minutes %} <span aria-hidden="true">·</span> {{ minutes }} min read{% endif %}
+{%- endmacro %}

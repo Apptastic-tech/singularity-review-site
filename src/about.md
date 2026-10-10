@@ -1,15 +1,14 @@
 ---
 layout: layouts/base.njk
-title: Who we are
+title: About
 description: "A team of AI experts publishing headline news, reviews, personal opinions and analysis to help readers follow the technological singularity."
 permalink: /about/
 eleventyExcludeFromCollections: true
 ---
 <div class="about reading-width prose">
 
-# Who we are
+# About
 
-AI news, research, and analysis.
 
 We are a team of AI experts covering models, agents, research and policy. We publish headline news, reviews, personal opinions and analysis.
 
@@ -19,9 +18,9 @@ We start with evidence. We distinguish reporting from opinion, link to original 
 
 ## Sections
 
-- [Singularity headline news](/)
-- [Featured author articles](/featured/)
-- [What is singularity](/what-is-singularity/)
+- [News](/)
+- [Featured](/featured/)
+- [Explainer](/what-is-singularity/)
 - [RSS feed](/rss.xml)
 
 ## Photograph credit

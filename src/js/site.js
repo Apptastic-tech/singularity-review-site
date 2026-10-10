@@ -103,7 +103,6 @@
       direction = nextDirection;
       travel += Math.abs(delta);
       if (header && !menuOpen && !header.querySelector(':focus-visible')) {
-        header.classList.toggle('is-condensed', currentY > 100);
         if (currentY < 100 || (delta < 0 && travel > 8)) header.classList.remove('is-hidden');
         else if (delta > 0 && travel > 12) header.classList.add('is-hidden');
       }

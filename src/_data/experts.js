@@ -1,7 +1,7 @@
 // Experts shown on /what-is-singularity/. Photos are self-hosted copies of Wikimedia Commons files (see credit).
 // Schema: { slug, name, role, stanceType: "proponent" | "skeptic" | "pioneer", stance, photo, photoAlt, photoPosition,
 //           credit: { author, authorUrl, license, licenseUrl, sourceUrl }, works: [{ title, year, url }] }
-// photo may be null when no freely licensed portrait exists; templates then show initials.
+// photo may be null when no freely licensed portrait exists; templates then omit the portrait.
 export default [
   {
     slug: "john-von-neumann",

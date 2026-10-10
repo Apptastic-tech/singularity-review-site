@@ -1,6 +1,6 @@
 ---
 layout: layouts/base.njk
-title: Singularity headline news
+title: News
 description: "AI news, research, and analysis"
 pagination:
   data: collections.headlines
@@ -21,11 +21,11 @@ eleventyExcludeFromCollections: true
 </div>
 {% else %}
 <header class="feed-intro feed-width">
-  <h1>Singularity headline news</h1>
+  <h1>News</h1>
   {% if pagination.pageNumber > 0 %}<p class="meta">Page {{ pagination.pageNumber + 1 }}</p>{% endif %}
 </header>
 {% endif %}
-<section class="feed headline-feed feed-width" aria-label="Singularity headline news" data-feed>
+<section class="feed headline-feed feed-width" aria-label="News" data-feed>
   {% if feedItems.length %}
   {% asyncEach item in feedItems %}
     {% set featured = loop.first %}
@@ -36,7 +36,7 @@ eleventyExcludeFromCollections: true
       {% include "carousel.njk" %}
     {% endif %}
   {% endeach %}
-  {% else %}<header class="feed-intro"><h1>Latest news</h1><p class="empty-state">No headline articles are published yet. Read <a href="/featured/">Featured author articles</a>.</p></header>{% endif %}
+  {% else %}<header class="feed-intro"><h1>News</h1><p class="empty-state">No headline articles are published yet. Read <a href="/featured/">Featured</a>.</p></header>{% endif %}
 </section>
 {% ifAsync not feedItems.length and pagination.pageNumber == 0 and collections.featured.length %}
   {% set carouselItems = collections.featured %}
