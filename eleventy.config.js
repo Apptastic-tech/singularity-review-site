@@ -100,6 +100,24 @@ export default function (eleventyConfig) {
   );
 
   // Categories: [{ name, slug, articles: [...] }], sorted by most recent article
+  // Named (non-house) authors: [{ name, slug, articles }], newest article first.
+  // An article has a named author when frontmatter `author` is set and differs from site.defaultAuthor.
+  eleventyConfig.addCollection("authors", (api) => {
+    const map = new Map();
+    const articles = api
+      .getFilteredByGlob("src/articles/*.md")
+      .filter((item) => !item.data.draft)
+      .sort((a, b) => b.date - a.date);
+    for (const item of articles) {
+      const name = item.data.author;
+      if (!name || name === item.data.site?.defaultAuthor) continue;
+      const slug = slugify(name);
+      if (!map.has(slug)) map.set(slug, { name, slug, articles: [] });
+      map.get(slug).articles.push(item);
+    }
+    return [...map.values()].sort((a, b) => a.name.localeCompare(b.name));
+  });
+
   eleventyConfig.addCollection("categories", (api) => {
     const articles = api
       .getFilteredByGlob("src/articles/*.md")

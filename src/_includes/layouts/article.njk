@@ -7,7 +7,7 @@ layout: layouts/base.njk
     <a class="kicker category-link" href="/category/{{ category | slugify }}/">{{ category }}</a>
     <h1 class="article-title">{{ title }}</h1>
     <p class="article-dek">{{ description }}</p>
-    <p class="byline meta"><span>By {{ author }}</span><time datetime="{{ page.date | isoDate }}">{{ page.date | readableDate }}</time><span>{{ content | readingTime }} min read</span></p>
+    <p class="byline meta"><span>By {% if authorUrl %}<a class="byline-author" href="{{ authorUrl }}" rel="author">{{ author }}</a>{% else %}{{ author }}{% endif %}</span><time datetime="{{ page.date | isoDate }}">{{ page.date | readableDate }}</time><span>{{ content | readingTime }} min read</span></p>
   </header>
   <figure class="article-hero">
     {% picture hero, heroAlt, "(min-width: 1152px) 1120px, 100vw", "eager", "high", "hero-image", title %}

@@ -11,6 +11,9 @@ eleventyExcludeFromCollections: true
   {%- for cat in collections.categories %}
   <url><loc>{{ site.url }}/category/{{ cat.slug }}/</loc><lastmod>{{ cat.articles[0].date | shortDate }}</lastmod></url>
   {%- endfor %}
+  {%- for person in collections.authors %}
+  <url><loc>{{ site.url }}/authors/{{ person.slug }}/</loc><lastmod>{{ person.articles[0].date | shortDate }}</lastmod></url>
+  {%- endfor %}
   {%- for item in collections.articles %}
   <url><loc>{{ item.url | absoluteUrl(site.url) }}</loc><lastmod>{{ (item.data.updated or item.date) | shortDate }}</lastmod></url>
   {%- endfor %}
