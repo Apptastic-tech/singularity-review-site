@@ -12,17 +12,16 @@ homeFeed: true
 hasCarousel: true
 eleventyExcludeFromCollections: true
 ---
-<header class="feed-intro feed-width">
+<header class="feed-intro feed-intro--home feed-width">
   <p class="kicker">The latest developments in AI</p>
   <h1>Singularity headline news</h1>
-  <p class="intro-dek">{{ site.tagline }}.</p>
   {% if pagination.pageNumber > 0 %}<p class="meta">Page {{ pagination.pageNumber + 1 }}</p>{% endif %}
 </header>
 {% ifAsync pagination.pageNumber == 0 and collections.featured.length %}
   {% set carouselItems = collections.featured %}
   {% include "carousel.njk" %}
 {% endif %}
-<section class="feed feed-width" aria-label="Singularity headline news" data-feed>
+<section class="feed headline-feed feed-width" aria-label="Singularity headline news" data-feed>
   {% if feedItems.length %}
   {% asyncEach item in feedItems %}
     {% set featured = loop.first %}

@@ -29,7 +29,7 @@ Inter Tight Variable provides UI, metadata, chips, navigation, and labels, with 
 
 `src/images/brand/wordmark.svg` pairs a thin amber orbit and off-center dot with tracked SINGULARITY and italic Review. The SVG uses portable sans and serif fallbacks, so its external-image rendering does not depend on font downloads. The mobile header centers it within a 72px masthead; the desktop masthead places it above the inline four-link navigation. Scroll condensation uses transforms within fixed header dimensions, preserving the story layout. `src/favicon.svg` uses the mark alone. Run `node scripts/prepare-brand.mjs` to regenerate the 180x180 Apple touch icon with sharp. Supply a background image as its argument to also regenerate the 1200x630 default social image with the wordmark and tagline overlay.
 
-Article photographs show physical settings for the stories: infrastructure, knowledge, and governance. The feed crops them 4:5 on mobile (capped at 68svh) and 4:3 from 640px upward. Article heroes retain their intrinsic ratio. Original JPG URLs remain available for social sharing and RSS.
+Article photographs show physical settings for the stories: infrastructure, knowledge, and governance. The feed crops them 4:5 on mobile (capped at 68svh) and 4:3 from 640px upward. The first homepage news card uses a 16:9 mobile crop so its headline enters the first screen. Article heroes retain their intrinsic ratio. Original JPG URLs remain available for social sharing and RSS.
 
 ## Spacing and interaction
 
@@ -37,10 +37,10 @@ Article photographs show physical settings for the stories: infrastructure, know
 - Card radius: 20px, with a 1px border. No elevation or decorative glows.
 - Cards: height follows content. The photograph dominates: 4:5 on mobile (max 68svh), 4:3 at full card width from 640px, feed column up to 760px.
 - Card padding: 20px to 24px on mobile, 28px to 32px on desktop. Space between cards: 28px to 40px.
-- Mobile masthead: 72px, with a 48px menu toggle. The open menu fills the viewport below it. Desktop masthead: 64px above a 54px navigation row, which remains visible when condensed.
+- Mobile masthead: 72px, with equal 48px side slots and a 48px menu toggle. The wordmark compensates optically for its internal trailing space. The open menu fills the viewport below it. Desktop masthead: 64px above a 54px navigation row, which remains visible when condensed. The current underline meets the header's bottom rule.
 - Buttons, burger, social icons, navigation and footer links: at least 48x48px. Category chips and topic labels: at least 44px tall, with category links at least 48px wide.
 - Visible amber focus rings. Menu keyboard focus is contained while open; Escape closes and restores focus. Background regions become inert while the menu is open.
-- Proximity scroll snapping frames feed cards. Motion explains navigation state or gently enlarges photographs on hover. Reduced motion disables transitions, zoom, and snapping.
+- Proximity scroll snapping frames feed cards. Its top offset follows the complete header height, including its border: 73px on mobile and 119px on desktop. Desktop page introductions begin at least 48px below the header. Motion explains navigation state or gently enlarges photographs on hover. Reduced motion disables transitions, zoom, and snapping.
 - Social buttons float only from 960px upward. Mobile keeps them in the menu and footer, plus the article follow section.
 
 ## Navigation and sections
@@ -49,6 +49,6 @@ The four primary destinations are Singularity headline news, Featured author art
 
 Category chips no longer appear in the header. Categories remain available from article kickers and the footer Topics list. Social links and RSS remain secondary menu and footer controls.
 
-A ruled author shelf sits between the homepage section introduction and the headline feed. Landscape thumbnails, smaller essay titles and amber initials distinguish it from the large headline cards. The archive uses the same shelf above all featured articles. Multiple slides have 44px previous and next buttons plus a visible pause/play control. Native horizontal scrolling provides touch browsing. Auto-advance runs every five seconds only while the shelf has room to scroll and is idle; reduced motion disables it entirely.
+A ruled author shelf sits between the compact homepage section heading and the headline feed. Smaller essay titles and amber initials distinguish it from the large headline cards. On mobile, a single homepage essay uses a 104px thumbnail beside its title and author; multiple essays retain the horizontal landscape carousel. The featured archive labels its shelf "Editor's picks" above all featured articles. Multiple slides have 44px previous and next buttons plus a visible pause/play control. Native horizontal scrolling provides touch browsing. Auto-advance runs every five seconds only while the shelf has room to scroll and is idle; reduced motion disables it entirely. Shelf links reserve space for focus outlines inside the track padding, and the track's outline is inset to avoid clipping. Navigation outlines clear their labels. The mobile footer presents the four destinations in a ruled two-column index.
 
-The explainer follows a reading column before widening into a two-column expert directory on larger screens. Expert portraits use supplied positioning, initials fill missing portraits, stance labels remain textual, and photo credits link to attribution, source and licence pages.
+The explainer follows a reading column before widening into a two-column expert directory from 960px. Each profile starts with a 4:5 portrait beside the name, role and stance label: 96 by 120px on mobile, 104 by 130px on desktop. The stance and original works follow below. Portraits use supplied positioning, initials fill missing portraits, and small inline photo credits link to attribution, source and licence pages. Inline references retain normal sentence flow; standalone works and navigation retain large touch targets. Long labels wrap at narrow zoom widths.

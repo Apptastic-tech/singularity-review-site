@@ -6,6 +6,7 @@ import { createRequire } from 'node:module';
 import { spawnSync } from 'node:child_process';
 import assert from 'node:assert/strict';
 import { publishedArticles } from './verification-helpers.mjs';
+import experts from '../src/_data/experts.js';
 
 // Use an existing runtime. This script never installs packages or browsers.
 const root=process.cwd();
@@ -63,6 +64,13 @@ try {
     title:parseFloat(getComputedStyle(document.querySelector('.card-title')).fontSize)
   }));
   assert.equal(layout.overflow,false);assert.equal(layout.header,72);assert.equal(layout.card,374);assert.ok(layout.title>=30);
+  const masthead = await page.evaluate(() => {
+    const brand = document.querySelector('.brand').getBoundingClientRect();
+    const toggle = document.querySelector('[data-menu-toggle]').getBoundingClientRect();
+    return { center: brand.x + brand.width / 2, toggleWidth: toggle.width, toggleHeight: toggle.height };
+  });
+  assert.ok(Math.abs(masthead.center - 195) < 1, 'Equal left and right masthead slots');
+  assert.ok(masthead.toggleWidth >= 44 && masthead.toggleHeight >= 44, 'Menu hit area');
   await page.locator('[data-menu-toggle]').click();
   assert.equal(await page.locator('[data-menu-toggle]').getAttribute('aria-expanded'),'true');
   assert.equal(await page.evaluate(()=>document.querySelector('main').inert),true);
@@ -78,6 +86,7 @@ try {
   await page.locator('[data-menu-toggle]').click();
   assert.equal(await page.evaluate(() => document.body.style.position), 'fixed');
   await page.setViewportSize({width:1440,height:1000});
+  await page.waitForFunction(() => document.querySelector('[data-menu-toggle]').getAttribute('aria-expanded') === 'false');
   assert.equal(await page.locator('[data-menu-toggle]').getAttribute('aria-expanded'),'false');
   await page.evaluate(()=>document.activeElement.blur());
   await page.evaluate(()=>window.scrollTo(0,800));
@@ -121,7 +130,12 @@ try {
   assert.equal(await page.locator('[data-carousel-slide]').count(), featuredCount);
   await page.locator('[data-carousel-track]').focus();
   await page.keyboard.press('ArrowRight');
-  await page.waitForFunction(() => document.querySelector('[data-carousel-track]').scrollLeft > 10);
+  await page.waitForFunction(() => {
+    const track = document.querySelector('[data-carousel-track]');
+    const slides = track.querySelectorAll('[data-carousel-slide]');
+    const step = slides[1].getBoundingClientRect().left - slides[0].getBoundingClientRect().left;
+    return Math.abs(track.scrollLeft - step) < 5;
+  });
   await page.locator('[data-carousel-prev]').click();
   await page.waitForFunction(() => document.querySelector('[data-carousel-track]').scrollLeft < 2);
   await page.locator('[data-carousel-play]').click();
@@ -129,13 +143,22 @@ try {
   await page.evaluate(() => document.activeElement.blur());
   await page.mouse.move(0, 0);
   await page.clock.install();
+  await page.clock.runFor(32);
   await page.clock.fastForward(6000);
   assert.equal(await page.locator('[data-carousel-track]').evaluate(el => el.scrollLeft), 0);
   await page.locator('[data-carousel-play]').click();
   await page.evaluate(() => document.activeElement.blur());
   await page.mouse.move(0, 0);
+  await page.clock.runFor(32);
   await page.clock.fastForward(6000);
   await page.clock.runFor(1000);
+  // Native smooth scrolling follows compositor time, independently of the mock clock.
+  await page.waitForFunction(() => {
+    const track = document.querySelector('[data-carousel-track]');
+    const slides = track.querySelectorAll('[data-carousel-slide]');
+    const step = slides[1].getBoundingClientRect().left - slides[0].getBoundingClientRect().left;
+    return Math.abs(track.scrollLeft - step) < 5;
+  });
   assert.ok(await page.locator('[data-carousel-track]').evaluate(el => el.scrollLeft) > 10);
   await page.locator('[data-carousel-track]').focus();
   let held = await page.locator('[data-carousel-track]').evaluate(el => el.scrollLeft);
@@ -160,6 +183,7 @@ try {
   assert.equal(await page.locator('[data-carousel-track]').evaluate(el => el.scrollLeft), held);
   await page.evaluate(() => { delete document.hidden; document.dispatchEvent(new Event('visibilitychange')); });
   await page.emulateMedia({reducedMotion:'reduce'});
+  await page.waitForFunction(() => document.querySelector('[data-carousel-play]').textContent === 'Auto-advance off');
   assert.equal(await page.locator('[data-carousel-play]').textContent(), 'Auto-advance off');
   held = await page.locator('[data-carousel-track]').evaluate(el => el.scrollLeft);
   await page.clock.fastForward(6000);
@@ -172,6 +196,36 @@ try {
     for (const [name,width,height] of [['mobile',390,844],['tablet',1024,900],['desktop',1440,1000]]) {
       await page.setViewportSize({width,height}); await page.goto(`${url}${route}`); await page.evaluate(() => document.fonts.ready);
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `${route} ${name}`);
+      const headerGap = await page.evaluate(() => {
+        const header = document.querySelector('.site-header').getBoundingClientRect();
+        const kicker = document.querySelector('main .kicker').getBoundingClientRect();
+        const active = document.querySelector('.desktop-nav [aria-current]');
+        return {
+          gap: kicker.top - header.bottom,
+          underlineBottom: active.getBoundingClientRect().bottom - parseFloat(getComputedStyle(active, '::after').bottom),
+          headerBottom: header.bottom
+        };
+      });
+      assert.ok(headerGap.gap >= (width >= 960 ? 36 : 20), `${route} ${name}: breathing room below masthead`);
+      if (width >= 960) assert.ok(Math.abs(headerGap.underlineBottom - headerGap.headerBottom) < 1, 'Current underline meets bar bottom');
+      if (route === '/featured/') assert.equal(await page.locator('.shelf-heading h2').textContent(), "Editor's picks");
+      if (route === '/what-is-singularity/' && experts.length) {
+        const portraits = await page.locator('.expert-photo').evaluateAll(elements => elements.map(element => ({
+          width: element.getBoundingClientRect().width,
+          height: element.getBoundingClientRect().height,
+          position: element.style.objectPosition
+        })));
+        assert.equal(portraits.length, experts.length);
+        for (const [index, portrait] of portraits.entries()) {
+          assert.equal(portrait.width, width >= 960 ? 104 : 96);
+          assert.equal(portrait.height, portrait.width * 1.25);
+          if (experts[index].photo) assert.equal(portrait.position, experts[index].photoPosition || 'center 25%');
+        }
+        const columns = await page.locator('.expert-grid').evaluate(element => getComputedStyle(element).gridTemplateColumns.split(' ').length);
+        assert.equal(columns, width >= 960 ? 2 : 1);
+        assert.equal(await page.locator('.photo-credit a').count(), experts.filter(expert => expert.photo && expert.credit).length * 3);
+        assert.equal(await page.locator('.expert-photo--initials').count(), experts.filter(expert => !expert.photo).length);
+      }
       await page.screenshot({path:path.join(root, `.audit/browser-check/${route.split('/')[1]}-${name}.png`),fullPage:true});
     }
   }

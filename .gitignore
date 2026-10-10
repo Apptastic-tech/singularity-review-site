@@ -4,3 +4,4 @@ _site/
 firebase-debug.log
 .DS_Store
 .audit/
+.playwright-mcp/

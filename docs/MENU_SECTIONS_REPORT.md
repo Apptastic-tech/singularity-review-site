@@ -1,6 +1,23 @@
 # Header and sections redesign
 
-The implementation builds and its site and publishing regressions pass. Rendered mobile, tablet and desktop verification remains blocked by this execution environment. No visual quality pass or browser interaction pass is claimed.
+The second pass builds and passes the site, publishing and browser regressions. The current layouts were rendered and visually reviewed at 390, 1024 and 1440px. The first-pass implementation and its historical environment limitations are recorded below.
+
+## Second pass: 10 October 2026
+
+- Expert profiles now use a 96 by 120px mobile portrait beside the name, role and stance label. Desktop uses 104 by 130px portraits in a two-column directory from 960px. The stance and linked works sit below, with small inline credits. Every attribution and work link, supplied photo position and the I. J. Good initials fallback remains present. At 390px the explainer measures about 9,070px, down from the supplied first-pass screenshot's 12,257px.
+- The featured archive shelf is labelled "Editor's picks", distinguishing it from the page title. Mobile shelf headings reserve a clear row for the view-all link; focus outlines fit within the shelf's scrolling area without crossing the article text.
+- The sticky header's full height now determines the scroll-snap offset: 73px on mobile and 119px on desktop. This prevents the initial desktop snap from pulling the page introduction under the navigation. Desktop introductions have at least 48px of space below the bar, and the current underline meets its bottom rule.
+- Mobile masthead slots are explicitly symmetrical. The supplied wordmark receives a small optical correction for its internal trailing space. The menu button retains a 48 by 48px hit area, and navigation focus outlines clear the destination text.
+- The homepage uses a smaller section heading, with the publication tagline retained in the menu and footer. Its single mobile essay becomes a compact thumbnail-and-title feature. A landscape crop on the first homepage news card brings its headline to about 746px from the page top at 390px, inside the initial 844px viewport. Other feed cards retain their existing photograph treatment.
+- The mobile footer is a compact ruled two-column destination index. Long expert labels and explainer headings reflow at narrow zoom widths.
+
+Verification: `npm run build`, `node scripts/verify-site.mjs`, `node scripts/verify-content.mjs` and `node scripts/verify-browser.mjs` pass. The browser regression now checks masthead centring and hit area, page-header spacing, the desktop underline, the shelf label, portrait sizes and positioning, directory columns, every credit link and missing-image initials. Existing carousel checks now wait for completed native scrolling and asynchronous preference or resize events. Carousel behaviour itself was not changed.
+
+Additional loaded-image captures cover the homepage, featured archive, explainer, about page, a news article, category, author and 404 page at all three widths. They verify first-screen headline placement, portrait loading, menu/carousel/footer keyboard focus and reflow at half-width zoom equivalents. Evidence is retained in `.audit/r2/`; the skill audit keeps immutable before and after captures in `.audit/anti-ai-slop/`.
+
+Article markdown, expert and organisation data, URLs, share/reaction code, the legacy-host redirect, asset hashing and dependencies remain unchanged. This pass is uncommitted; no push or deployment was performed.
+
+## First pass record
 
 ## Decisions and implementation
 

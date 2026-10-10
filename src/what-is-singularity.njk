@@ -34,10 +34,14 @@ eleventyExcludeFromCollections: true
     <h2 id="experts-heading">The people behind the idea</h2>
     {% if experts.length %}<div class="expert-grid">
       {% for expert in experts %}<article class="expert-card">
-        {% if expert.photo %}<img class="expert-photo" style="object-position: {{ expert.photoPosition or 'center 25%' }}" src="{{ expert.photo }}" alt="{{ expert.photoAlt or expert.name }}" width="480" height="360" loading="lazy">{% else %}<div class="expert-photo expert-photo--initials" aria-hidden="true">{{ expert.name | initials }}</div>{% endif %}
-        <h3>{{ expert.name }}</h3>
-        <p class="expert-role">{{ expert.role }}</p>
-        <span class="stance-badge">{{ expert.stanceType | capitalize }}</span>
+        <header class="expert-heading">
+          {% if expert.photo %}<img class="expert-photo" style="object-position: {{ expert.photoPosition or 'center 25%' }}" src="{{ expert.photo }}" alt="{{ expert.photoAlt or expert.name }}" width="96" height="120" loading="lazy">{% else %}<div class="expert-photo expert-photo--initials" aria-hidden="true">{{ expert.name | initials }}</div>{% endif %}
+          <div class="expert-identity">
+            <h3>{{ expert.name }}</h3>
+            <p class="expert-role">{{ expert.role }}</p>
+            <span class="stance-badge">{{ expert.stanceType | capitalize }}</span>
+          </div>
+        </header>
         <p class="expert-stance">{{ expert.stance }}</p>
         {% if expert.works.length %}<ul class="expert-works" aria-label="Key works by {{ expert.name }}">{% for work in expert.works %}<li><a href="{{ work.url }}" rel="noopener">{{ work.title }}{% if work.year %} ({{ work.year }}){% endif %}</a></li>{% endfor %}</ul>{% endif %}
         {% if expert.photo and expert.credit %}<p class="photo-credit">Photo: <a href="{{ expert.credit.authorUrl or expert.credit.sourceUrl }}" rel="noopener">{{ expert.credit.author }}</a>, <a href="{{ expert.credit.licenseUrl }}" rel="noopener">{{ expert.credit.license }}</a> via <a href="{{ expert.credit.sourceUrl }}" rel="noopener">Wikimedia Commons</a></p>{% endif %}
