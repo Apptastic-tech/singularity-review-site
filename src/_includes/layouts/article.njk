@@ -12,8 +12,8 @@ layout: layouts/base.njk
     <p class="byline meta"><span>By {% if authorUrl %}<a class="byline-author" href="{{ authorUrl }}" rel="author">{{ author }}</a>{% else %}{{ author }}{% endif %}</span><time datetime="{{ page.date | isoDate }}">{{ page.date | readableDate }}</time><span>{{ content | readingTime }} min read</span></p>
     {{ shareBar(shareUrl, title, "compact") }}
   </header>
-  <figure class="article-hero">
-    {% picture hero, heroAlt, "(min-width: 1152px) 1120px, 100vw", "eager", "high", "hero-image", title %}
+  <figure class="article-hero" data-article-hero>
+    {% picture hero, heroAlt, "(min-width: 1440px) 1440px, 100vw", "eager", "high", "hero-image", title %}
     {% if heroCaption %}<figcaption>{{ heroCaption }}</figcaption>{% endif %}
   </figure>
   <div class="prose reading-width">{{ content | safe }}</div>

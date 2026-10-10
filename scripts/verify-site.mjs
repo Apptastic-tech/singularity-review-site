@@ -66,14 +66,56 @@ for(let page=2;page<=totalPages;page++) {
 }
 if(totalPages<=1) assert.equal(await fs.access(path.join(out,'page')).then(()=>true,()=>false),false);
 const formats = new Map();
-for (const file of await fs.readdir(path.join(out,'img'))) {
-  const meta = await sharp(path.join(out,'img',file)).metadata();
+for (const entry of await fs.readdir(path.join(out,'img'), { withFileTypes: true })) {
+  if (entry.isDirectory()) { assert.equal(entry.name, 'brand', 'Only brand variants have a separate directory'); continue; }
+  const meta = await sharp(path.join(out,'img',entry.name)).metadata();
   const widths = formats.get(meta.format)||new Set(); widths.add(meta.width); formats.set(meta.format,widths);
 }
 for (const format of ['heif','webp','jpeg']) assert.deepEqual([...formats.get(format)].sort((a,b)=>a-b),[480,800,1280]);
 for (const font of ['newsreader-latin-wght-normal','newsreader-latin-wght-italic','inter-tight-latin-wght-normal']) await fs.access(path.join(out,'fonts',`${font}.woff2`));
 const icon = await sharp(path.join(out,'images/brand/apple-touch-icon.png')).metadata();assert.equal(icon.width,180);assert.equal(icon.height,180);
 const og = await sharp(path.join(out,'images/brand/og-default.jpg')).metadata();assert.equal(og.width,1200);assert.equal(og.height,630);
+for (const size of [32, 48]) {
+  const icon = await sharp(path.join(out, `favicon-${size}.png`)).metadata();
+  assert.equal(icon.width, size); assert.equal(icon.height, size); assert.equal(icon.format, 'png');
+  assert.match(home, new RegExp(`href="/favicon-${size}\\.png\\?v=[a-f0-9]{10}" type="image/png" sizes="${size}x${size}"`));
+}
+const favicon = await text('src/favicon.svg');
+assert.match(favicon, /<image[^>]+href="data:image\/png;base64,/);
+assert.ok(!/<(?:circle|ellipse|path)\b/.test(favicon), 'Favicon embeds the real photographic crop');
+assert.match(await text('src/images/brand/wordmark.svg'), /data:image\/webp;base64,/);
+assert.match(home, /class="brand-mark"[^>]+blackhole-mark-80\.webp\?v=[a-f0-9]{10}/);
+assert.match(home, /class="night-cover" data-cover/);
+assert.match(home, /class="cover-sky-image"[^>]+width="\d+" height="\d+"/);
+const coverSky = home.match(/<img[^>]*class="cover-sky-image"[^>]*>/)?.[0];
+assert.ok(coverSky, 'Skyline image exists');
+assert.match(coverSky, /loading="eager"/); assert.match(coverSky, /fetchpriority="high"/);
+assert.match(home, /class="cover-disk-image"/);
+assert.match(home, /data-motion-toggle/);
+const brandFormats = new Map();
+for (const file of await fs.readdir(path.join(out, 'img/brand'))) {
+  const meta = await sharp(path.join(out, 'img/brand', file)).metadata();
+  assert.ok(meta.width <= 1920 && meta.height > 0);
+  const widths = brandFormats.get(meta.format) || new Set(); widths.add(meta.width); brandFormats.set(meta.format, widths);
+  assert.ok((await fs.stat(path.join(out, 'img/brand', file))).size < 260000, `Compressed brand image: ${file}`);
+}
+for (const format of ['heif', 'webp', 'jpeg']) assert.deepEqual([...brandFormats.get(format)].sort((a,b) => a-b), [480,800,1280,1920]);
+const css = await text('src/css/style.css');
+const forbiddenTreatment = /text-decoration(?:-line)?\s*:[^;}]*\bunderline\b|text-underline|border-radius\s*:\s*(?:999|[2-9]\d{2})px|backdrop-filter/i;
+assert.ok(forbiddenTreatment.test('a { text-decoration: underline; }'), 'Style absence check positive control');
+assert.ok(!forbiddenTreatment.test(css), 'No link lines, capsules or glass surfaces');
+assert.ok(!/\.desktop-nav\s*>\s*a[^{}]*::after/.test(css), 'Navigation has no decorative active rule');
+assert.match(css, /\.reaction\s*\{[^}]*border:\s*0;[^}]*background:\s*transparent;/);
+assert.match(css, /\.tags li\s*\{[^}]*text-transform:\s*uppercase;/);
+assert.match(css, /\.feed-width\s*\{[^}]*width:\s*100%;[^}]*max-width:\s*1248px/);
+assert.match(css, /@view-transition\s*\{\s*navigation:\s*auto;/);
+assert.match(css, /view-transition-name:\s*masthead/);
+assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)/);
+assert.match(css, /animation:\s*none\s*!important/);
+const siteScript = await text('src/js/site.js');
+for (const hook of ['observeReveals(card)', 'is-revealed', 'is-closing']) assert.ok(siteScript.includes(hook), `Motion enhancement: ${hook}`);
+const transitionScript = await text('src/js/transitions.js');
+for (const hook of ['pageswap', 'pagereveal', 'article-photo', 'skipTransition', 'clearAfter']) assert.ok(transitionScript.includes(hook), `Transition enhancement: ${hook}`);
 for (const old of ['avatar.jpg','cover.jpg']) assert.equal(await fs.access(path.join(out,'images/brand',old)).then(()=>true,()=>false),false);
 const rss = await html('rss.xml'); const sitemap = await html('sitemap.xml');
 for (const route of ['/featured/', '/what-is-singularity/', '/about/']) assert.ok(sitemap.includes(`${route}</loc>`));
@@ -87,6 +129,12 @@ for (const file of await fs.readdir(out,{recursive:true})) {
   assert.match(page, /name="twitter:image"/);
   assert.equal((page.match(/as="font"/g)||[]).length,1);
   assert.equal((page.match(/<script[^>]+src="https?:/g)||[]).length,0);
+  assert.match(page, /href="\/css\/style\.css\?v=[a-f0-9]{10}"/);
+  assert.match(page, /src="\/js\/site\.js\?v=[a-f0-9]{10}"/);
+  assert.match(page, /<script src="\/js\/transitions\.js\?v=[a-f0-9]{10}"><\/script>/, 'Transition listener registers before first render');
+  assert.match(page, /l\.replace\(t\+l\.pathname\+l\.search\+l\.hash\)/, 'Legacy redirect preserves path, query and fragment');
+  assert.match(page, /--starfield-sources: image-set/);
+  if (!page.includes('class="hero-image"')) assert.match(page, /property="og:image" content="[^" ]+\/images\/brand\/og-default\.jpg"/);
   assert.ok(page.includes('https://www.facebook.com/profile.php?id=61595278645448'));
   assert.ok(page.includes('https://www.instagram.com/singularityreview/'));
   assert.ok(!page.includes('More from'));

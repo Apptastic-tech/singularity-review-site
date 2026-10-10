@@ -30,7 +30,7 @@ heroAlt: "What the image shows"              # required. Alt text for accessibil
 author: Singularity Review                   # optional. Defaults to "Singularity Review"
 section: featured                            # optional. featured or news; absent = automatic
 authorPhoto: /images/authors/your-author.jpg  # optional. Self-hosted avatar for featured carousel
-tags: ["Tag one", "Tag two"]                 # optional. Shown as chips under the article
+tags: ["Tag one", "Tag two"]                 # optional. Shown as plain small caps under the article
 updated: 2026-10-10T09:00:00Z                # optional. Used in sitemap lastmod and JSON-LD
 heroCaption: "Image credit or caption"       # optional. Shown under the hero image
 draft: true                                  # optional. If true, the article is not built or listed
@@ -59,12 +59,12 @@ The content format is unchanged. Articles still use `src/articles/YYYY-MM-DD-slu
 
 - A hero is required. Save it as `src/images/articles/<slug>.jpg` and use `hero: /images/articles/<slug>.jpg`.
 - Use a 16:9 JPG, ideally 1280x720 or larger, up to 2560px wide. Aim for a source file under about 500 KB. Any reasonable source size works; the build avoids upscaling.
-- Keep the main subject near the centre of the frame: feed cards crop the hero to 4:5 on phones and 4:3 on larger screens. The article page shows the full 16:9 image.
+- Keep the main subject near the centre of the frame: feed cards crop the hero to 4:3 on phones and 16:9 on larger screens. The article page shows the full 16:9 image.
 - The build automatically generates AVIF, WebP, and JPEG versions at 480, 800, and 1280px widths for cards and article pages. Widths above the source size collapse to the original width. Variants are cached on disk in `_site/img/` for fast rebuilds.
 - The original `/images/articles/<slug>.jpg` remains published and is used for Open Graph, Twitter, and RSS. A missing image fails the build with an error naming the article or its source path.
 - Use photographic editorial imagery with realistic physical detail and natural light. No identifiable real people, logos, or readable text. No purple tints. Only original or properly licensed images.
 - Describe what is visible in `heroAlt`, in a concise sentence. Do not repeat the title or start with "image of". Do not infer identities, use promotional copy, or put image credits in alt text. Put credits and contextual captions in optional `heroCaption`.
-- Keep meaningful subjects near the center. Mobile feed images are cropped square; desktop cards and article heroes use the landscape image.
+- Keep meaningful subjects near the center. Mobile feed images are cropped to 4:3; desktop cards and article heroes use the landscape image.
 
 To prepare a hero from an existing image:
 

@@ -26,7 +26,8 @@ const assetUrl = (url) => {
 
 
 const imageJobs = new Map();
-const cardSizes = "(min-width: 776px) 760px, calc(100vw - 16px)";
+const cardSizes = "(min-width: 1312px) 1248px, (min-width: 640px) calc(100vw - 64px), 100vw";
+const brandJobs = new Map();
 
 async function heroImages(src, article = src) {
   if (!/^\/images\/articles\/[a-z0-9-]+\.jpg$/.test(src || "")) {
@@ -71,10 +72,12 @@ export default function (eleventyConfig) {
   eleventyConfig.addFilter("asset", assetUrl);
   eleventyConfig.on("eleventy.before", () => assetHashes.clear());
   eleventyConfig.on("eleventy.before", () => imageJobs.clear());
+  eleventyConfig.on("eleventy.before", () => brandJobs.clear());
   // Static assets
   eleventyConfig.addPassthroughCopy({ "src/images": "images" });
   eleventyConfig.addPassthroughCopy({ "src/css": "css" });
   eleventyConfig.addPassthroughCopy({ "src/favicon.svg": "favicon.svg" });
+  eleventyConfig.addPassthroughCopy({ "src/favicon-32.png": "favicon-32.png", "src/favicon-48.png": "favicon-48.png" });
   eleventyConfig.addPassthroughCopy({ "src/js": "js" });
   eleventyConfig.addPassthroughCopy({
     "node_modules/@fontsource-variable/newsreader/files/newsreader-latin-wght-normal.woff2": "fonts/newsreader-latin-wght-normal.woff2",
@@ -90,6 +93,18 @@ export default function (eleventyConfig) {
     const metadata = await heroImages(src, article);
     const variants = metadata.avif;
     return `<link rel="preload" as="image" type="image/avif" href="${variants.at(-1).url}" imagesrcset="${variants.map(image => image.srcset).join(", ")}" imagesizes="${escapeXml(sizes)}" fetchpriority="high">`;
+  });
+  eleventyConfig.addNunjucksAsyncShortcode("brandPicture", async function (name, sizes = "100vw", classes = "", priority = "auto") {
+    if (!["skyline-clean", "blackhole-wide"].includes(name)) throw new Error(`Unknown brand image: ${name}`);
+    if (!brandJobs.has(name)) brandJobs.set(name, Image(`src/images/brand/${name}.jpg`, {
+      widths: [480, 800, 1280, 1920], formats: ["avif", "webp", "jpeg"],
+      outputDir: "./_site/img/brand/", urlPath: "/img/brand/",
+      sharpAvifOptions: { quality: 48, effort: 4 }, sharpWebpOptions: { quality: 76 },
+      sharpJpegOptions: { quality: 82, progressive: true, mozjpeg: true },
+    }));
+    return Image.generateHTML(await brandJobs.get(name), {
+      alt: "", sizes, loading: "eager", fetchpriority: priority, decoding: "async", class: classes,
+    });
   });
 
   // Articles: newest first

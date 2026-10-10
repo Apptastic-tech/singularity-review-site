@@ -5,3 +5,4 @@ firebase-debug.log
 .DS_Store
 .audit/
 .playwright-mcp/
+GATES.md

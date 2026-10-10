@@ -12,14 +12,23 @@ homeFeed: true
 hasCarousel: true
 eleventyExcludeFromCollections: true
 ---
-<header class="feed-intro feed-intro--home feed-width">
+{% if pagination.pageNumber == 0 %}
+<header class="night-cover" data-cover>
+  <div class="cover-sky" aria-hidden="true">{% brandPicture "skyline-clean", "(min-width: 1440px) 100vw, 1440px", "cover-sky-image", "high" %}</div>
+  <div class="cover-disk" aria-hidden="true">{% brandPicture "blackhole-wide", "(min-width: 960px) 640px, 90vw", "cover-disk-image" %}</div>
+  <div class="cover-copy wide-width">
+    <p class="kicker">An observatory for the AI beat</p>
+    <h1>Singularity headline news</h1>
+    <p class="cover-dek">{{ site.tagline }}.</p>
+    <div class="cover-motion-slot"><button type="button" class="cover-motion" aria-pressed="false" data-motion-toggle hidden>Pause sky motion</button></div>
+  </div>
+</header>
+{% else %}
+<header class="feed-intro feed-width">
   <p class="kicker">The latest developments in AI</p>
   <h1>Singularity headline news</h1>
   {% if pagination.pageNumber > 0 %}<p class="meta">Page {{ pagination.pageNumber + 1 }}</p>{% endif %}
 </header>
-{% ifAsync pagination.pageNumber == 0 and collections.featured.length %}
-  {% set carouselItems = collections.featured %}
-  {% include "carousel.njk" %}
 {% endif %}
 <section class="feed headline-feed feed-width" aria-label="Singularity headline news" data-feed>
   {% if feedItems.length %}
@@ -29,11 +38,15 @@ eleventyExcludeFromCollections: true
   {% endeach %}
   {% else %}<p class="empty-state">Headline reporting will appear here. Explore <a href="/featured/">Featured author articles</a> in the meantime.</p>{% endif %}
 </section>
+{% ifAsync pagination.pageNumber == 0 and collections.featured.length %}
+  {% set carouselItems = collections.featured %}
+  {% include "carousel.njk" %}
+{% endif %}
 <nav class="pagination feed-width" aria-label="Article pages">
-  {% if pagination.href.previous %}<a class="pill" href="{{ pagination.href.previous }}">Previous page</a>{% endif %}
+  {% if pagination.href.previous %}<a class="page-link" href="{{ pagination.href.previous }}">Previous page</a>{% endif %}
   {% if pagination.href.next %}
   <div data-sentinel></div>
-  <a class="pill load-more" href="{{ pagination.href.next }}" data-load-more>Load more</a>
+  <a class="page-link load-more" href="{{ pagination.href.next }}" data-load-more>Load more</a>
   <p class="load-status meta" role="status" aria-live="polite" data-load-status></p>
   {% endif %}
 </nav>

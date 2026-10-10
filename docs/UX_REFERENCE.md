@@ -1,31 +1,31 @@
-# UX reference
+# UX reference v4
 
-The information architecture and interaction patterns supplied for ux-news.com informed the redesign. No visuals, text, code, or assets were copied. The implementation, brand assets, editorial imagery, and visual system are original.
+The original browsing patterns were informed by ux-news.com. No visuals, text, code or assets were copied. The v4 identity comes from the owner's black hole artwork and clean night skyline photograph.
 
-## Adopted patterns
+## Reading and browsing
 
-- One sticky header unit hides on scroll down and reappears on scroll up.
-- A mobile burger opens a dismissible navigation panel, while desktop navigation stays inline.
-- A horizontally scrollable pill bar lists All and each category, with the current section filled.
-- A single-column feed uses large whole-card links with a photograph, section and date, headline, and a three-line excerpt.
-- Cards align to the center using proximity scroll snapping and a small image zoom on hover.
-- Homepage pagination renders ten stories per page. An IntersectionObserver sentinel progressively fetches the next page and appends its cards. A real Load more link supports disabled JavaScript, unavailable observers, and loading failures.
-- A vertical social stack floats at the bottom right on desktop.
-- Articles follow the sequence: category link, title, excerpt, byline, hero and optional caption, reading body, topics, follow links, and Read next using the same large feed cards.
-- A minimal centered footer contains About, RSS, social icons, and copyright.
+A night observatory cover establishes the publication on the homepage. Its large headline gives way directly to the lead news photograph. A single vertical feed keeps documentary imagery dominant instead of enclosing stories in generic card containers. Photos reach the mobile edges; headlines and excerpts retain comfortable text gutters. The desktop feed reaches 1248px, and article heroes reach 1440px.
 
-## Deliberate changes
+The four primary destinations remain Singularity headline news, Featured author articles, What is singularity, and Who we are. Larger desktop text and a full height mobile sheet make the destinations easier to scan. Color, weight and position identify the current section. There are no active underlines, chips or arrow capsules. The footer repeats the destinations and includes generated topics, social links and RSS.
 
-Cards and photographs are substantially larger than the reference. On mobile, cards use 8px gutters, a tall 4:5 photograph (capped at 68svh so the headline stays in view), and 32px headlines. On desktop the feed column reaches 760px with 4:3 photographs at full card width and 44px headlines. Card height follows the content, so there is no empty space below the excerpt.
+The homepage keeps ten stories per page and its featured author carousel. The author shelf follows the news feed so the lead photograph has the next position after the cover. The featured archive opens with its Editor's picks carousel and then the full archive. Multiple slides support touch scrolling, keyboard arrow navigation, previous and next controls, and pause/play. A single slide uses a generous photograph without carousel controls.
 
-The design uses warm paper text on near-black ink, singularity amber, Newsreader reading typography, and Inter Tight controls. No purple. Tap targets are at least 44px, with larger navigation rows on mobile. The current masthead is 72px on mobile. Body text is 19px or larger, and its desktop measure is limited to 65ch.
+Section placement still follows author identity unless `section: news` or `section: featured` overrides it. Author archives, category archives, Read next, RSS and sitemap include the same published stories. Drafts remain excluded, and empty sections retain usable routes and fallback copy.
 
-Fonts are self-hosted. Responsive images are built automatically, the first hero receives a responsive preload and high fetch priority, and later images load lazily. Navigation, loading, and hover motion respect reduced-motion preferences. Floating social controls do not cover mobile stories.
+## Navigation and feedback
 
-There are no ads, ad feeds, analytics, trackers, newsletters, portals, search controls, theme toggles, external font CDNs, or third-party scripts.
+The sticky header reveals and hides with scroll direction and condenses on desktop without changing page geometry. The menu animates both opening and closing, contains keyboard focus while open, supports Escape, locks background scrolling and restores the reader's position. Fast open/close reversals remain usable. Navigation works without JavaScript through the fallback links.
 
-## Current menu and section redesign
+Story image hover and title color changes identify whole card links. Prose references use amber and stronger weight instead of underlines. All controls retain clear focus outlines. Share controls keep the same targets, native sharing and copy feedback. Reaction emoji remain functional, displayed as plain emoji and counts rather than capsules; Firestore REST loading and voting are unchanged.
 
-The current implementation replaces category navigation in the header with four editorial destinations. The mobile menu fills the remaining viewport below the centered masthead and restores the reader's scroll position when it closes. The desktop uses a centered masthead over inline navigation. Scroll direction still reveals or hides the header, while upward scrolling condenses it to the navigation row.
+Cross document transitions maintain the masthead and, where supported, connect a selected preview photograph to the article hero. Reveal motion is a one time enhancement to photographs entering the viewport. A real story link remains usable in every browser.
 
-The headline feed paginates ten house-authored stories per page unless frontmatter overrides placement. A separate author carousel and featured archive provide access to personal analysis. The footer carries the same four destinations, generated topic links, social links and RSS. The fixed social stack has been removed.
+The cover's slow sky drift and slight disk tilt express the astronomical setting. They stop outside the viewport or when the document is hidden, and readers can pause them explicitly. Reduced motion disables atmospheric movement, reveal entrances, hover transforms, menu animation, document animation and carousel auto advance. Story content never relies on animation or observers to appear.
+
+## Performance and accessibility
+
+Fonts remain self hosted. Responsive AVIF and WebP variants reduce the cost of larger images; JPEG fallback remains available. Image dimensions and aspect ratios reserve space. Lead images are eager with high fetch priority; below fold images are lazy. Progressive feed loading keeps a real Load more link for disabled JavaScript, unavailable observers and fetch failures.
+
+There are no new libraries, external font services, third party scripts, ads, analytics or new subscription flows. The publishing format, legacy host redirect and hashed asset URLs remain intact.
+
+The required build and source/content checks are recorded in REBRAND_V4_REPORT.md. Browser assertions have been updated for v4 but were not executed in this pass because the brief reserves screenshot rendering for the owner and identifies local servers as blocked. Review desktop 1440 by 1000, tablet 1024 by 900 and mobile 390 by 844, including the open menu, article hero and featured shelf.

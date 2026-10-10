@@ -3,6 +3,7 @@
   const toggle = document.querySelector('[data-menu-toggle]');
   const menu = document.querySelector('[data-menu]');
   const desktop = matchMedia('(min-width: 960px)');
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
   const inertRegions = [...document.querySelectorAll('main, .site-footer, .skip, .brand')];
   let menuOpen = false;
   let menuScrollY = 0;
@@ -11,29 +12,51 @@
   let travel = 0;
   let direction = 0;
   let scheduled = false;
+  let menuTimer = 0;
 
-  const closeMenu = (restoreFocus = true) => {
-    if (!menuOpen) return;
-    menuOpen = false;
+  const finishClose = () => {
     menu.hidden = true;
-    toggle.setAttribute('aria-expanded', 'false');
-    toggle.setAttribute('aria-label', 'Open menu');
+    menu.classList.remove('is-open', 'is-closing');
+    menu.inert = false;
     document.documentElement.classList.remove('menu-open');
     document.body.style.cssText = bodyStyles;
     inertRegions.forEach(region => { region.inert = false; });
     window.scrollTo({ top: menuScrollY, behavior: 'instant' });
-    if (restoreFocus) toggle.focus({ preventScroll: true });
     previousY = Math.max(0, scrollY);
+    menuTimer = 0;
+  };
+  const closeMenu = (restoreFocus = true, immediate = false) => {
+    if (!menuOpen && !menuTimer) return;
+    clearTimeout(menuTimer);
+    menuOpen = false;
+    menu.classList.remove('is-open');
+    menu.classList.add('is-closing');
+    menu.inert = true;
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.setAttribute('aria-label', 'Open menu');
+    if (restoreFocus) toggle.focus({ preventScroll: true });
+    if (immediate || reducedMotion.matches) finishClose();
+    else menuTimer = setTimeout(finishClose, 240);
   };
   if (toggle && menu) {
     toggle.hidden = false;
     toggle.addEventListener('click', () => {
       if (menuOpen) { closeMenu(); return; }
-      menuScrollY = Math.max(0, scrollY);
-      bodyStyles = document.body.style.cssText;
+      const alreadyLocked = document.documentElement.classList.contains('menu-open');
+      clearTimeout(menuTimer);
+      menuTimer = 0;
+      if (!alreadyLocked) {
+        menuScrollY = Math.max(0, scrollY);
+        bodyStyles = document.body.style.cssText;
+      }
       const scrollbar = innerWidth - document.documentElement.clientWidth;
       menuOpen = true;
       menu.hidden = false;
+      menu.inert = false;
+      menu.classList.remove('is-closing');
+      // Reading the existing box establishes the start of the sheet transition.
+      menu.getBoundingClientRect();
+      menu.classList.add('is-open');
       toggle.setAttribute('aria-expanded', 'true');
       toggle.setAttribute('aria-label', 'Close menu');
       header.classList.remove('is-hidden');
@@ -52,12 +75,15 @@
       if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
       else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
     });
-    menu.addEventListener('click', event => { if (event.target.closest('a')) closeMenu(false); });
+    menu.addEventListener('click', event => { if (event.target.closest('a')) closeMenu(false, true); });
     desktop.addEventListener('change', () => {
-      if (desktop.matches && menuOpen) {
-        closeMenu(false);
+      if (desktop.matches && (menuOpen || menuTimer)) {
+        closeMenu(false, true);
         header.querySelector('.desktop-nav [aria-current]')?.focus({ preventScroll: true });
       }
+    });
+    reducedMotion.addEventListener('change', () => {
+      if (reducedMotion.matches && menuTimer) closeMenu(false, true);
     });
     document.addEventListener('focusin', event => {
       if (menuOpen && event.target !== toggle && !menu.contains(event.target)) {
@@ -85,6 +111,44 @@
       scheduled = false;
     });
   }, { passive: true });
+
+  // Motion is an enhancement: elements stay visible without observers or JavaScript.
+  const revealObserver = 'IntersectionObserver' in window ? new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      if (!reducedMotion.matches) entry.target.classList.add('is-revealed');
+      revealObserver.unobserve(entry.target);
+    });
+  }, { threshold: .08 }) : null;
+  const observeReveals = region => {
+    if (region.matches?.('[data-reveal]')) revealObserver?.observe(region);
+    region.querySelectorAll('[data-reveal]').forEach(element => revealObserver?.observe(element));
+  };
+  document.querySelectorAll('.prose img').forEach(image => image.setAttribute('data-reveal', ''));
+  observeReveals(document);
+  const cover = document.querySelector('[data-cover]');
+  const motionToggle = cover?.querySelector('[data-motion-toggle]');
+  let coverVisible = true;
+  let skyPaused = false;
+  const updateCover = () => {
+    cover?.classList.toggle('is-in-view', coverVisible && !document.hidden && !skyPaused && !reducedMotion.matches);
+    if (motionToggle) motionToggle.hidden = reducedMotion.matches;
+  };
+  if (cover) {
+    updateCover();
+    if ('IntersectionObserver' in window) new IntersectionObserver(entries => {
+      coverVisible = entries[0].isIntersecting;
+      updateCover();
+    }).observe(cover);
+    motionToggle?.addEventListener('click', () => {
+      skyPaused = !skyPaused;
+      motionToggle.setAttribute('aria-pressed', String(skyPaused));
+      motionToggle.textContent = skyPaused ? 'Resume sky motion' : 'Pause sky motion';
+      updateCover();
+    });
+    reducedMotion.addEventListener('change', updateCover);
+    document.addEventListener('visibilitychange', updateCover);
+  }
 
   const feed = document.querySelector('[data-feed]');
   const link = document.querySelector('[data-load-more]');
@@ -118,6 +182,7 @@
         const image = card.querySelector('img');
         if (image) { image.loading = 'lazy'; image.setAttribute('fetchpriority', 'auto'); }
         feed.append(card);
+        observeReveals(card);
         appended.push(card);
       });
       status.textContent = `${appended.length} more stories loaded.`;

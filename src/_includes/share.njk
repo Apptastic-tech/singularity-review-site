@@ -13,9 +13,9 @@
   ["reddit", "Reddit", "https://www.reddit.com/submit?url=" + u + "&title=" + t]
 ] -%}
 <div class="share-bar share-bar--{{ variant }}" role="group" aria-label="Share this article">
-  <button type="button" class="share-pill" data-share-native data-url="{{ url }}" data-title="{{ title }}" hidden>{{ svg("share") }}<span>Share</span></button>
+  <button type="button" class="share-control" data-share-native data-url="{{ url }}" data-title="{{ title }}" hidden>{{ svg("share") }}<span>Share</span></button>
   {% for item in targets %}{% if variant == "full" or item[0] in ["facebook", "x", "whatsapp"] %}<a class="share-btn" href="{{ item[2] }}" target="_blank" rel="noopener noreferrer" aria-label="Share on {{ item[1] }} (opens in a new tab)">{{ svg(item[0]) }}</a>{% endif %}{% endfor %}
   {% if variant == "full" %}<a class="share-btn" href="mailto:?subject={{ t }}&amp;body={{ t }}%0A%0A{{ u }}" aria-label="Share by email">{{ svg("email") }}</a>{% endif %}
-  <button type="button" class="share-pill" data-share-copy data-url="{{ url }}">{{ svg("link") }}<span data-copy-label>Copy link</span></button>
+  <button type="button" class="share-control" data-share-copy data-url="{{ url }}">{{ svg("link") }}<span data-copy-label>Copy link</span></button>
 </div>
 {% endmacro %}

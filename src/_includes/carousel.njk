@@ -1,15 +1,15 @@
-{% set carouselSizes = "(min-width: 1152px) 544px, (min-width: 640px) calc((100vw - 72px) / 2), calc(100vw - 40px)" if carouselItems.length == 1 else "(min-width: 640px) 360px, 82vw" %}
+{% set carouselSizes = "(min-width: 1312px) 608px, (min-width: 640px) calc((100vw - 96px) / 2), 100vw" if carouselItems.length == 1 else "(min-width: 640px) 520px, 100vw" %}
 <section class="author-shelf{% if homeFeed %} author-shelf--home{% endif %} wide-width" role="region" aria-roledescription="carousel" aria-labelledby="carousel-heading" data-carousel>
   <div class="shelf-heading">
     <div><p class="kicker">Ideas, analysis &amp; opinion</p><h2 id="carousel-heading">{{ "Editor's picks" if page.url == '/featured/' else 'Featured author articles' }}</h2></div>
-    <a class="shelf-all" href="{{ '#featured-archive' if page.url == '/featured/' else '/featured/' }}">View all <span aria-hidden="true">↗</span></a>
+    <a class="shelf-all" href="{{ '#featured-archive' if page.url == '/featured/' else '/featured/' }}">{{ 'Browse the archive' if page.url == '/featured/' else 'Explore author articles' }}</a>
   </div>
   <p class="sr-only" id="carousel-help">Swipe to browse articles. Use the left and right arrow keys when the track is focused.</p>
   <div class="carousel-track" tabindex="0" aria-label="Featured articles" aria-describedby="carousel-help" data-carousel-track>
     {% asyncEach item in carouselItems %}
     <article class="carousel-slide" role="group" aria-roledescription="slide" aria-label="{{ loop.index }} of {{ carouselItems.length }}" data-carousel-slide>
-      <a class="carousel-story" href="{{ item.url }}" aria-labelledby="carousel-title-{{ item.data.title | slugify }}">
-        {% picture item.data.hero, item.data.heroAlt, carouselSizes, "lazy", "auto", "carousel-image", item.data.title %}
+      <a class="carousel-story" href="{{ item.url }}" aria-labelledby="carousel-title-{{ item.data.title | slugify }}" data-story-link>
+        {% picture item.data.hero, item.data.heroAlt, carouselSizes, "eager" if loop.first and not homeFeed else "lazy", "high" if loop.first and not homeFeed else "auto", "carousel-image", item.data.title %}
         <h3 id="carousel-title-{{ item.data.title | slugify }}">{{ item.data.title }}</h3>
         <span class="carousel-author">
           {% if item.data.authorPhoto %}<img class="author-avatar" src="{{ item.data.authorPhoto }}" width="36" height="36" alt="" loading="lazy">{% else %}<span class="author-avatar" aria-hidden="true">{{ item.data.author | initials }}</span>{% endif %}

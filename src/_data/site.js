@@ -9,7 +9,7 @@ export default {
   language: "en",
   defaultAuthor: "Singularity Review",
   defaultImage: "/images/brand/og-default.jpg",
-  defaultImageAlt: "Singularity Review wordmark above a quiet observatory under a night sky",
+  defaultImageAlt: "Singularity Review beside a lensed black hole above an observatory and mountain skyline at night",
   facebook: "https://www.facebook.com/profile.php?id=61595278645448",
   instagram: "https://www.instagram.com/singularityreview/",
   year: new Date().getFullYear(),

@@ -63,7 +63,7 @@ try {
     card:document.querySelector('.card').getBoundingClientRect().width,
     title:parseFloat(getComputedStyle(document.querySelector('.card-title')).fontSize)
   }));
-  assert.equal(layout.overflow,false);assert.equal(layout.header,72);assert.equal(layout.card,374);assert.ok(layout.title>=30);
+  assert.equal(layout.overflow,false);assert.equal(layout.header,72);assert.equal(layout.card,390);assert.ok(layout.title>=38);
   const masthead = await page.evaluate(() => {
     const brand = document.querySelector('.brand').getBoundingClientRect();
     const toggle = document.querySelector('[data-menu-toggle]').getBoundingClientRect();
@@ -71,7 +71,14 @@ try {
   });
   assert.ok(Math.abs(masthead.center - 195) < 1, 'Equal left and right masthead slots');
   assert.ok(masthead.toggleWidth >= 44 && masthead.toggleHeight >= 44, 'Menu hit area');
+  const coverHeight = await page.locator('.night-cover').evaluate(el => el.getBoundingClientRect().height);
+  await page.locator('[data-motion-toggle]').click();
+  assert.equal(await page.locator('[data-motion-toggle]').getAttribute('aria-pressed'), 'true');
+  assert.equal(await page.locator('.cover-disk').evaluate(el => getComputedStyle(el).animationName), 'none');
+  assert.equal(await page.locator('.night-cover').evaluate(el => el.getBoundingClientRect().height), coverHeight);
+  await page.locator('[data-motion-toggle]').click();
   await page.locator('[data-menu-toggle]').click();
+  assert.ok(await page.locator('.menu-links a').first().evaluate(el => parseFloat(getComputedStyle(el).fontSize) >= 32));
   assert.equal(await page.locator('[data-menu-toggle]').getAttribute('aria-expanded'),'true');
   assert.equal(await page.evaluate(()=>document.querySelector('main').inert),true);
   assert.equal(await page.evaluate(()=>document.activeElement.textContent),'Singularity headline news');
@@ -81,6 +88,7 @@ try {
   assert.equal(await page.evaluate(()=>document.activeElement.textContent.trim()),'RSS');
   await page.keyboard.press('Escape');
   assert.equal(await page.locator('[data-menu-toggle]').getAttribute('aria-expanded'),'false');
+  await page.waitForFunction(() => !document.querySelector('main').inert);
   assert.equal(await page.evaluate(()=>document.querySelector('main').inert),false);
   assert.equal(await page.evaluate(() => document.body.style.position), '');
   await page.locator('[data-menu-toggle]').click();
@@ -107,7 +115,10 @@ try {
   assert.equal(await page.locator('.desktop-nav a').count(), 4);
   assert.equal(await page.locator('.desktop-nav [aria-current]').textContent(), 'Singularity headline news');
   const noJS=await browser.newContext({javaScriptEnabled:false,viewport:{width:390,height:844}});
-  const fallback=await noJS.newPage();await fallback.goto(url);await fallback.locator('[data-load-more]').click();
+  const fallback=await noJS.newPage();await fallback.goto(url);
+  assert.ok(await fallback.locator('.card-image').first().isVisible());
+  assert.equal(await fallback.locator('[data-motion-toggle]').isVisible(), false);
+  await fallback.locator('[data-load-more]').click();
   assert.equal(new URL(fallback.url()).pathname,'/page/2/');await noJS.close();
   const noObserver=await browser.newContext();await noObserver.addInitScript(()=>{delete window.IntersectionObserver;});
   const basic=await noObserver.newPage();await basic.goto(url);await basic.locator('[data-load-more]').click();
@@ -123,6 +134,9 @@ try {
   await page.emulateMedia({reducedMotion:'reduce'});await page.goto(url);
   assert.equal(await page.evaluate(()=>getComputedStyle(document.documentElement).scrollSnapType),'none');
   assert.equal(await page.locator('[data-header]').evaluate(el=>getComputedStyle(el).transitionDuration),'0s');
+  assert.equal(await page.locator('.cover-sky-image').evaluate(el => getComputedStyle(el).animationName), 'none');
+  assert.equal(await page.locator('[data-motion-toggle]').isVisible(), false);
+  assert.ok(await page.locator('[data-reveal]').first().evaluate(el => Number(getComputedStyle(el).opacity) === 1));
   // Carousel timing uses the browser clock, without wall-clock sleeps.
   await page.setViewportSize({width:390,height:844});
   await page.emulateMedia({reducedMotion:'no-preference'});
@@ -202,12 +216,18 @@ try {
         const active = document.querySelector('.desktop-nav [aria-current]');
         return {
           gap: kicker.top - header.bottom,
-          underlineBottom: active.getBoundingClientRect().bottom - parseFloat(getComputedStyle(active, '::after').bottom),
-          headerBottom: header.bottom
+          activeDecoration: getComputedStyle(active).textDecorationLine,
+          activeWeight: Number(getComputedStyle(active).fontWeight),
+          activeAfter: getComputedStyle(active, '::after').content,
+          navSize: parseFloat(getComputedStyle(active).fontSize)
         };
       });
       assert.ok(headerGap.gap >= (width >= 960 ? 36 : 20), `${route} ${name}: breathing room below masthead`);
-      if (width >= 960) assert.ok(Math.abs(headerGap.underlineBottom - headerGap.headerBottom) < 1, 'Current underline meets bar bottom');
+      if (width >= 960) {
+        assert.equal(headerGap.activeDecoration, 'none');
+        assert.ok(['none', 'normal'].includes(headerGap.activeAfter), 'Current destination has no decorative rule');
+        assert.ok(headerGap.activeWeight >= 700 && headerGap.navSize >= 19, 'Large weighted navigation');
+      }
       if (route === '/featured/') assert.equal(await page.locator('.shelf-heading h2').textContent(), "Editor's picks");
       if (route === '/what-is-singularity/' && experts.length) {
         const portraits = await page.locator('.expert-photo').evaluateAll(elements => elements.map(element => ({
