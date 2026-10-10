@@ -152,3 +152,38 @@ Accumulating rotation and outer sky advection, the 12 percent breathing amplitud
 - docs/RESTORE-STRUCTURE.md
 
 Final pass 3 validation: npm run build passed, all 18 non-browser verify scripts passed, and the separate ADSENSE_PREVIEW build passed. Completion ledger: 6 met, 0 unmet, 0 abandoned. Browser scripts passed syntax checks; browser, real-GPU and rendered CLS checks were not run, as required by the restoration rules.
+
+## Restore pass 4
+
+Row arrows are rendered in the original HTML. CSS hides them through 639px and on touch-only devices; larger pointer-device rows retain their space regardless of overflow. JavaScript changes only their disabled state. Both headline and featured headings keep one line with shrinkable flex items and ellipsis protection. Mobile headers reserve 44px from first paint, with a 32px title line box and clamp(18px, 4.6vw, 26px) type. See all never wraps. Conditional carousel controls reserve space before enhancement and their play label stays on one line, without changing the carousel template or script. Popup and motion-control visibility remains outside document flow.
+
+Arrow clicks immediately update the previous and next states from the clamped destination. Every native scroll schedules a throttled frame that reads the latest position. Scrollend updates the final state directly; window resize and ResizeObserver refresh it after geometry changes. Native or interrupted scrolling replaces the optimistic click state with the actual position.
+
+### Pass 4 removals
+
+- The initial hidden attribute on row arrows.
+- JavaScript visibility toggling based on row overflow.
+- Wrapping in row and featured-carousel heading lines and See all links.
+- The synchronous-only runtime fixture that could miss delayed smooth-scroll updates.
+
+No navigation destination, homepage section, footer link or page was removed in this pass. The publication structure, approved story blocks, hero, featured-carousel behavior and publishing, consent, newsletter and advertisement contracts remain as established in the earlier passes.
+
+scripts/card-row-runtime.mjs now runs directly in Node and covers delayed smooth scrolling, immediate click states, clamping at both ends, passive throttled scroll, scrollend, interrupted scroll, both resize paths, no overflow, keyboard semantics and reduced motion. scripts/verify-cards.mjs also requires the regression to reject a stale click-state mutation. scripts/verify-row-layout.mjs checks CSS geometry at 320, 390, 639, 640, 768, 1024, 1440 and 1920px, plus mobile heading widths in shipped and fallback serif fonts with space reserved for See all. Its measurements use an isolated writable Fontconfig cache and are static models, not browser CLS evidence.
+
+The owner-run verify-blocks-browser.mjs matrix now includes all seven requested widths, checks a single reserved header line, expects disabled retained arrows when a row does not overflow, and repeats cold homepage loads with web fonts blocked. It was prepared for the owner to run. Actual first-paint geometry, touch behavior and CLS 0 require those browser checks; no browser or screen tool is used in this pass.
+
+### Pass 4 file summary
+
+Nine paths changed or added:
+
+- src/_includes/card-row.njk
+- src/css/style.css
+- src/js/card-row.js
+- scripts/card-row-runtime.mjs
+- scripts/verify-cards.mjs
+- scripts/verify-row-layout.mjs
+- scripts/verify-blocks-browser.mjs
+- docs/DESIGN.md
+- docs/RESTORE-STRUCTURE.md
+
+Final pass 4 validation: npm run build passed, all 19 non-browser verify scripts passed, the direct card-row runtime test passed, and ADSENSE_PREVIEW=1 npx --no-install --offline @11ty/eleventy --output=/tmp/sr-adpreview-restore passed. Changed JavaScript and the owner-run browser verifier passed syntax checks. No test executed in this pass remains failing. Browser verifiers and measured CLS were intentionally not run. No network access, browser or screen tool, or Git write was used; changes remain uncommitted on restore-structure.

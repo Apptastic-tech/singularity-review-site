@@ -3,7 +3,7 @@
     <h2 id="{{ rowId }}-heading">{{ rowTitle }}</h2>
     <div class="card-row-tools">
       {% if rowTarget %}<a class="card-row-all" href="{{ rowTarget }}">See all</a>{% endif %}
-      {% if rowItems.length %}<div class="card-row-arrows" data-row-arrows hidden>
+      {% if rowItems.length %}<div class="card-row-arrows" data-row-arrows>
         <button type="button" class="card-row-arrow" aria-label="Previous" aria-controls="{{ rowId }}-track" data-row-prev disabled><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="m14 6-6 6 6 6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button>
         <button type="button" class="card-row-arrow" aria-label="Next" aria-controls="{{ rowId }}-track" data-row-next disabled><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="m10 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button>
       </div>{% endif %}

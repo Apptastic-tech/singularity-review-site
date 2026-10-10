@@ -83,6 +83,7 @@ function checkRow(dom, expected, label, eager = false) {
   const arrows = byClass(row, 'card-row-arrow');
   assert.deepEqual(arrows.map(node => node.attribs['aria-label']), ['Previous', 'Next']);
   assert.ok(arrows.every(node => node.attribs['aria-controls'] === track.attribs.id));
+  assert.ok(!Object.hasOwn(byClass(row, 'card-row-arrows')[0].attribs, 'hidden'), 'Arrows are rendered from the original HTML; CSS owns visibility');
   const cards = checkCards(track, expected, 'h3', rowSizes, eager);
   assert.ok(cards.every(card => card.parent.name === 'li' && card.parent.parent === track));
   return row;
@@ -135,5 +136,7 @@ if (headlines.length) {
   const fixture = await fs.readFile('_site/index.html', 'utf8');
   for (const [from,to] of [['tabindex="0" aria-label="Singularity headline news','tabindex="-1" aria-label="Singularity headline news'], ['aria-controls="headline-news-track"','aria-controls="wrong-track"'], ['class="post-card-meta"','class="missing-meta"']]) assert.throws(() => checkRow(parseDocument(fixture.replace(from,to)), headlines.slice(0,10), 'Singularity headline news', true), 'Broken row/card positive control fails');
 }
-verifyCardRowRuntime(await fs.readFile('src/js/card-row.js', 'utf8'));
+const rowSource = await fs.readFile('src/js/card-row.js', 'utf8');
+verifyCardRowRuntime(rowSource);
+assert.throws(() => verifyCardRowRuntime(rowSource.replace('update(target);', 'update();')), 'The asynchronous regression catches stale click states');
 console.log('CARDS VERIFIED: exact image-first cards, inline metadata, responsive grids, headline-only rows and archives, approved story-block split, focus, peeking, arrows, keyboard, reduced motion and Node runtime controls. Browser geometry was not run.');

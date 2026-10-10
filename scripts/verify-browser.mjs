@@ -4,7 +4,7 @@ import os from 'node:os';
 import { localBrowser, routeSite, localOrigin } from './browser-local.mjs';
 import { spawnSync } from 'node:child_process';
 import assert from 'node:assert/strict';
-import { publishedArticles } from './verification-helpers.mjs';
+import { publishedArticles, articleUrl } from './verification-helpers.mjs';
 import experts from '../src/_data/experts.js';
 const parkMouse = async page => { // Hover pauses auto-advance, so park the pointer on a point outside the carousel (the fixed consent banner can scroll the carousel under 0,0).
   const point = await page.evaluate(() => { for (let y = 1; y < innerHeight; y += 8) for (const x of [1, innerWidth - 2]) { const e = document.elementFromPoint(x, y); if (e && !e.closest('[data-carousel]')) return { x, y }; } return { x: 1, y: innerHeight - 2 }; });
@@ -325,9 +325,11 @@ try {
       await page.screenshot({path:shotPath,fullPage:true}).catch(() => page.screenshot({path:shotPath}));
     }
   }
-  await page.goto(`${url}/articles/washington-names-an-intelligence-chief/`);
+  const readNextArticle = '/articles/washington-names-an-intelligence-chief/';
+  await page.goto(`${url}${readNextArticle}`);
   assert.ok(await page.locator('.prose').evaluate(el=>parseFloat(getComputedStyle(el).fontSize)>=18));
-  assert.equal(await page.locator('#read-next-track [data-card]').count(),4);
+  const readNextArticles = articles.filter(article => articleUrl(article) !== readNextArticle).slice(0, 4);
+  assert.equal(await page.locator('.read-next .story-block').count(), readNextArticles.length);
   assert.deepEqual(errors,[]);
   console.log('BROWSER VERIFIED: responsive feed, accessible menu, scroll header, infinite loading, fallbacks, retry, carousel controls and timing, new pages, and reduced motion');
 } finally {

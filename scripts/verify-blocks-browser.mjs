@@ -23,8 +23,8 @@ const setup = async options => {
   return context;
 };
 try {
-  for (const [width,height,columns] of [[1440,900,3],[768,1024,2],[390,844,1]]) {
-    const context = await setup({ viewport:{width,height}, hasTouch:width === 390, isMobile:width === 390 });
+  for (const [width,height,columns] of [[320,844,1],[390,844,1],[639,844,1],[768,1024,2],[1024,900,3],[1440,900,3],[1920,1080,3]]) {
+    const context = await setup({ viewport:{width,height}, hasTouch:width < 640, isMobile:width < 640 });
     const page = await context.newPage(), errors = [];
     page.on('pageerror',error => errors.push(error.message));
     for (const route of routes) {
@@ -37,6 +37,18 @@ try {
         return {cards,stories,grid:grid ? {box:rect(grid),columns:getComputedStyle(grid).gridTemplateColumns.split(' ').length,gap:getComputedStyle(grid).gap} : null,overflow:document.documentElement.scrollWidth>innerWidth};
       });
       assert.equal(layout.overflow,false,route+' '+width+': no page overflow');
+      const headers = await page.locator('.card-row-header,.shelf-heading').evaluateAll(elements => elements.map(element => {
+        const heading = element.querySelector('h2'), style = getComputedStyle(heading);
+        return { height:element.getBoundingClientRect().height, visible:!heading.classList.contains('sr-only'), headingHeight:heading.getBoundingClientRect().height, lineHeight:parseFloat(style.lineHeight), nowrap:style.whiteSpace, fits:heading.scrollWidth<=heading.clientWidth+1 };
+      }));
+      for (const header of headers) {
+        assert.equal(header.height,44,route+' '+width+': header has one reserved control line');
+        if (header.visible) {
+          assert.equal(header.nowrap,'nowrap');
+          assert.ok(Math.abs(header.headingHeight-header.lineHeight)<1,'Heading keeps a single line box');
+          if (width<640) assert.ok(header.fits,'Both approved mobile headings fit without ellipsis');
+        }
+      }
       const headlineRoute=route==='/' || route.startsWith('/page/');
       if(headlineRoute)assert.equal(layout.stories.length,0,'Headline routes use post cards');
       else {assert.equal(layout.cards.length,0,'Featured, author, category and read-next use story blocks');assert.equal(await page.locator('.card-row').count(),0);}
@@ -69,6 +81,7 @@ try {
         assert.equal(geometry.snap,'x mandatory'); assert.equal(geometry.align,'start'); assert.equal(geometry.tabindex,0);
         assert.ok(geometry.heights.every(h=>Math.abs(h-geometry.heights[0])<1),'Row cards have equal heights');
         const end=Math.max(0,geometry.total-geometry.width), previous=page.locator('[data-row-prev]'), next=page.locator('[data-row-next]');
+        assert.equal(await page.locator('[data-row-arrows]').isVisible(),width>=640,'CSS owns arrow visibility, independent of overflow');
         if (end>1) {
           assert.equal(await previous.isDisabled(),true);
           if (width===1440) {
@@ -103,7 +116,10 @@ try {
           const last=track.locator('.post-card-link').last(); await last.focus();
           await page.waitForFunction(()=>{const element=document.activeElement,track=element.closest('[data-row-track]');const a=element.getBoundingClientRect(),b=track.getBoundingClientRect();return a.left>=b.left && a.right<=b.right;});
           assert.ok(await track.evaluate(element=>element.scrollLeft)>0,'Focusing a card brings it into view');
-        } else assert.equal(await page.locator('[data-row-arrows]').isVisible(),false);
+        } else {
+          assert.equal(await previous.isDisabled(),true,'No-overflow rows retain disabled previous arrows');
+          assert.equal(await next.isDisabled(),true,'No-overflow rows retain disabled next arrows');
+        }
         await track.focus(); await page.keyboard.press('Tab');
         assert.equal(await page.evaluate(()=>document.activeElement.classList.contains('post-card-link')),true);
         assert.equal(await page.evaluate(()=>getComputedStyle(document.activeElement,'::after').outlineStyle),'solid','Keyboard focus ring is visible');
@@ -112,6 +128,26 @@ try {
       reports.push({route,width,cards:layout.cards.length,stories:layout.stories.length,columns:layout.grid?.columns||null});
     }
     assert.deepEqual(errors,[]); await context.close();
+  }
+  // Force the browser's native fallback fonts on cold loads across the same widths.
+  for (const width of [320,390,639,768,1024,1440,1920]) {
+    const context=await setup({viewport:{width,height:900},hasTouch:width<640,isMobile:width<640});
+    await context.route('**/fonts/*.woff2',route=>route.abort());
+    const page=await context.newPage();
+    await page.goto(base.href,{waitUntil:'load'});
+    await page.evaluate(()=>document.fonts.ready);
+    await page.waitForTimeout(300);
+    const headers=await page.locator('.card-row-header,.shelf-heading').evaluateAll(elements=>elements.map(element=>{
+      const heading=element.querySelector('h2');
+      return {height:element.getBoundingClientRect().height,fits:heading.scrollWidth<=heading.clientWidth+1,headingHeight:heading.getBoundingClientRect().height,lineHeight:parseFloat(getComputedStyle(heading).lineHeight)};
+    }));
+    for (const header of headers) {
+      assert.equal(header.height,44,width+': fallback font preserves header geometry');
+      assert.ok(Math.abs(header.headingHeight-header.lineHeight)<1,'Fallback heading stays on one line');
+      if(width<640)assert.ok(header.fits,'Fallback font fits both approved mobile headings');
+    }
+    assert.equal(await page.evaluate(()=>window.rowCLS),0,width+': fallback-font CLS zero');
+    await context.close();
   }
   const noJS=await browser.newContext({javaScriptEnabled:false,viewport:{width:390,height:844}});
   await noJS.route('**/*',route=>new URL(route.request().url()).origin===base.origin?route.continue():route.abort());
