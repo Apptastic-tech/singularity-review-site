@@ -4,7 +4,7 @@ description: "Jay Clayton will chair a new Super Intelligence Force with 120 day
 date: 2026-10-06T17:00:00Z
 category: Policy
 hero: /images/articles/washington-names-an-intelligence-chief.jpg
-heroAlt: "An empty briefing room at dusk with leather chairs, closed folders on a polished table, abstract charts on monitors, and stone columns outside"
+heroAlt: "An anonymous signal keeper faces three mechanical levers and converging railway tracks under amber lights at night."
 author: Singularity Review
 tags: ["White House", "Super Intelligence Force", "AI policy", "National security"]
 ---

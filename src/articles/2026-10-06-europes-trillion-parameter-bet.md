@@ -4,7 +4,7 @@ description: "Mistral's Large 4 arrives as an open-weight preview, and the race 
 date: 2026-10-06T13:00:00Z
 category: Models
 hero: /images/articles/europes-trillion-parameter-bet.jpg
-heroAlt: "Warm dawn light falls across zinc Parisian rooftops outside a tall data hall window, with server racks in the foreground"
+heroAlt: "An open wooden tool chest rests on a stone workshop threshold at night, with an unlocked brass padlock and loose key beside its tools."
 author: Singularity Review
 tags: ["Mistral", "Open weights", "Europe", "Frontier models"]
 ---
