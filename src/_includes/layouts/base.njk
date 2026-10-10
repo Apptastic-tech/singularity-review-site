@@ -48,6 +48,7 @@
   <link rel="stylesheet" href="{{ '/css/style.css' | asset }}">
   <script src="{{ '/js/transitions.js' | asset }}"></script>
   <script src="{{ '/js/site.js' | asset }}" defer></script>
+  {% if homeFeed and pagination.pageNumber == 0 %}<script type="module" src="{{ '/js/lensing.js' | asset }}"></script>{% endif %}
   {% if hasCarousel and collections.featured.length and (not homeFeed or pagination.pageNumber == 0) %}<script src="{{ '/js/carousel.js' | asset }}" defer></script>{% endif %}
   {% if jsonld %}<script type="application/ld+json">{{ jsonld | safe }}</script>{% endif %}
 </head>

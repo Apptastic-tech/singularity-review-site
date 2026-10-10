@@ -138,6 +138,35 @@ transitionListeners.get('pagereveal')({ viewTransition: { skipTransition: () => 
 assert.equal(skipped, 2, 'Reduced motion skips both transition phases');
 swap({}); transitionListeners.get('pagereveal')({});
 
+// Inspect built routes rather than only the template conditional.
+for (const file of await fs.readdir('_site', { recursive: true })) {
+  if (!file.endsWith('.html')) continue;
+  const html = await fs.readFile(`_site/${file}`, 'utf8');
+  const scripts = [...html.matchAll(/<script\b[^>]*src="\/js\/lensing\.js[^" ]*"[^>]*>/g)];
+  assert.equal(scripts.length, file === 'index.html' ? 1 : 0, `Homepage-only lensing: ${file}`);
+  if (file === 'index.html') {
+    assert.match(scripts[0][0], /type="module"/);
+    assert.match(scripts[0][0], /lensing\.js\?v=[a-f0-9]{10}/);
+    assert.match(html, /<canvas class="cover-lensing" data-lensing aria-hidden="true" width="1" height="1">/);
+  }
+}
+const lensing = await fs.readFile('src/js/lensing.js', 'utf8');
+assert.equal(await fs.readFile('_site/js/lensing.js', 'utf8'), lensing, 'Lensing module is shipped');
+for (const hook of ['prefers-reduced-motion: reduce', 'saveData', "getContext('webgl'", 'if (!gl)', 'COMPILE_STATUS', 'LINK_STATUS', 'webglcontextlost', 'sky-motion-change', 'requestIdleCallback', 'IntersectionObserver', 'document.hidden', 'skyBoundary', 'texture2D', '1000 / 30']) {
+  assert.ok(lensing.includes(hook), `Lensing contract: ${hook}`);
+}
+assert.ok(source.includes("cover.dispatchEvent(new CustomEvent('sky-motion-change'))"), 'Existing motion control publishes its state');
+assert.ok(source.includes("cover.dataset.skyMotion = running ? 'running' : 'paused'"), 'Late module initialization reads current pause state');
+const longDash = /[\u2013\u2014]/;
+const excludedPalette = /\b(?:purple|violet|magenta|lavender)\b|#(?:9b5cff|c9a6ff|7b3dff|a76bff)\b/i;
+assert.ok(longDash.test(String.fromCodePoint(0x2013)), 'Dash check positive control');
+assert.ok(excludedPalette.test(String.fromCharCode(112, 117, 114, 112, 108, 101)), 'Palette check positive control');
+for (const file of ['src/js/lensing.js', 'src/css/style.css', 'src/index.njk', 'docs/DESIGN.md', 'docs/REBRAND_V4_REPORT.md']) {
+  const value = await fs.readFile(file, 'utf8');
+  assert.ok(!longDash.test(value), `Lensing punctuation: ${file}`);
+  assert.ok(!excludedPalette.test(value), `Lensing palette: ${file}`);
+}
+
 for (const file of ['docs/DESIGN.md', 'docs/UX_REFERENCE.md', 'docs/REBRAND_V4_REPORT.md']) {
   const text = await fs.readFile(file, 'utf8');
   assert.ok(text.includes('black hole') && text.includes('skyline'), `Theme documented: ${file}`);
@@ -147,4 +176,4 @@ for (const file of ['docs/DESIGN.md', 'docs/UX_REFERENCE.md', 'docs/REBRAND_V4_R
 assert.equal(await fs.access('src/images/brand/observatory-thumbnail-ref.png').then(() => true, () => false), false, 'Old logo reference is not shipped');
 const packageJson = JSON.parse(await fs.readFile('package.json', 'utf8'));
 assert.deepEqual(Object.keys(packageJson.devDependencies).sort(), ['@11ty/eleventy', '@11ty/eleventy-img', '@fontsource-variable/inter-tight', '@fontsource-variable/newsreader', 'sharp', 'simple-icons'].sort(), 'No new dependencies');
-console.log('REBRAND VERIFIED: menu timing, reversal, focus, scroll restoration, motion preferences, desktop cleanup, shared photos, snapshot cleanup, documentation and dependencies');
+console.log('REBRAND VERIFIED: menu timing, reversal, focus, scroll restoration, motion preferences, desktop cleanup, shared photos, snapshot cleanup, homepage-only hashed lensing, fallback hooks, pause wiring, palette, punctuation, documentation and dependencies');

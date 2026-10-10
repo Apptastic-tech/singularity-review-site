@@ -57,6 +57,7 @@ try {
     if (page < totalPages) assert.match(content, new RegExp(`href="/page/${page+1}/" data-load-more`));
     else assert.ok(!content.includes('data-load-more'));
     if (page > 1) assert.ok(!content.includes('/js/carousel.js'));
+    assert.equal(content.includes('/js/lensing.js'), page === 1, 'Only the homepage loads lensing, including with future pagination');
   }
   assert.equal(new Set(seen).size, headlines.length);
   assert.equal(seen[0], '/articles/named-news/');

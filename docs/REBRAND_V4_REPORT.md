@@ -34,6 +34,16 @@ The menu animates opening and closing with staggered destinations. Pending close
 
 ## Performance and preservation
 
+### Live lensing enhancement
+
+The lensing brief is implemented in `src/js/lensing.js` with raw WebGL1, one fragment shader and no new dependencies. The homepage alone references the module through the existing `asset` filter. The shader reuses the eager skyline image, bends its stars using inverse radial deflection, gives the photon ring warm brightness and draws a black event horizon. Amber and warm white procedural bands orbit in an inclined accretion disk with a brighter approaching side, a lensed upper arch and foreground matter over the shadow.
+
+The canvas shares the existing black hole's absolute placement and reserved aspect ratio, so it adds no layout space. Radial and box edge fades confine the effect, while a conservative skyline texture mask protects the observatory and mountains and prevents distorted foreground samples from entering the sky. The original sky and black hole images stay in the DOM. They crossfade into the shader over 800ms only after the hero is visible, two animation frames have passed, idle initialization finishes and the first draw succeeds. The LCP candidate and its loading priority remain intact; the header logo stays static.
+
+The existing pause control publishes its current state to the shader and retains its page session lifetime without a new storage policy. Shader time excludes pauses, offscreen time and hidden tab time, including back and forward cache suspension. Reduced motion and Save-Data skip GPU initialization, including when preferences change during a session. Unavailable WebGL, compilation, linking, image decode or upload failure, first draw errors and context loss restore the supplied artwork. Responsive image source changes replace the texture. Rendering caps pixel density at 1.5 on phones and 2 on desktop and drops its target from 60 to 30 frames per second when measured draw work or frame delivery is slow.
+
+`scripts/verify-lensing.mjs` covers those lifecycle paths in a simulated DOM and GL interface, the actual site pause control, lazy initialization, responsive image changes, cleanup, pixel density caps, simulated frame pacing and foreground geometry at widths 390, 1024, 1280, 1440 and 1920. `verify-rebrand.mjs` checks the shipped module, homepage-only hashed reference, fallback hooks, pause wiring, punctuation and palette; future pagination fixtures in `verify-content.mjs` check homepage-only loading too. These checks do not execute a real GPU shader or establish a measured browser CLS or frame rate. The brief assigns rendering and recording to the owner and prohibits local servers, so the rendered appearance and five-width visual clearance remain an explicit handoff in GATES.md. No optional cursor, scroll or device tilt response was added.
+
 Eleventy Image produces responsive AVIF, WebP and JPEG brand variants, up to 1920px without upscaling. The cover skyline's sizes account for its tall mobile crop so the photograph stays sharp. The skyline and black hole are eager, with the skyline at high priority. Article heroes and first lead cards retain high priority; later cards and the homepage author shelf are lazy. The featured archive's first carousel image is eager.
 
 Intrinsic image dimensions, reserved media aspect ratios, fixed masthead dimensions and the motion control slot avoid image and enhancement layout shifts. Existing CSS and script hashes remain; new header, starfield and icon references are also hashed. No libraries were added.
@@ -47,6 +57,7 @@ Required commands pass:
 - `npm run build`: 17 pages generated for the five current published articles.
 - `node scripts/verify-site.mjs`: five articles, four headlines, one featured, navigation, metadata, local assets, responsive formats, photographic icons, compression, motion hooks, source palette, punctuation and treatment checks.
 - `node scripts/verify-content.mjs`: isolated fixtures exercise 23 headlines, three featured stories, ten story pagination, section overrides, drafts, author archives, empty sections, small images, captions, updated metadata and expected failures for missing images or invalid sections.
+- `node scripts/verify-lensing.mjs`: server-free lifecycle, real pause control integration, fallback failures, responsive geometry and texture reuse, and simulated frame pacing.
 
 `node scripts/verify-rebrand.mjs` additionally exercises the menu's close timing, rapid reversal, focus trap, scroll restoration, runtime reduced motion changes and desktop cleanup in a simulated DOM. It also checks duplicate preview selection, shared article photos, snapshot cleanup and reduced motion transition skipping. It checks the theme documentation and unchanged dependency list. Syntax and whitespace checks also pass.
 

@@ -40,6 +40,16 @@ The mobile sheet fades and translates on open and close over 240ms. Destinations
 
 Reduced motion disables cover drift, reveals, hover transforms, sheet transitions and document animations. The carousel's existing reduced motion path disables auto advance. No motion library is used.
 
+## Live gravitational lensing
+
+The homepage enhances the existing black hole with one local WebGL1 fragment shader in `src/js/lensing.js`. It samples the already decoded skyline and starfield with radial deflection proportional to inverse distance, arcs nearby stars, brightens the photon ring and keeps the event horizon black. Procedural amber and warm white noise bands orbit in an inclined disk, with a brighter approaching side, a lensed upper arch and front matter crossing the shadow. This motion makes the owner's astronomical setting tangible. The header logo remains static.
+
+The canvas shares the original disk's absolute position and reserved 16:9 box. A soft radial edge and a conservative mask in the skyline's image coordinates protect the dome, buildings and mountains. The original CSS drift gives way to the shader after two animation frames, visible hero intersection, idle work and a successful first draw; an 800ms crossfade introduces the effect over the original artwork. The eager high priority skyline remains the LCP image. The hashed module loads only on `/`, including when the news feed has more pages.
+
+Pause sky motion freezes both CSS and shader motion, preserving the existing page session state and back and forward cache behavior. Offscreen and hidden pages stop rendering. Reduced motion, Save-Data, no WebGL, shader compilation or link failure, image upload failure and context loss reveal the original pictures. Runtime preference changes are supported. Pixel density is capped at 1.5 on phones and 2 on larger screens; slow rendering drops the target from 60 to 30 frames per second. No dependencies, extra image requests, input permissions or motion on the header mark are introduced.
+
+`scripts/verify-lensing.mjs` exercises lifecycle failures, control integration, responsive texture mapping and simulated frame pacing without a server. Owner rendering remains necessary to check actual shader compilation, appearance, frame rate and clearance at widths 390, 1024, 1280, 1440 and 1920.
+
 ## Performance and contracts
 
 Eleventy Image generates AVIF, WebP and JPEG variants. Article variants remain 480, 800 and 1280px without upscaling. Brand variants use the same widths plus 1920px where the source permits. The cover skyline is eager with high fetch priority; first lead story images and article heroes keep eager priority, while later cards and the homepage author shelf are lazy. The featured archive's first carousel image is eager. Asset hashing continues for CSS and scripts and also covers header artwork, starfield, favicons and the touch icon.

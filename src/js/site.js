@@ -131,8 +131,13 @@
   let coverVisible = true;
   let skyPaused = false;
   const updateCover = () => {
-    cover?.classList.toggle('is-in-view', coverVisible && !document.hidden && !skyPaused && !reducedMotion.matches);
-    if (motionToggle) motionToggle.hidden = reducedMotion.matches;
+    const running = coverVisible && !document.hidden && !skyPaused && !reducedMotion.matches && !navigator.connection?.saveData;
+    cover?.classList.toggle('is-in-view', running);
+    if (cover) {
+      cover.dataset.skyMotion = running ? 'running' : 'paused';
+      cover.dispatchEvent(new CustomEvent('sky-motion-change'));
+    }
+    if (motionToggle) motionToggle.hidden = reducedMotion.matches || !!navigator.connection?.saveData;
   };
   if (cover) {
     updateCover();
@@ -147,6 +152,7 @@
       updateCover();
     });
     reducedMotion.addEventListener('change', updateCover);
+    navigator.connection?.addEventListener?.('change', updateCover);
     document.addEventListener('visibilitychange', updateCover);
   }
 
