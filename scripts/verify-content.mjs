@@ -26,7 +26,7 @@ try {
   for (let i = 0; i < 18; i++) {
     const slug = `fixture-${String(i).padStart(2, '0')}`;
     const value = body(slug, `2099-01-01T${String(23-i).padStart(2, '0')}:00:00Z`, i === 0 ? 'updated: 2026-10-10T09:00:00Z\nheroCaption: "Original editorial image"\n' : '');
-    await fs.writeFile(path.join(temp, `src/articles/2026-10-09-${slug}.md`), value.replace('category: Agents', i === 17 ? 'category: Research' : 'category: Agents'));
+    await fs.writeFile(path.join(temp, `src/articles/2026-10-09-${slug}.md`), value.replace('category: Agents', i === 17 ? 'category: Research' : 'category: Agents') + (i === 0 ? '\n![Inline fixture](/images/articles/small-fixture.jpg)\n' : ''));
   }
   await fixture('author-auto', 'authorPhoto: /images/brand/apple-touch-icon.png\n', 'Ada Example');
   await fixture('house-featured', 'section: featured\n');
@@ -41,7 +41,7 @@ try {
     works: [{ title: 'Original work', year: 1993, url: 'https://example.org/work' }],
   }));
   await fs.writeFile(path.join(temp, 'src/_data/experts.js'), `export default ${JSON.stringify(experts)};\n`);
-  await fs.writeFile(path.join(temp, 'src/_data/singularityOrgs.js'), 'export default [{name:"Example Organisation", description:"Research and public education.", url:"https://example.org/organisation"}];\n');
+  await fs.writeFile(path.join(temp, 'src/_data/singularityOrgs.js'), 'export default [{name:"Example organisation", description:"Research and public education.", url:"https://example.org/organisation"}];\n');
   rebuild();
   const articles = await publishedArticles(temp);
   const headlines = articles.filter(article => article.section === 'news');
@@ -83,6 +83,9 @@ try {
   assert.match(smallHero, /width="320" height="180"/);
   assert.ok(!/480w|800w|1280w/.test(smallHero));
   assert.match(small, /<figcaption>Original editorial image<\/figcaption>/);
+  const inline = small.match(/<img src="\/images\/articles\/small-fixture\.jpg"[^>]*>/)?.[0];
+  assert.ok(inline, 'Markdown inline image is preserved');
+  assert.match(inline, /width="320" height="180" loading="lazy" decoding="async"/, 'Inline image geometry is reserved without editing Markdown');
   assert.equal(JSON.parse(small.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]).dateModified, '2026-10-10T09:00:00.000Z');
   const research = await html('category/research/index.html');
   assert.match(research, /href="\/category\/research\/" aria-current="page"/);
@@ -93,7 +96,7 @@ try {
   for (const route of ['/featured/', '/what-is-singularity/']) assert.ok(sitemap.includes(route));
   assert.ok(!sitemap.includes('/articles/draft-fixture/') && !rss.includes('/articles/draft-fixture/'));
   const explainer = await html('what-is-singularity/index.html');
-  for (const label of ['Pioneer', 'Proponent', 'Skeptic', 'Example Organisation', 'Photo:', 'Wikimedia Commons']) assert.ok(explainer.includes(label));
+  for (const label of ['Pioneer', 'Proponent', 'Skeptic', 'Example organisation', 'Photo:', 'Wikimedia Commons']) assert.ok(explainer.includes(label));
   assert.match(explainer, /href="https:\/\/example.org\/photographer" rel="noopener"/);
   assert.match(explainer, /href="https:\/\/creativecommons.org\/licenses\/by\/4.0\/" rel="noopener"/);
   assert.match(explainer, /href="https:\/\/example.org\/organisation" rel="noopener"/);
@@ -111,7 +114,7 @@ try {
   await fixture('only-featured', 'section: featured\n');
   rebuild();
   assert.match(await html('index.html'), /No headline articles are published yet/);
-  assert.match(await html('index.html'), /<h1>News<\/h1>/);
+  assert.match(await html('index.html'), /<h1>Hard to keep up with everything happening in the technological singularity\?<\/h1>/);
   assert.equal(carouselLinks(await html('index.html')).length, 1, 'A homepage without headlines still displays featured articles');
   assert.match(await html('index.html'), /src="\/js\/carousel\.js\?v=[^"]+" defer/);
   assert.ok(!(await html('featured/index.html')).includes('data-carousel-controls'));

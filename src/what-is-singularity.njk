@@ -47,7 +47,7 @@ eleventyExcludeFromCollections: true
           <div class="expert-identity">
             <h3>{{ expert.name }}</h3>
             <p class="expert-role">{{ expert.role }}</p>
-            <span class="stance-badge">{{ expert.stanceType | capitalize }}</span>
+            <span class="stance-badge">{{ expert.stanceType | sentenceTitle }}</span>
           </div>
         </header>
         <p class="expert-stance">{{ expert.stance }}</p>

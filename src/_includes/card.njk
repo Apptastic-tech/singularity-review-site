@@ -3,12 +3,12 @@
   <div class="card-body">
     <a class="category-label category-link" href="/category/{{ item.data.category | slugify }}/">{{ item.data.category }}</a>
     <a class="card-link" href="{{ item.url }}" aria-labelledby="title-{{ item.data.title | slugify }}">
-      <{{ "h1" if lead else "h2" }} class="card-title" id="title-{{ item.data.title | slugify }}">{{ item.data.title }}</{{ "h1" if lead else "h2" }}>
+      <h2 class="card-title" id="title-{{ item.data.title | slugify }}">{{ item.data.title | sentenceTitle }}</h2>
     </a>
     <p class="card-dek">{{ item.data.description }}</p>
     <p class="card-byline meta{% if lead %} lead-byline{% endif %}">{{ byline(item.data.author or site.defaultAuthor, item.data.authorUrl, item.date) }}</p>
   </div>
-  <a class="card-media" href="{{ item.url }}" aria-label="{{ item.data.title }}" data-story-link>
+  <a class="card-media" href="{{ item.url }}" aria-label="{{ item.data.title | sentenceTitle }}" data-story-link>
     {% picture item.data.hero, item.data.heroAlt, "(min-width: 1312px) 1248px, (min-width: 640px) calc(100vw - 64px), 100vw", "eager" if featured else "lazy", "high" if featured else "auto", "card-image", item.data.title %}
   </a>
 </article>

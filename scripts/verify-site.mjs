@@ -2,6 +2,8 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import assert from 'node:assert/strict';
 import sharp from 'sharp';
+import { sentenceTitle } from '../src/_lib/editorial.js';
+import { checkHeroControls } from './hero-contract.mjs';
 import { publishedArticles, cardLinks, carouselLinks, articleUrl, verifyNavigation } from './verification-helpers.mjs';
 
 const root = process.cwd();
@@ -39,8 +41,8 @@ assert.deepEqual(cards, headlines.slice(0,10).map(articleUrl));
 if (headlines.length) {
   const lead = headlines[0];
   assert.match(home, /class="card card--featured card--lead"/);
-  assert.match(home, /<h1 class="card-title"/);
-  assert.ok(home.includes(lead.source.match(/^title: (.+)$/m)[1].replace(/^"|"$/g, '')), 'Lead is the actual newest news story');
+  assert.match(home, /<h2 class="card-title"/);
+  assert.ok(home.includes(sentenceTitle(lead.source.match(/^title: (.+)$/m)[1].replace(/^"|"$/g, ''))), 'Lead is the actual newest news story');
   const firstCard = home.slice(home.indexOf('<article class="card'), home.indexOf('</article>', home.indexOf('<article class="card')));
   assert.ok(firstCard.indexOf('class="card-title"') < firstCard.indexOf('class="card-media"'), 'Lead headline precedes the photo');
   assert.match(firstCard, /class="card-byline meta lead-byline"/);
@@ -106,12 +108,14 @@ assert.match(favicon, /<image[^>]+href="data:image\/png;base64,/);
 assert.ok(!/<(?:circle|ellipse|path)\b/.test(favicon), 'Favicon embeds the real photographic crop');
 assert.doesNotMatch(await text('src/images/brand/wordmark.svg'), /<image|font-style="italic"/);
 assert.doesNotMatch(home, /class="brand-mark"/);
+assert.equal((home.match(/class="masthead-mark"/g) || []).length, 1, 'Owner approved AI black hole mark sits once beside the serif wordmark');
+assert.match(home, /<img class="masthead-mark"[^>]*alt=""[^>]*>/, 'Decorative mark; the link label names the site');
 assert.match(home, /class="night-cover" data-cover/);
 assert.match(home, /class="cover-sky-image"[^>]+width="\d+" height="\d+"/);
 const coverSky = home.match(/<img[^>]*class="cover-sky-image"[^>]*>/)?.[0];
 assert.ok(coverSky, 'Skyline image exists');
 assert.match(coverSky, /loading="eager"/); assert.match(coverSky, /fetchpriority="low"/);
-assert.match(coverSky, /sizes="\(max-width: 255px\) 255px, 100vw"/);
+assert.match(coverSky, /sizes="\(max-width: 639px\) 640px, 100vw"/);
 assert.match(home.slice(home.lastIndexOf('<source', home.indexOf(coverSky))), /3840w/);
 assert.match(home, /class="cover-disk-image"/);
 assert.match(home, /data-motion-toggle/);
@@ -122,7 +126,7 @@ for (const file of await fs.readdir(path.join(out, 'img/brand'))) {
   const widths = brandFormats.get(meta.format) || new Set(); widths.add(meta.width); brandFormats.set(meta.format, widths);
   assert.ok((await fs.stat(path.join(out, 'img/brand', file))).size < 2500000, `High quality brand budget: ${file}`);
 }
-for (const format of ['heif', 'webp', 'jpeg']) assert.deepEqual([...brandFormats.get(format)].sort((a,b) => a-b), [480,800,1280,1920,2560,3840]);
+for (const format of ['heif', 'webp', 'jpeg']) assert.deepEqual([...brandFormats.get(format)].sort((a,b) => a-b), [480,800,1280,1440,1920,2560,2880,3840]);
 const skyOriginal = await sharp('src/images/brand/skyline-kittpeak.jpg').metadata();
 assert.equal(skyOriginal.width, 5472); assert.equal(skyOriginal.height, 3648);
 for (const folder of ['src/images/brand', '_site/images/brand']) {
@@ -203,3 +207,5 @@ async function scan(dir) {
 }
 await scan(root);
 console.log(`SITE VERIFIED: ${articles.length} articles (${headlines.length} headlines, ${featured.length} featured), ${totalPages} headline page(s), four-item navigation, all assets and metadata present`);
+
+checkHeroControls(home, css);

@@ -8,7 +8,7 @@ layout: layouts/base.njk
 <article class="article">
   <header class="article-header reading-width">
     <a class="category-label category-link" href="/category/{{ category | slugify }}/">{{ category }}</a>
-    <h1 class="article-title">{{ title }}</h1>
+    <h1 class="article-title">{{ title | sentenceTitle }}</h1>
     <p class="article-dek">{{ description }}</p>
     <p class="byline meta">{{ byline(author, authorUrl, page.date, content | readingTime) }}</p>
     {{ shareBar(shareUrl, title, "compact") }}

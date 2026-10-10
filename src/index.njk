@@ -14,9 +14,16 @@ eleventyExcludeFromCollections: true
 ---
 {% if pagination.pageNumber == 0 %}
 <div class="night-cover" data-cover>
-  <div class="cover-sky" aria-hidden="true">{% brandPicture "skyline-kittpeak", "(max-width: 255px) 255px, 100vw", "cover-sky-image", "low" %}</div>
-  <div class="cover-disk" aria-hidden="true">{% brandPicture "blackhole-wide", "(min-width: 640px) 320px, 260px", "cover-disk-image", "low" %}</div>
+  <div class="cover-atmosphere" aria-hidden="true">
+  <div class="cover-sky" aria-hidden="true">{% brandPicture "skyline-kittpeak", "(max-width: 639px) 640px, 100vw", "cover-sky-image", "low" %}</div>
+  <div class="cover-disk" aria-hidden="true">{% brandPicture "blackhole-wide", "(min-width: 854px) 640px, (min-width: 640px) 75vw, calc(100vw - 48px)", "cover-disk-image", "low" %}</div>
   <canvas class="cover-lensing" data-lensing aria-hidden="true" width="1" height="1"></canvas>
+  </div>
+  <header class="hero-statement">
+    <h1>Hard to keep up with everything happening in the technological singularity?</h1>
+    <p class="hero-response">We make it easier for you.</p>
+    <p class="hero-description">AI news, research, and analysis made simple.</p>
+  </header>
   <button type="button" class="cover-motion" aria-label="Pause sky animation" aria-pressed="false" data-motion-toggle hidden><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><path data-motion-glyph d="M7 5h3v14H7zm7 0h3v14h-3z" fill="currentColor"/></svg></button>
 </div>
 {% else %}
@@ -36,7 +43,7 @@ eleventyExcludeFromCollections: true
       {% include "carousel.njk" %}
     {% endif %}
   {% endeach %}
-  {% else %}<header class="feed-intro"><h1>News</h1><p class="empty-state">No headline articles are published yet. Read <a href="/featured/">Featured</a>.</p></header>{% endif %}
+  {% else %}<header class="feed-intro"><h2>News</h2><p class="empty-state">No headline articles are published yet. Read <a href="/featured/">Featured</a>.</p></header>{% endif %}
 </section>
 {% ifAsync not feedItems.length and pagination.pageNumber == 0 and collections.featured.length %}
   {% set carouselItems = collections.featured %}

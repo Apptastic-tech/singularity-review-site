@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import sharp from 'sharp';
+import { checkHeroControls } from './hero-contract.mjs';
 import { verifyNavigation, publishedArticles } from './verification-helpers.mjs';
 import navigation from '../src/_data/navigation.js';
 
@@ -13,7 +14,10 @@ const markup = (html, tag, name) => html.match(new RegExp(`<${tag} class="${name
 function checkChrome(html, file) {
   const header = markup(html, 'header', 'site-header');
   assert.ok(header, `${file}: header exists`);
-  assert.doesNotMatch(header, /<img|<picture|<svg|<em|<strong/);
+  // Owner's tenth note: the AI black hole mark returns beside the one-typeface serif wordmark.
+  assert.equal((header.match(/<img/g) || []).length, 1, 'Exactly one header image: the AI black hole mark');
+  assert.match(header, /<img class="masthead-mark"[^>]*alt=""/);
+  assert.doesNotMatch(header, /<picture|<svg|<em|<strong/);
   assert.match(header, /<span class="brand-wordmark">Singularity Review<\/span>/);
   assert.match(header, /class="header-inner">[\s\S]*class="desktop-nav"[\s\S]*class="menu-toggle"[\s\S]*<\/div>\s*<nav class="mobile-menu"/, 'Navigation and menu button occupy the masthead row');
   assert.doesNotMatch(html, legacy, `${file}: no avatar, icon or decorative heading markup`);
@@ -86,3 +90,5 @@ for (const [path, size] of [['src/favicon-32.png',32], ['src/favicon-48.png',48]
 const guide = await fs.readFile('CONTENT_GUIDE.md', 'utf8');
 const outdated = guide.split('\n').flatMap((line, index) => /Singularity headline news|Featured author articles|Without a photo,.*initials|amber circle|Self-hosted avatar|Shown as plain small caps|Article kicker links/.test(line) ? [index+1] : []);
 console.log(`CHROME VERIFIED: ${pages.length} routes, exact navigation, text masthead, linked dot-separated bylines, plain headings, four footer columns, crop dimensions and negative controls. Protected guide lines for owner follow-up: ${outdated.join(', ')}.`);
+
+checkHeroControls(home, css);

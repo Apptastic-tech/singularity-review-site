@@ -2,8 +2,10 @@
 // Content lives in src/articles (one markdown file per article).
 
 import Image from "@11ty/eleventy-img";
+import { createRequire } from "node:module";
 import path from "node:path";
 import { access } from "node:fs/promises";
+import { sentenceTitle } from "./src/_lib/editorial.js";
 import { articleSection } from "./src/_lib/sections.js";
 
 // Cache busting: {{ "/css/style.css" | asset }} -> /css/style.css?v=<content hash>
@@ -28,6 +30,10 @@ const assetUrl = (url) => {
 const imageJobs = new Map();
 const cardSizes = "(min-width: 1312px) 1248px, (min-width: 640px) calc(100vw - 64px), 100vw";
 const brandJobs = new Map();
+const inlineImageJobs = new Map();
+// Reuse eleventy-img's Sharp runtime, avoiding two libvips versions in one process.
+const require = createRequire(import.meta.url);
+const sharp = createRequire(require.resolve("@11ty/eleventy-img"))("sharp");
 
 async function heroImages(src, article = src) {
   if (!/^\/images\/articles\/[a-z0-9-]+\.jpg$/.test(src || "")) {
@@ -70,9 +76,31 @@ const escapeXml = (s) =>
 
 export default function (eleventyConfig) {
   eleventyConfig.addFilter("asset", assetUrl);
+  eleventyConfig.addFilter("sentenceTitle", sentenceTitle);
   eleventyConfig.on("eleventy.before", () => assetHashes.clear());
   eleventyConfig.on("eleventy.before", () => imageJobs.clear());
   eleventyConfig.on("eleventy.before", () => brandJobs.clear());
+  eleventyConfig.on("eleventy.before", () => inlineImageJobs.clear());
+  // Reserve local Markdown image slots without changing editor-owned article files.
+  eleventyConfig.addTransform("reserveLocalImageGeometry", async (content, outputPath) => {
+    if (typeof outputPath !== "string" || !outputPath.endsWith(".html")) return content;
+    for (const [tag] of [...content.matchAll(/<img\b[^>]*>/g)]) {
+      const hasWidth = /\bwidth="\d+"/.test(tag), hasHeight = /\bheight="\d+"/.test(tag);
+      if (hasWidth && hasHeight) continue;
+      const src = tag.match(/\bsrc="(\/images\/[^"?#]+)"/)?.[1];
+      if (!src) continue;
+      const input = path.resolve("src", src.slice(1));
+      if (!input.startsWith(path.resolve("src/images") + path.sep)) throw new Error("Image path leaves the source image directory");
+      if (!inlineImageJobs.has(input)) inlineImageJobs.set(input, sharp(input).metadata());
+      const metadata = await inlineImageJobs.get(input);
+      if (!metadata.width || !metadata.height) throw new Error(`Image dimensions unavailable: ${src}`);
+      const width = hasWidth ? Number(tag.match(/\bwidth="(\d+)"/)[1]) : hasHeight ? Math.round(Number(tag.match(/\bheight="(\d+)"/)[1]) * metadata.width / metadata.height) : metadata.width;
+      const height = hasHeight ? Number(tag.match(/\bheight="(\d+)"/)[1]) : Math.round(width * metadata.height / metadata.width);
+      const attributes = `${hasWidth ? "" : ` width="${width}"`}${hasHeight ? "" : ` height="${height}"`}${/\bloading=/.test(tag) ? "" : ' loading="lazy"'}${/\bdecoding=/.test(tag) ? "" : ' decoding="async"'}`;
+      content = content.replace(tag, tag.replace(/\s*\/?>(?=$)/, attributes + ">"));
+    }
+    return content;
+  });
   // Static assets
   eleventyConfig.addPassthroughCopy({ "src/images": "images" });
   eleventyConfig.addPassthroughCopy({ "src/css": "css" });
@@ -97,14 +125,31 @@ export default function (eleventyConfig) {
   eleventyConfig.addNunjucksAsyncShortcode("brandPicture", async function (name, sizes = "100vw", classes = "", priority = "auto") {
     if (!["skyline-kittpeak", "blackhole-wide"].includes(name)) throw new Error(`Unknown brand image: ${name}`);
     if (!brandJobs.has(name)) brandJobs.set(name, Image(`src/images/brand/${name}.jpg`, {
-      widths: name === "skyline-kittpeak" ? [1280, 1920, 2560, 3840] : [480, 800, 1280], formats: ["avif", "webp", "jpeg"],
+      widths: name === "skyline-kittpeak" ? [1440, 1920, 2880, 3840] : [480, 800, 1280], formats: ["avif", "webp", "jpeg"],
       outputDir: "./_site/img/brand/", urlPath: "/img/brand/",
       sharpAvifOptions: { quality: 65, effort: 5 }, sharpWebpOptions: { quality: 88 },
       sharpJpegOptions: { quality: 82, progressive: true, chromaSubsampling: "4:4:4" },
     }));
-    return Image.generateHTML(await brandJobs.get(name), {
+    const html = Image.generateHTML(await brandJobs.get(name), {
       alt: "", sizes, loading: "eager", fetchpriority: priority, decoding: "async", class: classes,
     });
+    if (name !== "skyline-kittpeak") return html;
+    // Art direction keeps the dome below and left of the mobile photon ring.
+    // Lossless source extraction, then eleventy-img encodes each responsive format.
+    if (!brandJobs.has("skyline-mobile")) brandJobs.set("skyline-mobile", (async () => {
+      const crop = await sharp("src/images/brand/skyline-kittpeak.jpg")
+        .extract({ left: 2100, top: 500, width: 2800, height: 2800 }).png().toBuffer();
+      return Image(crop, {
+        widths: [1280, 1920, 2560], formats: ["avif", "webp", "jpeg"],
+        outputDir: "./_site/img/brand/", urlPath: "/img/brand/",
+        sharpAvifOptions: { quality: 65, effort: 5 }, sharpWebpOptions: { quality: 88 },
+        sharpJpegOptions: { quality: 82, progressive: true, chromaSubsampling: "4:4:4" },
+      });
+    })());
+    const mobile = await brandJobs.get("skyline-mobile");
+    const sources = ["avif", "webp", "jpeg"].map(format =>
+      `<source media="(max-width: 639px)" type="${mobile[format][0].sourceType}" srcset="${mobile[format].map(image => image.srcset).join(", ")}" sizes="640px">`).join("");
+    return html.replace("<picture>", `<picture>${sources}`);
   });
 
   // Articles: newest first

@@ -1,25 +1,19 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
-import http from 'node:http';
-import { createRequire } from 'node:module';
+import { localBrowser, routeSite, localOrigin } from './browser-local.mjs';
 import { spawnSync } from 'node:child_process';
 import assert from 'node:assert/strict';
 import { publishedArticles } from './verification-helpers.mjs';
 import experts from '../src/_data/experts.js';
 
 // Use an existing runtime. This script never installs packages or browsers.
+if (process.argv.includes('--static')) {
+  await import('./verify-static-pages.mjs');
+} else {
 const root=process.cwd();
-const runtime=path.resolve(process.env.BROWSER_RUNTIME_ROOT || root);
-const require=createRequire(path.join(runtime,'package.json'));
-let chromium;
-try { ({chromium}=require('playwright')); } catch {
-  try { ({chromium}=require('@playwright/test')); } catch {
-    throw new Error('Browser verification needs an existing Playwright runtime. Set BROWSER_RUNTIME_ROOT to its project directory.');
-  }
-}
 const temp=await fs.mkdtemp(path.join(os.tmpdir(),'singularity-browser-'));
-let server, browser;
+let browser;
 try {
   await fs.cp(path.join(root,'src'),path.join(temp,'src'),{recursive:true});
   await fs.copyFile(path.join(root,'eleventy.config.js'),path.join(temp,'eleventy.config.js'));
@@ -39,20 +33,11 @@ try {
   const build=spawnSync(process.execPath,[path.join(root,'node_modules/@11ty/eleventy/cmd.cjs')],{cwd:temp,encoding:'utf8',timeout:60000});
   assert.equal(build.status,0,build.stdout+build.stderr);
   const out=path.join(temp,'_site');
-  const types={'.html':'text/html','.css':'text/css','.js':'text/javascript','.svg':'image/svg+xml','.jpg':'image/jpeg','.jpeg':'image/jpeg','.avif':'image/avif','.webp':'image/webp','.png':'image/png','.woff2':'font/woff2','.xml':'application/xml'};
-  server=http.createServer(async(req,res)=>{
-    try {
-      let file=path.resolve(out,`.${decodeURIComponent(new URL(req.url,'http://localhost').pathname)}`);
-      if (!file.startsWith(`${out}${path.sep}`) && file!==out) throw new Error('Invalid path');
-      if((await fs.stat(file)).isDirectory()) file=path.join(file,'index.html');
-      res.setHeader('Content-Type',types[path.extname(file)]||'text/plain');
-      res.end(await fs.readFile(file));
-    } catch {res.statusCode=404;res.end('Not found');}
-  });
-  await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',resolve);});
-  const url=`http://127.0.0.1:${server.address().port}`;
-  browser=await chromium.launch({headless:true, ...(process.env.BROWSER_EXECUTABLE_PATH ? {executablePath: process.env.BROWSER_EXECUTABLE_PATH} : {})});
-  const page=await browser.newPage({viewport:{width:390,height:844}});
+  const url=localOrigin;
+  browser=await localBrowser();
+  const context=await browser.newContext({viewport:{width:390,height:844}});
+  await routeSite(context,out);
+  const page=await context.newPage();
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.addInitScript(() => {
     window.reworkPerformance = { cls: 0, lcp: null };
@@ -74,15 +59,19 @@ try {
     title:parseFloat(getComputedStyle(document.querySelector('.card-title')).fontSize)
   }));
   assert.equal(layout.overflow,false);assert.equal(layout.header,72);assert.equal(layout.card,390);assert.ok(layout.title>=38);
-  await page.waitForFunction(() => window.reworkPerformance.lcp === 'card-image');
+  await page.waitForFunction(() => window.reworkPerformance.lcp !== null);
   assert.equal(await page.evaluate(() => window.reworkPerformance.cls), 0, 'Homepage CLS is zero');
-  for (const width of [390,1024,1440,1920]) {
-    await page.setViewportSize({width,height:width===390?844:900}); await page.goto(url);
+  for (const [width,height] of [[390,844],[768,1024],[1024,768],[1440,900],[1920,1080],[2560,1440]]) {
+    await page.setViewportSize({width,height}); await page.goto(url);
     await page.evaluate(() => document.fonts.ready);
-    const lead = await page.locator('.card--lead .card-media').boundingBox();
-    assert.ok(lead.y < (width===390 ? 844 : 900), `${width}: lead photo starts in first screen`);
-    await page.waitForFunction(() => window.reworkPerformance.lcp === 'card-image');
-    assert.equal(await page.evaluate(() => window.reworkPerformance.cls), 0, `${width}: zero CLS`);
+    const lead=await page.locator('.card--lead .card-title').boundingBox();
+    assert.ok(lead.y < (width===390?900:height), `${width}: lead headline begins within the requested fold`);
+    const disk=await page.locator('.cover-disk').boundingBox();
+    assert.ok(disk.x>=24&&disk.x+disk.width<=width-24,`${width}: complete black hole in frame`);
+    assert.equal(await page.locator('main h1').count(),1);
+    assert.equal(await page.locator('.hero-statement').evaluate(e=>getComputedStyle(e).textAlign),'center');
+    await page.waitForFunction(() => window.reworkPerformance.lcp !== null);
+    assert.equal(await page.evaluate(() => window.reworkPerformance.cls),0,`${width}: zero CLS`);
   }
   await page.setViewportSize({width:390,height:844}); await page.goto(url);
   const masthead = await page.evaluate(() => {
@@ -138,12 +127,14 @@ try {
   assert.equal(await page.locator('.desktop-nav a').count(), 4);
   assert.equal(await page.locator('.desktop-nav [aria-current]').textContent(), 'News');
   const noJS=await browser.newContext({javaScriptEnabled:false,viewport:{width:390,height:844}});
+  await routeSite(noJS,out);
   const fallback=await noJS.newPage();await fallback.goto(url);
   assert.ok(await fallback.locator('.card-image').first().isVisible());
   assert.equal(await fallback.locator('[data-motion-toggle]').isVisible(), false);
   await fallback.locator('[data-load-more]').click();
   assert.equal(new URL(fallback.url()).pathname,'/page/2/');await noJS.close();
   const noObserver=await browser.newContext();await noObserver.addInitScript(()=>{delete window.IntersectionObserver;});
+  await routeSite(noObserver,out);
   const basic=await noObserver.newPage();await basic.goto(url);await basic.locator('[data-load-more]').click();
   assert.equal(new URL(basic.url()).pathname,'/page/2/');await noObserver.close();
   await page.goto(url);
@@ -252,7 +243,7 @@ try {
         assert.equal(headerGap.activeWeight, 400, 'Navigation keeps the same regular weight');
         assert.equal(headerGap.navSize, 16, 'Short destination labels fit the single masthead row');
         assert.equal(await page.locator('.site-header').evaluate(el => el.getBoundingClientRect().height), 72);
-        assert.equal(await page.locator('.site-header img').count(), 0);
+        assert.equal(await page.locator('.site-header img').count(), 1); assert.equal(await page.locator('.site-header img.masthead-mark').count(), 1);
       }
       if (route === '/featured/') assert.equal(await page.locator('.shelf-heading h2').textContent(), 'Featured');
       if (route === '/what-is-singularity/' && experts.length) {
@@ -282,6 +273,6 @@ try {
   console.log('BROWSER VERIFIED: responsive feed, accessible menu, scroll header, infinite loading, fallbacks, retry, carousel controls and timing, new pages, and reduced motion');
 } finally {
   await browser?.close();
-  if(server?.listening) await new Promise(resolve=>server.close(resolve));
   await fs.rm(temp,{recursive:true,force:true});
+}
 }

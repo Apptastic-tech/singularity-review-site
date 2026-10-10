@@ -131,14 +131,14 @@
   let skyPaused = false;
   try { skyPaused = localStorage.getItem('sr-sky-paused') === 'true'; } catch { /* Storage may be unavailable. */ }
   const updateCover = () => {
-    const running = coverVisible && !document.hidden && !skyPaused && !reducedMotion.matches && !navigator.connection?.saveData;
+    const running = coverVisible && !document.hidden && !skyPaused && !reducedMotion.matches && !navigator.connection?.saveData && !cover?.dataset.skyUnavailable;
     cover?.classList.toggle('is-in-view', running);
     if (cover) {
       cover.dataset.skyMotion = running ? 'running' : 'paused';
       cover.dispatchEvent(new CustomEvent('sky-motion-change'));
     }
     if (motionToggle) {
-      motionToggle.hidden = reducedMotion.matches || !!navigator.connection?.saveData;
+      motionToggle.hidden = reducedMotion.matches || !!navigator.connection?.saveData || !!cover?.dataset.skyUnavailable;
       motionToggle.setAttribute('aria-pressed', String(skyPaused));
       motionToggle.setAttribute('aria-label', skyPaused ? 'Play sky animation' : 'Pause sky animation');
       motionToggle.querySelector?.('[data-motion-glyph]')?.setAttribute('d', skyPaused ? 'M8 5v14l11-7z' : 'M7 5h3v14H7zm7 0h3v14h-3z');

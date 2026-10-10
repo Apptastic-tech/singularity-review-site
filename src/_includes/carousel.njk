@@ -11,7 +11,7 @@
     <article class="carousel-slide" role="group" aria-roledescription="slide" aria-label="{{ loop.index }} of {{ carouselItems.length }}" data-carousel-slide>
       <a class="carousel-story" href="{{ item.url }}" aria-labelledby="carousel-title-{{ item.data.title | slugify }}" data-story-link>
         {% picture item.data.hero, item.data.heroAlt, carouselSizes, "eager" if loop.first and not homeFeed else "lazy", "high" if loop.first and not homeFeed else "auto", "carousel-image", item.data.title %}
-        <h3 id="carousel-title-{{ item.data.title | slugify }}">{{ item.data.title }}</h3>
+        <h3 id="carousel-title-{{ item.data.title | slugify }}">{{ item.data.title | sentenceTitle }}</h3>
       </a>
       <p class="carousel-byline meta">{{ byline(item.data.author or site.defaultAuthor, item.data.authorUrl, item.date) }}</p>
     </article>

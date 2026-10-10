@@ -11,7 +11,7 @@ eleventyComputed:
   description: "{{ cat.name }} coverage from Singularity Review: AI news, research, and analysis."
 ---
 <header class="feed-intro category-intro feed-width">
-  <h1>{{ cat.name }}</h1>
+  <h1>{{ cat.name | sentenceTitle }}</h1>
   <p class="meta">{{ cat.articles.length }} {{ "story" if cat.articles.length == 1 else "stories" }}, newest first. News and analysis on this topic from Singularity Review.</p>
 </header>
 <section class="feed feed-width" aria-label="{{ cat.name }} articles" data-feed>

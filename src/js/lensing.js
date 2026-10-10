@@ -20,11 +20,10 @@ uniform vec2 uArtOrigin;
 uniform vec2 uArtScale;
 uniform vec2 uSkyOrigin;
 uniform vec2 uSkyScale;
+uniform vec2 uSourceOrigin;
+uniform vec2 uSourceScale;
 uniform vec2 uResolution;
 uniform float uTime;
-const vec3 amber = vec3(0.949, 0.663, 0.231);
-const vec3 paper = vec3(1.0, 0.949, 0.843);
-const vec3 ground = vec3(0.04314, 0.04706, 0.05490);
 
 float noise(vec2 p) {
   vec2 i = floor(p);
@@ -49,16 +48,17 @@ float noise(vec2 p) {
 // Conservative Kitt Peak silhouette in the new photograph's source UV coordinates.
 // The white dome is at x .61, y .70; the right tree starts above the mountain.
 float skyBoundary(float x) {
+  x = uSourceOrigin.x + x * uSourceScale.x;
   float mountain = 0.84 - 0.08 * smoothstep(0.38, 0.46, x);
   float domeDistance = (x - 0.61) / 0.05;
   float dome = 0.10 * exp(-domeDistance * domeDistance);
   float tree = 0.18 * smoothstep(0.80, 0.88, x);
-  return mountain - dome - tree;
+  return (mountain - dome - tree - uSourceOrigin.y) / uSourceScale.y;
 }
 
 vec3 sky(vec2 uv) {
   uv.y = min(uv.y, skyBoundary(uv.x) - 0.032);
-  return texture2D(uSky, clamp(uv, 0.001, 0.999)).rgb * 0.76 + ground * 0.24;
+  return texture2D(uSky, clamp(uv, 0.001, 0.999)).rgb;
 }
 
 vec2 rotate(vec2 p, float angle) {
@@ -68,7 +68,9 @@ vec2 rotate(vec2 p, float angle) {
 
 vec3 artwork(vec2 uv) {
   vec2 inside = step(vec2(0.0), uv) * step(uv, vec2(1.0));
-  return texture2D(uArtwork, clamp(uv, 0.0, 1.0)).rgb * inside.x * inside.y;
+  float edge = smoothstep(0.0, 0.12, min(uv.x, 1.0 - uv.x))
+    * smoothstep(0.0, 0.14, min(uv.y, 1.0 - uv.y));
+  return texture2D(uArtwork, clamp(uv, 0.0, 1.0)).rgb * inside.x * inside.y * edge;
 }
 
 void main() {
@@ -80,32 +82,34 @@ void main() {
   vec2 baseUV = uSkyOrigin + vUV * uSkyScale;
   float skyMask = 1.0 - smoothstep(skyBoundary(baseUV.x) - 0.11,
     skyBoundary(baseUV.x) - 0.04, baseUV.y);
+  float foregroundMask = 1.0 - smoothstep(skyBoundary(baseUV.x) - 0.04,
+    skyBoundary(baseUV.x) - 0.02, baseUV.y);
   // Circular falloff reaches zero before the square canvas edges, even off center.
-  float influence = 1.0 - smoothstep(4.8, 8.0, r);
-  float alpha = skyMask * influence;
+  float influence = 1.0 - smoothstep(2.0, 4.5, r);
+  float alpha = foregroundMask * influence;
 
   // The lens equation's critical radius lies outside the shadow, in visible sky.
-  float deflection = 7.0 / max(r, 0.25) * influence;
+  float deflection = 1.4 / max(r, 0.25) * influence * influence * influence;
   vec2 bent = p - direction * deflection;
   vec2 skyUnits = vec2(0.109, 0.109 / 0.5625) / uArtScale * uSkyScale;
-  vec2 drift = vec2(sin(uTime * 0.018), cos(uTime * 0.015) - 1.0) * 0.9;
+  vec2 drift = vec2(sin(uTime * 0.018), cos(uTime * 0.015) - 1.0) * 0.04;
   vec2 displacedUV = baseUV + (bent - p + drift * influence) * skyUnits * skyMask;
   vec2 tangent = vec2(-direction.y, direction.x);
   // Several linear samples smear drifting stars tangentially near the critical curve.
-  float criticalDistance = (r - 2.65) / 0.32;
+  float criticalDistance = (r - 1.18) / 0.12;
   float critical = exp(-criticalDistance * criticalDistance);
-  vec2 smear = tangent * skyUnits * (0.02 + critical * 0.22);
+  vec2 smear = tangent * skyUnits * (0.01 + critical * 0.035);
   vec3 background = sky(displacedUV) * 0.4;
   background += (sky(displacedUV + smear) + sky(displacedUV - smear)) * 0.2;
   background += (sky(displacedUV + smear * 2.0) + sky(displacedUV - smear * 2.0)) * 0.1;
-  // A faint warm Einstein arc follows actual lensed sky detail, without striped noise.
-  vec3 einstein = mix(amber, paper, 0.3) * critical * (0.012 + max(0.0, background.r - ground.r) * 0.32);
+  // Keep the real ridge pixels near the foreground; never paint a synthetic hill.
+  background = mix(texture2D(uSky, clamp(baseUV, 0.001, 0.999)).rgb, background, skyMask);
 
   // Rotate texture coordinates along the inclined plane. Inner matter orbits faster.
   vec2 inclined = rotate(p, 0.22);
   vec2 plane = vec2(inclined.x, inclined.y / 0.24);
   float diskRadius = length(plane);
-  float orbit = uTime * 0.16 / pow(max(diskRadius, 1.2), 1.5);
+  float orbit = uTime * 0.025 / pow(max(diskRadius, 1.2), 1.5);
   vec2 orbitPlane = rotate(plane, -orbit);
   vec2 orbitPoint = rotate(vec2(orbitPlane.x, orbitPlane.y * 0.24), -0.22);
   vec2 orbitUV = vec2(0.51, 0.48) + orbitPoint * vec2(0.109, 0.109 / 0.5625);
@@ -114,17 +118,21 @@ void main() {
   float diskMask = (1.0 - smoothstep(0.32, 0.72, abs(inclined.y)))
     * smoothstep(1.1, 1.6, diskRadius) * (1.0 - smoothstep(3.8, 5.0, diskRadius));
   // Preserve the photographed silhouette, lensed upper arch and crisp photon ring.
-  float photonLock = 1.0 - smoothstep(0.04, 0.16, abs(r - 0.96));
+  float photonLock = 1.0 - smoothstep(0.04, 0.16, abs(r - 1.14));
   float moving = diskMask * (1.0 - photonLock);
-  vec3 emission = mix(original, original * 0.80 + orbitLight * 0.20, moving);
-  float shimmer = 1.0 + 0.045 * sin(uTime * 0.38 + plane.x * 0.7)
-    + 0.025 * (noise(plane * 0.55 + vec2(uTime * 0.025, 0.0)) - 0.5);
-  float approaching = 1.0 - 0.075 * plane.x / max(diskRadius, 1.0);
+  vec3 emission = mix(original, original * 0.96 + orbitLight * 0.04, moving);
+  float shimmer = 1.0 + 0.012 * sin(uTime * 0.38 + plane.x * 0.7)
+    + 0.008 * (noise(plane * 0.55 + vec2(uTime * 0.025, 0.0)) - 0.5);
+  float approaching = 1.0 - 0.04 * plane.x / max(diskRadius, 1.0);
   emission *= mix(1.0, shimmer * approaching, moving);
 
+  // Match the static artwork grade; retain the supplied Doppler asymmetry.
+  float light = dot(emission, vec3(0.2126, 0.7152, 0.0722));
+  emission = mix(vec3(light), emission, 0.72) * 0.78;
+
   float aa = 1.5 * uArtScale.x / (uResolution.x * 0.109);
-  float shadow = smoothstep(0.86 - aa, 0.86 + aa, r);
-  vec3 color = background * shadow + einstein * shadow;
+  float shadow = smoothstep(1.04 - aa, 1.04 + aa, r);
+  vec3 color = background * shadow;
   // Screen composite the real emission over the sky; source black contributes no light.
   color = 1.0 - (1.0 - color) * (1.0 - clamp(emission, 0.0, 1.0));
   // Premultiply explicitly so transparent mask edges cannot leak bright RGB.
@@ -181,7 +189,12 @@ function enhanceCover(cover) {
     // Resizing can precede the browser's larger responsive image loading.
     // Keep the sharp photo until that source arrives, then allow enhancement again.
     if (error?.code === 'SKY_SOURCE_PENDING') awaitingSource = true;
-    else failed = true;
+    else {
+      failed = true;
+      cover.dataset.skyUnavailable = 'true';
+      const toggle = cover.querySelector('[data-motion-toggle]');
+      if (toggle) toggle.hidden = true;
+    }
     fallback();
   };
 
@@ -225,8 +238,7 @@ function enhanceCover(cover) {
       await Promise.all([decode(skyline), decode(diskImage)]);
       if (!eligible() || !pageActive || !visible || document.hidden) return;
       renderer = createRenderer(canvas, skyline, disk, diskImage);
-      // Stop the CSS sky and disk drift only once a valid renderer can replace them.
-      // Capture the current sky transform so stars outside the patch cannot jump at handover.
+      // Capture the static sky pose only once a valid renderer can replace the artwork.
       skyline.style.transform = getComputedStyle(skyline).transform;
       cover.classList.add('has-lensing');
       renderer.resize();
@@ -389,7 +401,7 @@ function createRenderer(canvas, skyline, disk, diskImage) {
     };
     upload(skyline, gl.TEXTURE0);
     upload(diskImage, gl.TEXTURE1, true);
-    const uniforms = Object.fromEntries(['uSky', 'uArtwork', 'uArtOrigin', 'uArtScale', 'uSkyOrigin', 'uSkyScale', 'uResolution', 'uTime'].map(name => [name, gl.getUniformLocation(program, name)]));
+    const uniforms = Object.fromEntries(['uSky', 'uArtwork', 'uArtOrigin', 'uArtScale', 'uSkyOrigin', 'uSkyScale', 'uSourceOrigin', 'uSourceScale', 'uResolution', 'uTime'].map(name => [name, gl.getUniformLocation(program, name)]));
     gl.uniform1i(uniforms.uSky, 0);
     gl.uniform1i(uniforms.uArtwork, 1);
     return {
@@ -408,6 +420,9 @@ function createRenderer(canvas, skyline, disk, diskImage) {
         gl.uniform2f(uniforms.uResolution, width, height);
         // Reproduce object-fit: cover, object-position and the existing sky's scale transform.
         const original = sourcePixels(skyline);
+        const mobileCrop = original.width / original.height < 1.1;
+        gl.uniform2f(uniforms.uSourceOrigin, mobileCrop ? 2100 / 5472 : 0, mobileCrop ? 500 / 3648 : 0);
+        gl.uniform2f(uniforms.uSourceScale, mobileCrop ? 2800 / 5472 : 1, mobileCrop ? 2800 / 3648 : 1);
         const scale = Math.max(skyBox.width / original.width, skyBox.height / original.height);
         const imageWidth = original.width * scale;
         const imageHeight = original.height * scale;

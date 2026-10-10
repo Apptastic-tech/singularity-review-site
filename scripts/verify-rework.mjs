@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import sharp from 'sharp';
+import { checkHeroControls } from './hero-contract.mjs';
 
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 const sky = 'src/images/brand/skyline-kittpeak.jpg';
@@ -19,7 +20,7 @@ for (const format of ['avif', 'webp', 'jpeg']) {
   const srcset = picture.match(new RegExp(`srcset="([^"\\n]+\\.${format} 3840w)"`))?.[1];
   assert.ok(srcset, `${format}: 3840w skyline candidate exists`);
   const variants = [...srcset.matchAll(/([^, ]+) (\d+)w/g)];
-  assert.deepEqual(variants.map(([, , width]) => Number(width)), [1280, 1920, 2560, 3840]);
+  assert.deepEqual(variants.map(([, , width]) => Number(width)), [1440, 1920, 2880, 3840]);
   for (const [, url, width] of variants) {
     const metadata = await sharp('_site' + url).metadata();
     assert.equal(metadata.width, Number(width));
@@ -29,19 +30,18 @@ for (const format of ['avif', 'webp', 'jpeg']) {
 }
 const css = await fs.readFile('src/css/style.css', 'utf8');
 assert.match(css, /font-display: optional/);
-assert.doesNotMatch(css, /font-display: swap|text-shadow|(?:linear|radial)-gradient|cover-copy|cover-dek|\.kicker/);
+assert.doesNotMatch(css, /font-display: swap|text-shadow|cover-copy|cover-dek|\.kicker/);
 assert.match(css, /\.cover-motion \{[^}]*position: absolute;[^}]*width: 44px; height: 44px;/);
 assert.match(css, /::selection \{[^}]*background: #C8CDD1;/);
 const decorativeDivider = /\.(?:site-header|menu-links(?: > a)?|follow|read-next|site-footer|footer-links|desktop-nav|share-end|author-shelf|explainer-section|expert-card)\s*\{[^}]*border-(?:top|bottom|block):\s*[1-9]/;
 assert.ok(decorativeDivider.test('.site-footer { border-top: 1px solid gray; }'), 'Divider checker rejects a positive fixture');
 assert.doesNotMatch(css, decorativeDivider, 'Sections use spacing instead of decorative rules');
-// The cover's maximum height crop is 170 * 3 / 2 = 255 CSS pixels wide.
-// Sizes must cover that minimum as well as the viewport width, at every DPR.
-assert.ok(170 * 1.5 === 255);
-assert.match(picture, /sizes="\(max-width: 255px\) 255px, 100vw"/);
-for (const [width, height, dpr] of [[390, 170, 3], [1024, 200, 2], [1440, 200, 2], [1920, 200, 2]]) {
+// Desktop uses the full 3:2 source; mobile uses a square art-directed crop.
+assert.match(picture, /media="\(max-width: 639px\)"/);
+assert.match(picture, /sizes="\(max-width: 639px\) 640px, 100vw"/);
+for (const [width, height, dpr] of [[1024, 504, 2], [1440, 504, 2], [1920, 604.8, 2]]) {
   const required = Math.max(width, height * 1.5) * dpr;
-  assert.ok([1280,1920,2560,3840].some(candidate => candidate >= required), `${width}@${dpr}: sky never upscales`);
+  assert.ok([1440,1920,2880,3840].some(candidate => candidate >= required), `${width}@${dpr}: sky never upscales`);
 }
 const source = await fs.readFile('src/js/lensing.js', 'utf8');
 assert.match(source, /Responsive images report density-corrected natural dimensions/);
@@ -54,4 +54,6 @@ for (const file of await fs.readdir('_site', { recursive: true })) {
   if (file.endsWith('.html')) assert.ok(!banned.test(await fs.readFile('_site/' + file, 'utf8')), `Plain copy: ${file}`);
 }
 for (const file of ['eleventy.config.js','scripts/prepare-brand.mjs','src/js/lensing.js','docs/DESIGN.md','docs/REBRAND_V4_REPORT.md']) assert.ok(!(await fs.readFile(file, 'utf8')).includes(oldName), `Retired photo has no active references: ${file}`);
-console.log('REWORK VERIFIED: original photo, four high quality sky widths in three formats, full chroma, height-aware sizes at 3x mobile and 2x desktop, resource-pixel textures, icon geometry, stable font policy, no decorative section dividers and site-wide copy cleanup');
+console.log('REWORK VERIFIED: original photo, four high quality desktop sky widths in three formats, mobile art direction, full chroma, height-aware desktop sizes, resource-pixel textures, stable font policy, no decorative section dividers and site-wide copy cleanup');
+
+checkHeroControls(home, css);
