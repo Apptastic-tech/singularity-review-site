@@ -165,7 +165,7 @@ function enhanceCover(cover) {
   let lastDraw = 0;
   let interval = 1000 / 60;
   let slowFrames = 0;
-  let slowDraws = 0;
+  let slowDraws = 0, draws = 0, heavyDraws = 0;
   let geometryDirty = true;
   let pageActive = true;
   const eligible = () => !failed && !awaitingSource && !reducedMotion.matches && !connection?.saveData;
@@ -213,7 +213,12 @@ function enhanceCover(cover) {
         if (geometryDirty) { renderer.resize(); geometryDirty = false; }
         const started = performance.now();
         renderer.draw(time);
-        if (performance.now() - started > 12) slowDraws++;
+        const cost = performance.now() - started;
+        draws++;
+        if (cost > 20) heavyDraws++;
+        // A device that cannot draw cheaply in the first 40 frames gets the static artwork, not a janky page.
+        if (draws <= 40 && heavyDraws >= 8 && !/[?&]lensing=force\b/.test(globalThis.location?.search || '')) { fail(Object.assign(new Error('Lensing over frame budget'), { code: 'FRAME_BUDGET' })); return; }
+        if (cost > 12) slowDraws++;
         else slowDraws = Math.max(0, slowDraws - 1);
         if (slowDraws >= 24) interval = 1000 / 30;
         lastDraw = timestamp;
@@ -320,6 +325,13 @@ function createRenderer(canvas, skyline, disk, diskImage) {
   // A null context or any compile/link/upload error leaves both original pictures untouched.
   const gl = canvas.getContext('webgl', { alpha: true, premultipliedAlpha: true, antialias: false, depth: false, stencil: false, powerPreference: 'low-power' });
   if (!gl) throw new Error('No WebGL');
+  // Software rasterisers (no GPU: SwiftShader, llvmpipe, Microsoft Basic Render) run the shader on the CPU
+  // main thread and block input for seconds. Keep the static artwork there. ?lensing=force overrides for capture rigs.
+  const debugInfo = typeof gl.getExtension === 'function' ? gl.getExtension('WEBGL_debug_renderer_info') : null;
+  const rendererName = debugInfo && typeof gl.getParameter === 'function' ? String(gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) || '') : '';
+  if (/swiftshader|llvmpipe|softpipe|software|basic render/i.test(rendererName) && !/[?&]lensing=force\b/.test(globalThis.location?.search || '')) {
+    const error = new Error('Software WebGL renderer'); error.code = 'SOFTWARE_GL'; throw error;
+  }
   const shaders = [];
   let program, buffer;
   const textures = [];
