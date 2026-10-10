@@ -13,8 +13,8 @@ assert.ok(shader === await fs.readFile('_site/js/lensing.js', 'utf8'), 'Pixel or
 checkHeroControls(home, css);
 assert.match(css, /\.night-cover \{[^}]*height: max\(640px, calc\(var\(--disk-width\) \* \.7605 \+ 240px\)\); margin: 0;/);
 assert.match(css, /height: clamp\(720px, 70vh, 780px\)/);
-assert.match(css, /\.skyline-home \.headline-feed \{[^}]*margin-top: 0/);
-assert.match(css, /\.card--lead \.card-body \{[^}]*background: transparent/);
+assert.doesNotMatch(css, /\.headline-feed/);
+assert.match(css, /\.card-row \{[^}]*margin-block: 32px 48px/);
 assert.doesNotMatch(css, /(?:\.headline-feed|\.card[^{}]*)\s*\{[^}]*margin-(?:top|block-start):\s*-/);
 assert.match(css, /\.cover-atmosphere \{[^}]*mask-image: linear-gradient/);
 assert.match(css, /rgb\(0 0 0 \/ \.25\) 90%, transparent 100%/);
@@ -24,8 +24,8 @@ assert.doesNotMatch(shader, /pointermove|mousemove|uPointer|uCursor|spotlight|ve
 assert.match(shader, /original \* 0\.96 \+ orbitLight \* 0\.04/);
 assert.match(shader, /smoothstep\(1\.04 - aa, 1\.04 \+ aa, r\)/);
 assert.match(shader, /min\(uv\.x, 1\.0 - uv\.x\)/, 'Artwork edges feather rather than forming an image box');
-assert.match(css, /\.footer-columns \{ display: grid; grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
-assert.match(css, /\.footer-links a, \.footer-topics a, \.footer-social \.social-link \{ min-height: 32px/);
+assert.match(css, /\.footer-top \{[^}]*display: flex;[^}]*flex-wrap: wrap/);
+assert.match(css, /\.footer-social \.social-link \{[^}]*min-height: 32px/);
 const picture = home.match(/<div class="cover-sky"[^>]*>(.*?)<\/div>/s)[1];
 const sources = [...picture.matchAll(/<source\b([^>]+)>/g)].map(([,s])=>({mobile:/media=/.test(s),type:s.match(/type="([^"]+)"/)[1],variants:[...s.matchAll(/([^", ]+) (\d+)w/g)].map(([,url,w])=>({url,width:+w}))}));
 const image = picture.match(/<img\b([^>]+)>/)[1];
@@ -57,14 +57,14 @@ assert.ok(fadeAt(639.5,640)<.002,'The final visible row converges to the page co
 assert.ok(fadeAt(320,640)>0,'A hard cutoff fails the fade positive control');
 const report=[];
 for(const [width,height,dpr] of [[320,844,1],[390,844,3],[639,844,1],[640,900,1],[768,1024,1],[1024,768,2],[1440,900,1],[1440,900,2],[1920,1080,1],[2560,1440,1]]){
- const layout=coverLayout(css,width,height),{bandHeight,disk,leadY}=layout,mobile=width<640;
+ const layout=coverLayout(css,width,height),{bandHeight,disk,rowHeadingY}=layout,mobile=width<640;
  const requiredWidth=Math.max(width,bandHeight*(mobile?1:1.5))*dpr;
  const request=(mobile?640:width)*dpr;
  const candidates=sources.find(s=>s.mobile===mobile&&s.type==='image/avif').variants;
  const chosen=candidates.find(v=>v.width>=request)||candidates.at(-1);
  assert.ok(chosen.width>=requiredWidth,`${width}@${dpr}: selected source covers both crop dimensions`);
  assert.ok(disk.left>=24&&disk.left+disk.width<=width-24&&disk.top>=16&&disk.top+disk.height<=bandHeight-16,`${width}: complete artwork frame fits with comfortable margin`);
- assert.ok(leadY<(mobile?900:height+80),`${width}: lead headline begins within the required fold`);
+ assert.ok(rowHeadingY<(mobile?900:height+80),`${width}: headline row heading begins within the required fold`);
  const art=diskVariants.find(v=>v.width>=disk.width*dpr)||diskVariants.at(-1);
  const boxes=await statementBoxes(layout,width,height);
  assert.ok(boxes.at(-1).bottom<bandHeight-16,`${width}: statement fits inside the reserved band`);
@@ -92,14 +92,14 @@ for(const [width,height,dpr] of [[320,844,1],[390,844,3],[639,844,1],[640,900,1]
  // including glyph pixels outside the Pango line-envelope model.
  const boundaryPixel=surface.background(width/2,bandHeight,null);
  assert.ok(boundaryPixel.every((v,i)=>Math.abs(v-ink[i])<1e-9),'No edge or step at the photograph boundary');
- report.push({viewport:`${width}x${height}@${dpr}`,bandHeight,leadHeadlineDocumentY:leadY,chosenSkyWidth:chosen.width,requiredSkyWidth:requiredWidth,chosenArtworkWidth:art.width,disk,diskBottom:layout.diskBottom,lensingRegionBottom:layout.lensingRegionBottom,statementTop:layout.statement.top,perLine});
+ report.push({viewport:`${width}x${height}@${dpr}`,bandHeight,rowHeadingDocumentY:rowHeadingY,chosenSkyWidth:chosen.width,requiredSkyWidth:requiredWidth,chosenArtworkWidth:art.width,disk,diskBottom:layout.diskBottom,lensingRegionBottom:layout.lensingRegionBottom,statementTop:layout.statement.top,perLine});
 }
 await fs.mkdir('.audit/skyline',{recursive:true});
 const fingerprints = {};
 for(const file of ['src/index.njk','src/css/style.css','src/js/lensing.js','eleventy.config.js','scripts/hero-pixels.mjs','scripts/static-layout.mjs','scripts/verify-skyline.mjs','src/images/brand/skyline-kittpeak.jpg','src/images/brand/blackhole-wide.jpg','_site/index.html']) fingerprints[file]=createHash('sha256').update(await fs.readFile(file)).digest('hex');
-await fs.writeFile('.audit/skyline/measurements.json',JSON.stringify({method:'Current built AVIF pixels composed with the production photograph, artwork, neutral scrim and photographic fade. Per-line envelopes use Sharp/Pango and the shipped fonts. GLSL frames are a CPU reconstruction with a conservative shimmer bound, not GPU execution. Lead Y and artwork bounds derive from current CSS reserved geometry, not browser measurements. Independent white-pixel bounds cover all animation and wrapping choices.',fingerprints,report,animationBound:{headline:contrast(paper,white),description:contrast(muted,white)},renderedReview:'Assigned to the editor; no browser or application was launched.'},null,2)+'\n');
+await fs.writeFile('.audit/skyline/measurements.json',JSON.stringify({method:'Current built AVIF pixels composed with the production photograph, artwork, neutral scrim and photographic fade. Per-line envelopes use Sharp/Pango and the shipped fonts. GLSL frames are a CPU reconstruction with a conservative shimmer bound, not GPU execution. Row heading Y and artwork bounds derive from current CSS reserved geometry, not browser measurements. Independent white-pixel bounds cover all animation and wrapping choices.',fingerprints,report,animationBound:{headline:contrast(paper,white),description:contrast(muted,white)},renderedReview:'Assigned to the editor; no browser or application was launched.'},null,2)+'\n');
 console.log('SKYLINE VERIFIED: exact centered statement, clean fade, separate unboxed lead, feathered artwork, no pointer effects, CSS-derived bounds and fold positions, sharp sources, composed per-line pixels, animation bounds and compact footer');
-for(const r of report)console.log(`${r.viewport}: band ${r.bandHeight}px, lead Y ${r.leadHeadlineDocumentY}px, source ${r.chosenSkyWidth}w, contrast fallback ${r.perLine.map(line=>line.contrast.fallback.toFixed(2)).join('/')}, shader model ${r.perLine.map(line=>Math.min(line.contrast.shaderModel0,line.contrast.shaderModel60).toFixed(2)).join('/')}`);
+for(const r of report)console.log(`${r.viewport}: band ${r.bandHeight}px, lead Y ${r.rowHeadingDocumentY}px, source ${r.chosenSkyWidth}w, contrast fallback ${r.perLine.map(line=>line.contrast.fallback.toFixed(2)).join('/')}, shader model ${r.perLine.map(line=>Math.min(line.contrast.shaderModel0,line.contrast.shaderModel60).toFixed(2)).join('/')}`);
 
 // Static fallback: the disk art screens over the sky as a whole (no dark halo), and the opaque shadow sits beneath it.
 assert.match(css, /\.cover-disk \{ mix-blend-mode: screen;/, 'Static disk must screen over the skyline so its black background never darkens the sky');

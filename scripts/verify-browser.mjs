@@ -41,6 +41,10 @@ try {
   browser=await localBrowser();
   const context=await browser.newContext({viewport:{width:390,height:844}});
   await routeSite(context,out);
+  await context.addInitScript(() => {
+    localStorage.setItem('sr-consent', JSON.stringify({version:'2026-10-10',necessary:true,analytics:false,marketing:false,decidedAt:new Date().toISOString()}));
+    localStorage.setItem('sr-newsletter', JSON.stringify({state:'dismissed',at:new Date().toISOString()}));
+  });
   const page=await context.newPage();
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.addInitScript(() => {
@@ -59,17 +63,17 @@ try {
   const layout=await page.evaluate(()=>({
     overflow:document.documentElement.scrollWidth>innerWidth,
     header:document.querySelector('.header-inner').getBoundingClientRect().height,
-    card:document.querySelector('.card').getBoundingClientRect().width,
-    title:parseFloat(getComputedStyle(document.querySelector('.card-title')).fontSize)
+    card:document.querySelector('.post-card').getBoundingClientRect().width,
+    title:parseFloat(getComputedStyle(document.querySelector('.post-card-title')).fontSize)
   }));
-  assert.equal(layout.overflow,false);assert.equal(layout.header,72);assert.equal(layout.card,390);assert.ok(layout.title>=38);
+  assert.equal(layout.overflow,false);assert.equal(layout.header,72);assert.ok(Math.abs(layout.card-390*.84)<1);assert.equal(layout.title,22);
   await page.waitForFunction(() => window.reworkPerformance.lcp !== null);
   assert.equal(await page.evaluate(() => window.reworkPerformance.cls), 0, 'Homepage CLS is zero');
   for (const [width,height] of [[390,844],[768,1024],[1024,768],[1440,900],[1920,1080],[2560,1440]]) {
     await page.setViewportSize({width,height}); await page.goto(url);
     await page.evaluate(() => document.fonts.ready);
-    const lead=await page.locator('.card--lead .card-title').boundingBox();
-    assert.ok(lead.y < (width===390?900:height+80), `${width}: lead headline begins within the requested fold`);
+    const rowHeading=await page.locator('.card-row-header h2').boundingBox();
+    assert.ok(rowHeading.y < (width===390?900:height+80), `${width}: headline row heading begins within the requested fold`);
     const disk=await page.locator('.cover-disk').boundingBox();
     assert.ok(disk.x>=24&&disk.x+disk.width<=width-24,`${width}: complete black hole in frame`);
     const statement=await page.locator('.hero-statement').boundingBox();
@@ -105,11 +109,11 @@ try {
   assert.ok(await page.locator('.menu-links a').first().evaluate(el => parseFloat(getComputedStyle(el).fontSize) >= 32));
   assert.equal(await page.locator('[data-menu-toggle]').getAttribute('aria-expanded'),'true');
   assert.equal(await page.evaluate(()=>document.querySelector('main').inert),true);
-  assert.equal(await page.evaluate(()=>document.activeElement.textContent),'News');
+  assert.equal(await page.evaluate(()=>document.activeElement.textContent),'Singularity headline news');
   await page.keyboard.press('Shift+Tab');
   assert.equal(await page.evaluate(()=>document.activeElement.hasAttribute('data-menu-toggle')),true);
   await page.keyboard.press('Shift+Tab');
-  assert.equal(await page.evaluate(()=>document.activeElement.textContent.trim()),'About');
+  assert.equal(await page.evaluate(()=>document.activeElement.textContent.trim()),'Who we are');
   await page.keyboard.press('Escape');
   assert.equal(await page.locator('[data-menu-toggle]').getAttribute('aria-expanded'),'false');
   await page.waitForFunction(() => !document.querySelector('main').inert);
@@ -131,38 +135,41 @@ try {
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
     await page.screenshot({path:path.join(root,`.audit/browser-check/${name}.png`),fullPage:true});
   }
-  await page.locator('[data-sentinel]').scrollIntoViewIfNeeded();
-  await page.waitForFunction(()=>document.querySelectorAll('[data-card]').length===20);
-  await page.locator('[data-sentinel]').scrollIntoViewIfNeeded();
-  await page.waitForFunction(expected=>document.querySelectorAll('[data-card]').length===expected, headlineCount);
+  await page.goto(new URL('/page/2/',url).href);
+  while (await page.locator('[data-sentinel]').count()) {
+    const before=await page.locator('[data-card]').count();
+    await page.locator('[data-sentinel]').scrollIntoViewIfNeeded();
+    await page.waitForFunction(count=>document.querySelectorAll('[data-card]').length>count,before);
+  }
+  assert.equal(await page.locator('[data-card]').count(),headlineCount-10);
   assert.equal(await page.locator('[data-load-more]').count(),0);
   assert.equal(await page.locator('.desktop-nav a').count(), 4);
-  assert.equal(await page.locator('.desktop-nav [aria-current]').textContent(), 'News');
+  assert.equal(await page.locator('.desktop-nav [aria-current]').textContent(), 'Singularity headline news');
   const noJS=await browser.newContext({javaScriptEnabled:false,viewport:{width:390,height:844}});
   await routeSite(noJS,out);
   const fallback=await noJS.newPage();await fallback.goto(url);
-  assert.ok(await fallback.locator('.card-image').first().isVisible());
+  assert.ok(await fallback.locator('.post-card-image').first().isVisible());
   assert.equal(await fallback.locator('[data-motion-toggle]').isVisible(), false);
-  await fallback.locator('[data-load-more]').click();
+  await fallback.locator('.card-row-all').click();
   assert.equal(new URL(fallback.url()).pathname,'/page/2/');await noJS.close();
   const noObserver=await browser.newContext();await noObserver.addInitScript(()=>{delete window.IntersectionObserver;});
   await routeSite(noObserver,out);
-  const basic=await noObserver.newPage();await basic.goto(url);await basic.locator('[data-load-more]').click();
-  assert.equal(new URL(basic.url()).pathname,'/page/2/');await noObserver.close();
-  await page.goto(url);
-  await page.route('**/page/2/',route=>route.fulfill({status:503,body:'Unavailable'}));
+  const basic=await noObserver.newPage();await basic.goto(new URL('/page/2/',url).href);await basic.locator('[data-load-more]').click();
+  assert.equal(new URL(basic.url()).pathname,'/page/3/');await noObserver.close();
+  await page.goto(new URL('/page/2/',url).href);
+  await page.route('**/page/3/',route=>route.fulfill({status:503,body:'Unavailable'}));
   await page.locator('[data-sentinel]').scrollIntoViewIfNeeded();
   await page.waitForFunction(()=>document.querySelector('[data-load-status]').textContent.includes('Could not load'));
-  assert.match(await page.locator('[data-load-more]').getAttribute('href'),/\/page\/2\/$/);
+  assert.match(await page.locator('[data-load-more]').getAttribute('href'),/\/page\/3\/$/);
   assert.equal(await page.locator('[data-load-more]').getAttribute('aria-disabled'),null);
-  await page.unroute('**/page/2/');
-  await page.locator('[data-load-more]').click();await page.waitForFunction(()=>document.querySelectorAll('[data-card]').length>=20);
+  await page.unroute('**/page/3/');
+  await page.locator('[data-load-more]').click();await page.waitForFunction(expected=>document.querySelectorAll('[data-card]').length===expected,headlineCount-10);
   await page.emulateMedia({reducedMotion:'reduce'});await page.goto(url);
   assert.equal(await page.evaluate(()=>getComputedStyle(document.documentElement).scrollSnapType),'none');
   assert.equal(await page.locator('[data-header]').evaluate(el=>getComputedStyle(el).transitionDuration),'0s');
   assert.equal(await page.locator('.cover-sky-image').evaluate(el => getComputedStyle(el).animationName), 'none');
   assert.equal(await page.locator('[data-motion-toggle]').isVisible(), false);
-  assert.ok(await page.locator('[data-reveal]').first().evaluate(el => Number(getComputedStyle(el).opacity) === 1));
+  assert.ok(await page.locator('.post-card').first().evaluate(el => Number(getComputedStyle(el).opacity) === 1));
   // Carousel timing uses the browser clock, without wall-clock sleeps.
   await page.setViewportSize({width:390,height:844});
   await page.emulateMedia({reducedMotion:'no-preference'});
@@ -254,15 +261,15 @@ try {
         };
       });
       assert.ok(headerGap.gap >= (width >= 960 ? 36 : 20), `${route} ${name}: breathing room below masthead`);
-      if (width >= 960) {
+      if (width >= 1280) {
         assert.equal(headerGap.activeDecoration, 'none');
         assert.ok(['none', 'normal'].includes(headerGap.activeAfter), 'Current destination has no decorative rule');
         assert.equal(headerGap.activeWeight, 400, 'Navigation keeps the same regular weight');
-        assert.equal(headerGap.navSize, 16, 'Short destination labels fit the single masthead row');
+        assert.equal(headerGap.navSize, 14, 'Approved destination labels fit the single masthead row');
         assert.equal(await page.locator('.site-header').evaluate(el => el.getBoundingClientRect().height), 72);
         assert.equal(await page.locator('.site-header img').count(), 1); assert.equal(await page.locator('.site-header img.masthead-mark').count(), 1);
       }
-      if (route === '/featured/') assert.equal(await page.locator('.shelf-heading h2').textContent(), 'Featured');
+      if (route === '/featured/') assert.equal(await page.locator('.shelf-heading h2').textContent(), 'Featured author articles');
       if (route === '/what-is-singularity/' && experts.length) {
         const portraits = await page.locator('.expert-photo').evaluateAll(elements => elements.map(element => ({
           width: element.getBoundingClientRect().width,
@@ -287,7 +294,7 @@ try {
   }
   await page.goto(`${url}/articles/washington-names-an-intelligence-chief/`);
   assert.ok(await page.locator('.prose').evaluate(el=>parseFloat(getComputedStyle(el).fontSize)>=18));
-  assert.equal(await page.locator('.read-next [data-card]').count(),4);
+  assert.equal(await page.locator('#read-next-track [data-card]').count(),4);
   assert.deepEqual(errors,[]);
   console.log('BROWSER VERIFIED: responsive feed, accessible menu, scroll header, infinite loading, fallbacks, retry, carousel controls and timing, new pages, and reduced motion');
 } finally {

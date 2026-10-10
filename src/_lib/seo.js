@@ -17,7 +17,7 @@ export function pageMetadata(data) {
   let type = 'WebPage';
   let updated = data.updated ? isoDate(data.updated) : undefined;
   if (data.homeFeed) {
-    title = number === 1 ? 'Singularity Review: AI news, research, and analysis' : `News: Page ${number} | ${site.title}`;
+    title = number === 1 ? `Singularity headline news | ${site.title}` : `Singularity headline news: Page ${number} | ${site.title}`;
     description = number === 1
       ? 'AI news, research, and analysis covering models, agents, policy and the technological singularity, with links to reporting and research.'
       : `Page ${number} of AI news from Singularity Review, covering model releases, agents, research findings and the policy decisions shaping their use.`;
@@ -75,9 +75,9 @@ export function pageGraph(data, image) {
     '@type': 'WebSite', '@id': websiteId, name: site.title, url: `${site.url}/`,
     publisher: ref(orgId), inLanguage: 'en',
   }];
-  const trail = [{ name: 'Home', url: `${site.url}/` }];
+  const trail = [{ name: 'Singularity headline news', url: `${site.url}/` }];
   if (data.ogType === 'article') trail.push({ name: data.category, url: absolute(`/category/${slugify(data.category)}/`, site) });
-  if (page.url !== '/') trail.push({ name: data.homeFeed ? `News: Page ${(data.pagination?.pageNumber || 0) + 1}` : person?.name || sentenceTitle(data.title), url });
+  if (page.url !== '/') trail.push({ name: data.homeFeed ? `Singularity headline news: Page ${(data.pagination?.pageNumber || 0) + 1}` : person?.name || sentenceTitle(data.title), url });
   const breadcrumbId = `${url}#breadcrumb`;
   graph.push({
     '@type': 'BreadcrumbList', '@id': breadcrumbId,

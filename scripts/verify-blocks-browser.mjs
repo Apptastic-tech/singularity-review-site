@@ -1,124 +1,112 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 import { createRequire } from 'node:module';
-
-// Owner-run only. No package installation, screenshots or external-origin requests.
+// Owner-run only. The historical filename now verifies post cards and rows.
 // Run: node scripts/verify-blocks-browser.mjs http://localhost:8770
-const require = createRequire('/Users/araratovsepian/Agent-RSOC-Platform/Agent-RSOC-Platform/investor-deck/node_modules/story-block-verifier.cjs');
+const require = createRequire(path.join(process.env.BROWSER_RUNTIME_ROOT || '/Users/araratovsepian/Agent-RSOC-Platform/Agent-RSOC-Platform/investor-deck', 'package.json'));
 const { chromium } = require('playwright');
 const base = new URL(process.argv[2] || 'http://localhost:8770');
-assert.ok(['http:', 'https:'].includes(base.protocol), 'Supply an HTTP base URL');
+const files = (await fs.readdir('_site', { recursive: true })).filter(file => file.endsWith('/index.html') && /^(?:featured|category|authors|articles|page)\//.test(file));
+const routes = ['/', ...files.map(file => '/' + file.slice(0, -'index.html'.length))];
 const browser = await chromium.launch({ headless: true });
-const matrix = [[1440, 900, 3], [768, 1024, 2], [390, 844, 1]];
 const reports = [];
-try {
-  const context = await browser.newContext({ reducedMotion: 'reduce', deviceScaleFactor: 1 });
+const setup = async options => {
+  const context = await browser.newContext({ reducedMotion: 'reduce', ...options });
   await context.route('**/*', route => new URL(route.request().url()).origin === base.origin ? route.continue() : route.abort());
-  const page = await context.newPage();
-  const errors = [];
-  page.on('pageerror', error => errors.push(error.message));
-  const routes = new Set(['/']);
-  // Collect the actual archives and pagination routes from generated links.
-  for (const route of ['/', '/featured/']) {
-    await page.goto(new URL(route, base).href, { waitUntil: 'load' });
-    const discovered = await page.locator('a[href]').evaluateAll(links => links.map(link => new URL(link.href).pathname).filter(path => /^\/(?:category|authors|page)\//.test(path)));
-    discovered.forEach(path => routes.add(path));
-    if (await page.locator('.story-grid').count()) routes.add(route);
-  }
-  // Follow the page links so pages 3 and onward are checked too, when published.
-  for (const route of routes) {
-    if (!route.startsWith('/page/')) continue;
-    await page.goto(new URL(route, base).href, { waitUntil: 'load' });
-    const pages = await page.locator('.pagination a[href]').evaluateAll(links => links.map(link => new URL(link.href).pathname).filter(path => path.startsWith('/page/')));
-    pages.forEach(path => routes.add(path));
-  }
-  for (const [width, height, columns] of matrix) {
-    await page.setViewportSize({ width, height });
+  await context.addInitScript(() => {
+    localStorage.setItem('sr-consent', JSON.stringify({ version:'2026-10-10', necessary:true, analytics:false, marketing:false, decidedAt:new Date().toISOString() }));
+    localStorage.setItem('sr-newsletter', JSON.stringify({state:'dismissed',at:new Date().toISOString()}));
+    window.rowCLS = 0;
+    if (PerformanceObserver.supportedEntryTypes.includes('layout-shift')) new PerformanceObserver(list => { for (const entry of list.getEntries()) if (!entry.hadRecentInput) window.rowCLS += entry.value; }).observe({type:'layout-shift',buffered:true});
+  });
+  return context;
+};
+try {
+  for (const [width,height,columns] of [[1440,900,3],[768,1024,2],[390,844,1]]) {
+    const context = await setup({ viewport:{width,height}, hasTouch:width === 390, isMobile:width === 390 });
+    const page = await context.newPage(), errors = [];
+    page.on('pageerror',error => errors.push(error.message));
     for (const route of routes) {
-      await page.goto(new URL(route, base).href, { waitUntil: 'load' });
-      await page.evaluate(() => document.fonts.ready);
+      await page.goto(new URL(route,base).href,{waitUntil:'load'}); await page.evaluate(() => document.fonts.ready);
       const layout = await page.evaluate(() => {
-        const rect = element => {
-          const box = element.getBoundingClientRect();
-          return { left: box.left, right: box.right, top: box.top, bottom: box.bottom, width: box.width, height: box.height };
-        };
-        const grid = document.querySelector('.story-grid');
-        if (!grid) return null;
-        const blocks = [...grid.querySelectorAll(':scope > .story-block')].map(block => ({
-          box: rect(block),
-          media: rect(block.querySelector('.story-block-media')),
-          image: rect(block.querySelector('img')),
-          text: [...block.querySelectorAll('.story-block-category, .story-block-title, .story-block-dek, .story-block-date')].map(element => ({ name: element.className, ...rect(element) }))
-        }));
-        const style = getComputedStyle(grid);
-        return {
-          grid: rect(grid), columns: style.gridTemplateColumns.trim().split(/\s+/).length,
-          columnGap: parseFloat(style.columnGap), rowGap: parseFloat(style.rowGap), blocks,
-          carousel: document.querySelector('[data-carousel]') ? rect(document.querySelector('[data-carousel]')) : null,
-          overflow: document.documentElement.scrollWidth > innerWidth
-        };
+        const rect = element => { const r=element.getBoundingClientRect(); return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height}; };
+        const cards=[...document.querySelectorAll('.post-card')].map(card => ({box:rect(card),media:rect(card.querySelector('.post-card-media')),meta:rect(card.querySelector('.post-card-meta')),title:rect(card.querySelector('.post-card-title')),excerpt:rect(card.querySelector('.post-card-excerpt')),category:rect(card.querySelector('.post-card-category')),date:rect(card.querySelector('time')),radius:getComputedStyle(card).borderRadius,headline:getComputedStyle(card.querySelector('.post-card-title')).fontWeight}));
+        const grid=document.querySelector('.post-grid');
+        return {cards,grid:grid ? {box:rect(grid),columns:getComputedStyle(grid).gridTemplateColumns.split(' ').length,gap:getComputedStyle(grid).gap} : null,overflow:document.documentElement.scrollWidth>innerWidth};
       });
-      if (!layout) {
-        assert.equal(route, '/', 'Only an empty homepage can omit its story grid');
-        continue;
+      assert.equal(layout.overflow,false,route+' '+width+': no page overflow');
+      if (layout.grid) { assert.equal(layout.grid.columns,columns); assert.equal(layout.grid.gap,'32px 24px'); assert.ok(layout.grid.box.width<=1248 && layout.grid.box.left>=19); }
+      for (const card of layout.cards) {
+        assert.ok(Math.abs(card.media.width/card.media.height-16/9)<.01);
+        assert.equal(card.radius,'24px'); assert.equal(card.headline,'700');
+        assert.ok(card.meta.top>=card.media.bottom-.5 && card.title.top>=card.meta.bottom-.5 && card.excerpt.top>=card.title.bottom-.5);
+        assert.ok(Math.abs(card.category.top-card.date.top)<8,'Category and date share one metadata line');
+        for (const text of [card.meta,card.title,card.excerpt]) assert.ok(text.left>=card.box.left && text.right<=card.box.right+.5);
       }
-      const label = `${route} at ${width}px`;
-      assert.equal(layout.columns, columns, `${label}: grid columns`);
-      assert.equal(layout.columnGap, 24, `${label}: column gap`);
-      assert.equal(layout.rowGap, 32, `${label}: row gap`);
-      assert.equal(layout.overflow, false, `${label}: no horizontal page overflow`);
-      assert.ok(layout.grid.width <= 1248 && layout.grid.left >= -.5 && layout.grid.right <= width + .5, `${label}: feed width fits`);
-      const overlaps = (a, b) => Math.min(a.right, b.right) - Math.max(a.left, b.left) > .5 && Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > .5;
-      const blocks = layout.blocks;
-      for (let start = 0; start < blocks.length; start += columns) {
-        const row = blocks.slice(start, start + columns);
-        row.forEach((block, index) => {
-          assert.ok(Math.abs(block.box.top - row[0].box.top) <= 1, `${label}: row tops align`);
-          assert.ok(Math.abs(block.box.bottom - row[0].box.bottom) <= 1, `${label}: row heights align`);
-          const date = block.text.find(text => text.name === 'story-block-date');
-          const firstDate = row[0].text.find(text => text.name === 'story-block-date');
-          assert.ok(Math.abs(date.bottom - firstDate.bottom) <= 1, `${label}: row dates align`);
-          if (index) assert.ok(Math.abs(block.box.left - row[index - 1].box.right - 24) <= 1, `${label}: row gap aligns`);
-        });
-        if (start >= columns) assert.ok(Math.abs(row[0].box.top - blocks[start - columns].box.bottom - 32) <= 1, `${label}: rows have the specified gap`);
-      }
-      blocks.forEach((block, index) => {
-        assert.ok(Math.abs(block.media.width / block.media.height - 1.5) <= .01, `${label}: 3:2 image slot`);
-        for (const text of block.text) {
-          assert.ok(text.top >= block.media.bottom - .5, `${label}: ${text.name} sits below the image`);
-          assert.ok(!overlaps(text, block.image), `${label}: text never overlays imagery`);
-          assert.ok(text.left >= block.box.left - .5 && text.right <= block.box.right + .5, `${label}: text stays inside its panel`);
+      if (layout.grid) {
+        for (let i=0;i<layout.cards.length;i+=columns) {
+          const row=layout.cards.slice(i,i+columns);
+          for (const card of row) { assert.ok(Math.abs(card.box.top-row[0].box.top)<1); assert.ok(Math.abs(card.box.bottom-row[0].box.bottom)<1); }
         }
-        for (const other of blocks.slice(index + 1)) assert.ok(!overlaps(block.box, other.box), `${label}: blocks never overlap`);
-        if (layout.carousel) assert.ok(!overlaps(block.box, layout.carousel), `${label}: blocks never overlap the carousel`);
-        if (width === 390) {
-          for (const box of [block.box, block.media, block.image]) {
-            assert.ok(Math.abs(box.left) <= .5 && Math.abs(box.right - 390) <= .5, `${label}: mobile image and block span 0 to 390`);
+      }
+      const track=page.locator('[data-row-track]');
+      if (await track.count()) {
+        await track.scrollIntoViewIfNeeded();
+        const geometry=await track.evaluate(element => ({width:element.clientWidth,total:element.scrollWidth,step:element.querySelector('li').getBoundingClientRect().width+24,snap:getComputedStyle(element).scrollSnapType,align:getComputedStyle(element.querySelector('li')).scrollSnapAlign,tabindex:element.tabIndex,heights:[...element.querySelectorAll('.post-card')].map(card=>card.getBoundingClientRect().height)}));
+        assert.equal(geometry.snap,'x mandatory'); assert.equal(geometry.align,'start'); assert.equal(geometry.tabindex,0);
+        assert.ok(geometry.heights.every(h=>Math.abs(h-geometry.heights[0])<1),'Row cards have equal heights');
+        const end=Math.max(0,geometry.total-geometry.width), previous=page.locator('[data-row-prev]'), next=page.locator('[data-row-next]');
+        if (end>1) {
+          assert.equal(await previous.isDisabled(),true);
+          if (width===1440) {
+            assert.equal(await next.isVisible(),true); await next.click();
+            await page.waitForFunction(expected => Math.abs(document.querySelector('[data-row-track]').scrollLeft-expected)<3,Math.min(end,geometry.step));
+            assert.equal(await previous.isDisabled(),false);
           }
-        }
-      });
-      if (layout.carousel) assert.ok(layout.grid.top >= layout.carousel.bottom - .5, `${label}: grid follows the carousel`);
-      reports.push({ route, width, columns: layout.columns, blocks: blocks.length });
+          await track.evaluate(element=>element.scrollTo({left:0,behavior:'instant'}));
+          await track.focus(); await page.keyboard.press('ArrowRight');
+          await page.waitForFunction(expected => Math.abs(document.querySelector('[data-row-track]').scrollLeft-expected)<3,Math.min(end,geometry.step));
+          await track.evaluate(element=>element.scrollTo({left:element.scrollWidth,behavior:'instant'}));
+          await page.waitForFunction(()=>document.querySelector('[data-row-next]').disabled);
+          assert.equal(await next.isDisabled(),true);
+          await track.evaluate(element=>element.scrollTo({left:0,behavior:'instant'}));
+          await page.waitForFunction(()=>document.querySelector('[data-row-prev]').disabled);
+          if (width===390) {
+            assert.equal(await next.isVisible(),false,'Touch devices hide arrows');
+            const peek=await track.evaluate(element=>{const cards=element.querySelectorAll('li');const a=cards[0].getBoundingClientRect(),b=cards[1].getBoundingClientRect();return {first:a.left,firstWidth:a.width,next:b.left,nextRight:b.right};});
+            assert.ok(Math.abs(peek.first-20)<1); assert.ok(Math.abs(peek.firstWidth-width*.84)<1);
+            assert.ok(peek.next<width && peek.nextRight>width,'Next card peeks at the mobile edge');
+            const box=await track.boundingBox(), y=Math.max(80,Math.min(height-40,box.y+80));
+            const cdp=await context.newCDPSession(page);
+            await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:310,y}]});
+            for (const x of [280,240,200,160,120,80]) await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x,y}]});
+            await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+            await page.waitForFunction(()=>document.querySelector('[data-row-track]').scrollLeft>10);
+            await page.waitForTimeout(800);
+            const snapped=await track.evaluate(element=>element.scrollLeft);
+            assert.ok(Math.abs(snapped-end)<3 || Math.abs(snapped/geometry.step-Math.round(snapped/geometry.step))<.02,'Touch swipe settles on a snap or the row end');
+            await cdp.detach();
+          }
+          const last=track.locator('.post-card-link').last(); await last.focus();
+          await page.waitForFunction(()=>{const element=document.activeElement,track=element.closest('[data-row-track]');const a=element.getBoundingClientRect(),b=track.getBoundingClientRect();return a.left>=b.left && a.right<=b.right;});
+          assert.ok(await track.evaluate(element=>element.scrollLeft)>0,'Focusing a card brings it into view');
+        } else assert.equal(await page.locator('[data-row-arrows]').isVisible(),false);
+        await track.focus(); await page.keyboard.press('Tab');
+        assert.equal(await page.evaluate(()=>document.activeElement.classList.contains('post-card-link')),true);
+        assert.equal(await page.evaluate(()=>getComputedStyle(document.activeElement,'::after').outlineStyle),'solid','Keyboard focus ring is visible');
+      }
+      assert.equal(await page.evaluate(()=>window.rowCLS),0,route+' '+width+': CLS zero');
+      reports.push({route,width,cards:layout.cards.length,columns:layout.grid?.columns||null});
     }
+    assert.deepEqual(errors,[]); await context.close();
   }
-  assert.deepEqual(errors, [], 'No page script errors');
-  const noJS = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' });
-  await noJS.route('**/*', route => new URL(route.request().url()).origin === base.origin ? route.continue() : route.abort());
-  const fallback = await noJS.newPage();
-  await fallback.goto(new URL('/', base).href, { waitUntil: 'load' });
-  if (await fallback.locator('.story-block').count()) {
-    assert.ok(await fallback.locator('.story-block').first().isVisible(), 'Blocks stay visible without JavaScript');
-    const image = await fallback.locator('.story-block img').first().boundingBox();
-    assert.ok(Math.abs(image.x) <= .5 && Math.abs(image.width - 390) <= .5, 'No-JS mobile imagery fills the viewport');
-  }
-  if (await fallback.locator('[data-load-more]').count()) {
-    const target = await fallback.locator('[data-load-more]').getAttribute('href');
-    await fallback.locator('[data-load-more]').click();
-    assert.equal(new URL(fallback.url()).pathname, new URL(target, base).pathname, 'No-JS pagination follows the real page link');
-    assert.equal(await fallback.locator('.card--lead').count(), 0, 'Pagination has no lead');
-    assert.ok(await fallback.locator('.story-grid > .story-block').count() > 0, 'Pagination still has blocks without JavaScript');
-  }
+  const noJS=await browser.newContext({javaScriptEnabled:false,viewport:{width:390,height:844}});
+  await noJS.route('**/*',route=>new URL(route.request().url()).origin===base.origin?route.continue():route.abort());
+  const page=await noJS.newPage(); await page.goto(base.href);
+  assert.ok(await page.locator('.post-card').first().isVisible());
+  const fallback=page.locator('.card-row-all');
+  if (await fallback.count()) { await fallback.click(); assert.equal(new URL(page.url()).pathname,'/page/2/'); assert.ok(await page.locator('.post-grid > .post-card').count()>0); }
   await noJS.close();
-  console.log('BROWSER BLOCKS VERIFIED:', JSON.stringify(reports));
-} finally {
-  await browser.close();
-}
+  console.log('BROWSER CARDS VERIFIED:',JSON.stringify(reports));
+} finally { await browser.close(); }

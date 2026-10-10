@@ -52,7 +52,7 @@ function menuRuntime() {
   const timers = new Map(); let timerId = 0;
   const context = makeEvents({
     document, scrollY: 640, innerWidth: 390, URL, location: { origin: 'https://example.org', pathname: '/' },
-    matchMedia: query => query.includes('960px') ? desktop : reduced,
+    matchMedia: query => query.includes('1280px') ? desktop : reduced,
     requestAnimationFrame: callback => callback(),
     setTimeout: callback => { const id = ++timerId; timers.set(id, callback); return id; },
     clearTimeout: id => timers.delete(id),

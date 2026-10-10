@@ -16,7 +16,7 @@ const hook = (root, name) => nodes(root).filter(node => Object.hasOwn(node.attri
 const hasClass = (node, name) => (node.attribs?.class || '').split(/\s+/).includes(name);
 const sentence = 'Send me the Singularity Review newsletter. Unsubscribe anytime.';
 const fields = ['email', 'consentAt', 'consentTextVersion', 'consentText', 'sourcePage', 'source', 'status'].sort();
-const allowedScripts = new Set(['transitions', 'site', 'lensing', 'carousel', 'article', 'consent', 'newsletter'].map(name => `/js/${name}.js`));
+const allowedScripts = new Set(['transitions', 'site', 'card-row', 'lensing', 'carousel', 'article', 'consent', 'newsletter'].map(name => `/js/${name}.js`));
 if (site.adsense.client || site.adsense.preview) allowedScripts.add('/js/ads.js');
 const redirect = `(function(l,h,t){if(h.indexOf(l.hostname)>-1&&l.hostname!==t.replace(/^https?:\\/\\//,"")){l.replace(t+l.pathname+l.search+l.hash)}})(location,${JSON.stringify(site.legacyHosts)},${JSON.stringify(site.url)})`;
 function checkScripts(html) {
@@ -79,7 +79,7 @@ function checkForm(form) {
   assert.ok(Object.hasOwn(checkbox.attribs, 'required'));
   assert.equal(checkbox.attribs.checked, undefined);
   const label = descendants.find(node => node.name === 'label' && node.attribs.for === checkbox.attribs.id);
-  assert.equal(textContent(label).trim(), sentence);
+  assert.equal(textContent(label).replace('Privacy policy', '').trim(), sentence);
   assert.ok(descendants.some(node => node.name === 'a' && node.attribs.href === '/privacy/' && textContent(node) === 'Privacy policy'));
   const email = descendants.find(node => node.attribs?.name === 'email');
   assert.equal(email.attribs.type, 'email');
@@ -96,12 +96,17 @@ for (const file of pages) {
   checkScripts(html);
   for (const script of ['consent', 'newsletter']) assert.match(html, new RegExp(`src="/js/${script}\\.js\\?v=[a-f0-9]{10}" defer`));
   const [banner] = hook(dom, 'data-consent-banner');
-  assert.ok(banner && banner.attribs.role === 'region' && banner.attribs['aria-label'] === 'Cookie consent');
+  assert.ok(banner && banner.attribs.role === 'region' && banner.attribs['aria-labelledby'] === 'consent-banner-heading');
   assert.ok(Object.hasOwn(banner.attribs, 'hidden'));
   const buttons = nodes(banner).filter(node => node.name === 'button');
   assert.deepEqual(buttons.map(node => textContent(node)), ['Accept all', 'Reject all', 'Settings']);
   assert.equal(new Set(buttons.map(node => node.attribs.class)).size, 1);
-  assert.equal(hook(dom, 'data-consent-dialog')[0].name, 'dialog');
+  const dialog = hook(dom, 'data-consent-dialog')[0];
+  assert.equal(dialog.name, 'dialog');
+  for (const surface of [banner, dialog, hook(dom, 'data-newsletter-prompt')[0]]) assert.ok(hasClass(surface, 'popup-card'));
+  const choices = hook(dialog, 'data-consent-choice');
+  assert.equal(choices[0].attribs.class, choices[1].attribs.class);
+  assert.equal(textContent(nodes(banner).find(node => node.name === 'h2')), 'Cookies and privacy');
   for (const category of ['analytics', 'marketing']) {
     const input = nodes(dom).find(node => node.attribs?.name === category);
     assert.ok(input && input.attribs.type === 'checkbox' && input.attribs.checked === undefined);
@@ -153,10 +158,15 @@ for (const text of ['hashing.sha256', '.toHexString().lower()', 'consentAt == re
 const parsedCSS = cssRules(css);
 for (const width of [390, 640, 1440]) {
   for (const selector of ['.consent-banner', '.consent-dialog', '.newsletter-prompt']) assert.equal(styleAt(parsedCSS, selector, width, 844).position, 'fixed');
-  assert.equal(styleAt(parsedCSS, '.consent-choice', width, 844)['min-height'], '44px');
+  assert.equal(({ ...styleAt(parsedCSS, '.privacy-button', width, 844), ...styleAt(parsedCSS, '.consent-choice', width, 844) })['min-height'], '44px');
 }
-assert.equal(styleAt(parsedCSS, '.newsletter-prompt', 390, 844)['max-height'], '45dvh');
-assert.equal(styleAt(parsedCSS, '.newsletter-prompt', 1440, 900).width, '360px');
-assert.match(css, /@media \(prefers-reduced-motion: reduce\)\s*\{\s*\.newsletter-prompt \{ animation: none; transition: none;/);
+assert.equal(styleAt(parsedCSS, '.newsletter-prompt', 390, 844)['max-height'], '60dvh');
+assert.equal(styleAt(parsedCSS, '.newsletter-prompt', 1440, 900).width, 'min(400px, calc(100% - 48px))');
+assert.match(css, /@media \(prefers-reduced-motion: reduce\)\s*\{\s*\.popup-card, \.popup-card.is-leaving \{ animation: none; transition: none;/);
+assert.equal(styleAt(parsedCSS, '.popup-card', 1440, 900)['border-radius'], '24px');
+assert.equal(styleAt(parsedCSS, '.privacy-button', 1440, 900)['border-radius'], '12px');
+assert.equal(styleAt(parsedCSS, '.privacy-button', 1440, 900).height, '44px');
+assert.match(newsletter, /banner && !banner.hidden/);
+assert.match(consent, /popup|is-leaving/);
 await verifyConsentRuntime({ consent, newsletter, fields, sentence });
 console.log(`CONSENT VERIFIED: ${pages.length} pages, equal consent classes, gated script allowlist, no cookie writes, defaults/version/API, footer controls, legal headings, ${listed.size} visible placeholders, forms, fixed geometry, client/rules fields and Node behavior. Browser checks were not run.`);

@@ -7,6 +7,9 @@
   const form = document.querySelector('[data-consent-form]');
   if (!banner || !dialog || !form) return;
   let previousFocus = null;
+  let exitTimer = 0;
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+  const publishUI = () => window.dispatchEvent(new CustomEvent('sr:consent-ui'));
   const validRecord = value => value && value.version === CONSENT_VERSION && value.necessary === true &&
     typeof value.analytics === 'boolean' && typeof value.marketing === 'boolean' &&
     typeof value.decidedAt === 'string' && Number.isFinite(Date.parse(value.decidedAt));
@@ -37,7 +40,14 @@
     });
   };
   const publish = () => {
-    banner.hidden = !!decision;
+    clearTimeout(exitTimer);
+    banner.classList.remove('is-leaving');
+    if (!decision) banner.hidden = dialog.open;
+    else if (!banner.hidden && !reducedMotion.matches) {
+      banner.classList.add('is-leaving');
+      exitTimer = setTimeout(() => { banner.hidden = true; banner.classList.remove('is-leaving'); publishUI(); }, 240);
+    } else banner.hidden = true;
+    publishUI();
     activateScripts();
     window.dispatchEvent(new CustomEvent('sr:consent', { detail: get() }));
   };
@@ -49,7 +59,9 @@
     document.querySelector('[data-menu-toggle][aria-expanded="true"]')?.click();
     form.elements.analytics.checked = decision?.analytics === true;
     form.elements.marketing.checked = decision?.marketing === true;
+    banner.hidden = true;
     dialog.showModal();
+    publishUI();
     dialog.querySelector('#consent-heading').focus({ preventScroll: true });
   };
   const save = (analytics, marketing) => {
@@ -78,6 +90,8 @@
   dialog.querySelector('[data-consent-close]').addEventListener('click', close);
   dialog.addEventListener('cancel', event => { event.preventDefault(); close(); });
   dialog.addEventListener('close', () => {
+    if (!decision) banner.hidden = false;
+    publishUI();
     const target = previousFocus?.isConnected && !previousFocus.closest('[hidden]') ? previousFocus : document.querySelector('#main');
     target?.focus({ preventScroll: true });
   });

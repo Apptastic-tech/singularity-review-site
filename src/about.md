@@ -1,6 +1,6 @@
 ---
 layout: layouts/base.njk
-title: About
+title: Who we are and our mission
 description: "AI news, reviews, personal opinions and analysis from Singularity Review, covering models, agents, research and policy."
 updated: "2026-10-11T00:00:00Z"
 permalink: /about/
@@ -8,7 +8,7 @@ eleventyExcludeFromCollections: true
 ---
 <div class="about reading-width prose">
 
-# About
+# Who we are and our mission
 
 <p class="legal-version">Last updated 11 October 2026</p>
 
@@ -25,7 +25,7 @@ The publication is operated by [Company legal name], established in [Country of 
 
 ## How we publish
 
-News follows model releases, research and policy developments. Featured contains reviews, personal perspectives and analysis. We distinguish an announcement from independent evidence and label opinion so readers can see when an article makes an argument or prediction. Our [Editorial standards](/editorial-standards/) explain sourcing, corrections and editorial independence.
+Singularity headline news follows model releases, research and policy developments. Featured author articles include reviews, personal perspectives and analysis. We distinguish an announcement from independent evidence and label opinion so readers can see when an article makes an argument or prediction. Read our [editorial standards](/editorial-standards/) for sourcing, corrections and editorial independence.
 
 ## Contact the publication
 
@@ -33,9 +33,9 @@ Write to [Contact email] for questions, corrections, privacy requests or adverti
 
 ## Sections
 
-- [News](/): model releases, research findings and policy developments.
-- [Featured](/featured/): personal perspectives, reviews and analysis.
-- [Explainer](/what-is-singularity/): the idea of the technological singularity, its history and our editorial view.
+- [Singularity headline news](/): model releases, research findings and policy developments.
+- [Featured author articles](/featured/): personal perspectives, reviews and analysis.
+- [What is singularity](/what-is-singularity/): the idea of the technological singularity, its history and our editorial view.
 - [RSS feed](/rss.xml): new articles in your feed reader.
 - [Editorial standards](/editorial-standards/): sourcing, corrections, opinion, ownership and production disclosures.
 

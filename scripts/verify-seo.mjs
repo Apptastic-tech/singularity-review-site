@@ -45,7 +45,7 @@ for (const file of files) {
   const canonical = link(node => node.attribs.rel === 'canonical');
   assert.equal(canonical, new URL(route, site.url).href, `${file}: absolute self-referential canonical`);
   absolute(canonical);
-  if (route === '/') assert.equal(title, 'Singularity Review: AI news, research, and analysis');
+  if (route === '/') assert.equal(title, 'Singularity headline news | Singularity Review');
   else assert.ok(title.endsWith(' | Singularity Review'));
   const pagination = route.match(/^\/page\/(\d+)\/$/);
   if (pagination) {
@@ -112,6 +112,9 @@ for (const file of files) {
     assert.ok(item.name.trim()); absolute(item.item);
   });
   assert.equal(breadcrumb.itemListElement[0].item, rootUrl);
+  assert.equal(breadcrumb.itemListElement[0].name, 'Singularity headline news');
+  const sectionNames = { '/featured/': 'Featured author articles', '/what-is-singularity/': 'What is singularity', '/about/': 'Who we are and our mission' };
+  if (sectionNames[route]) assert.equal(breadcrumb.itemListElement.at(-1).name, sectionNames[route]);
   assert.equal(breadcrumb.itemListElement.at(-1).item, canonical);
   assert.equal(breadcrumb.itemListElement.length, route === '/' ? 1 : route.startsWith('/articles/') ? 3 : 2);
   if (page.dateModified) date(page.dateModified);
@@ -302,7 +305,7 @@ for (const [url, type] of [['/atom.xml', 'application/atom+xml; charset=utf-8'],
 }
 const llms = await read('llms.txt');
 assert.ok(llms.startsWith('# Singularity Review\n')); assert.match(llms, /\n> [^\n]+\n/);
-for (const heading of ['Articles', 'Explainer', 'About', 'Feeds', 'Policies']) assert.ok(llms.includes(`## ${heading}\n`));
+for (const heading of ['Sections', 'Articles', 'What is singularity', 'Who we are', 'Feeds', 'Policies']) assert.ok(llms.includes(`## ${heading}\n`));
 for (const article of articles) assert.ok(llms.includes(`[${article.title}](${site.url}${articleUrl(article)}): ${article.seoDescription || article.description}`), 'llms.txt includes current article title, URL and summary');
 for (const route of ['/rss.xml', '/atom.xml', '/sitemap.xml', '/about/', '/contact/', '/terms/', '/privacy/', '/cookies/', '/editorial-standards/']) assert.ok(llms.includes(site.url + route));
 const audit = JSON.parse(await fs.readFile('docs/sources/sources-to-date.json', 'utf8'));

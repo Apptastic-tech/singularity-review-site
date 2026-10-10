@@ -24,6 +24,11 @@ try {
     const page = await context.newPage();
     await page.goto(base); await page.evaluate(() => document.fonts.ready);
     const home = page.locator('[data-ad-slot="homeGrid"]'); assert.equal(await home.count(), 1);
+    const placement = await home.evaluate(slot => {
+      const main = slot.closest('main'), children = [...main.children], wrapper = slot.parentElement;
+      return { previous: wrapper.previousElementSibling?.classList.contains('card-row'), next: wrapper.nextElementSibling?.classList.contains('author-shelf'), fullWidth: Math.abs(wrapper.getBoundingClientRect().width - document.querySelector('.card-row').getBoundingClientRect().width) < 1, direct: children.includes(wrapper) };
+    });
+    assert.deepEqual(placement, {previous:true,next:true,fullWidth:true,direct:true});
     assert.equal(await home.getAttribute('data-ad-preview'), 'true', 'Requires ADSENSE_PREVIEW=1 build');
     assert.equal(await home.locator('.ad-slot-reserved').evaluate(node => node.getBoundingClientRect().height), 250);
     assert.equal(google.length, 0, 'No Google requests before consent');
@@ -31,7 +36,7 @@ try {
     await home.scrollIntoViewIfNeeded(); await page.waitForTimeout(1000);
     assert.equal(await page.evaluate(() => window.adCLS), 0, width + ': homepage CLS zero');
     assert.equal(google.length, 0, 'Preview requests nothing after reject');
-    const article = await page.locator('.card--lead .card-link').getAttribute('href');
+    const article = await page.locator('.post-card-link').getAttribute('href');
     await page.goto(new URL(article, base).href); await page.evaluate(() => document.fonts.ready);
     const slots = page.locator('.article-body [data-ad-slot]'); assert.ok(await slots.count() > 0);
     const before = await slots.locator('.ad-slot-reserved').evaluateAll(nodes => nodes.map(node => node.getBoundingClientRect().height));

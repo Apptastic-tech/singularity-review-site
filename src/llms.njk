@@ -8,17 +8,22 @@ eleventyExcludeFromCollections: true
 
 Singularity Review publishes reporting, reviews, personal opinions and analysis about AI developments and the technological singularity. Opinion is labelled on the relevant page.
 
+## Sections
+
+- [Singularity headline news]({{ site.url }}/): News written by Singularity Review.
+- [Featured author articles]({{ site.url }}/featured/): Articles by our featured authors.
+
 ## Articles
 {% for item in collections.articles %}
 - [{{ item.data.title | safe }}]({{ item.url | absoluteUrl(site.url) }}): {{ (item.data.seoDescription or item.data.description) | safe }}
 {% endfor %}
-## Explainer
+## What is singularity
 
-- [What is the singularity?]({{ site.url }}/what-is-singularity/): The definition and history of the idea, open questions, a labelled editorial opinion and frequently asked questions.
+- [What is singularity]({{ site.url }}/what-is-singularity/): The definition and history of the idea, open questions, a labelled editorial opinion and frequently asked questions.
 
-## About
+## Who we are
 
-- [About]({{ site.url }}/about/): The publication's coverage and sections.
+- [Who we are]({{ site.url }}/about/): The publication's coverage and sections.
 - [Editorial standards]({{ site.url }}/editorial-standards/): Sources, corrections, opinion and pending disclosures about production, ownership and funding.
 
 ## Feeds
@@ -29,7 +34,7 @@ Singularity Review publishes reporting, reviews, personal opinions and analysis 
 
 ## Policies
 
-- [About]({{ site.url }}/about/): Coverage, operator and editor details awaiting confirmation.
+- [Who we are]({{ site.url }}/about/): Coverage, operator and editor details awaiting confirmation.
 - [Contact]({{ site.url }}/contact/): General, corrections, privacy and advertising enquiries.
 - [Terms of use]({{ site.url }}/terms/): Content rights, submissions, third-party services and pending governing law.
 - [Privacy policy]({{ site.url }}/privacy/): Newsletter data, reactions, site preferences and pending legal details.

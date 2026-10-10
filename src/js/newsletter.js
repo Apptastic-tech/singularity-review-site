@@ -47,12 +47,16 @@
     if (focused) document.querySelector('#main')?.focus({ preventScroll: true });
   };
   const dismiss = () => { remember('dismissed'); hidePrompt(); };
+  const consentVisible = () => {
+    const banner = document.querySelector('[data-consent-banner]');
+    return (banner && !banner.hidden) || document.querySelector('[data-consent-dialog]')?.open;
+  };
   const tick = () => {
     clearTimeout(timer);
     if (seen && shownAt !== null && Date.now() - shownAt >= NEWSLETTER_DISMISS_MS) seen = false;
     persistSession();
     if (document.hidden || excludedPage || suppressed() || seen || !window.srConsent.get() ||
-      document.querySelector('[data-consent-dialog]')?.open || document.documentElement.classList.contains('menu-open')) {
+      consentVisible() || document.documentElement.classList.contains('menu-open')) {
       // Retry while a dialog or mobile menu is open, without stealing focus.
       if (!document.hidden && !excludedPage && !seen && !suppressed()) timer = setTimeout(tick, 1000);
       return;
@@ -101,8 +105,12 @@
       tick();
     }
   });
+  window.addEventListener('sr:consent-ui', () => {
+    if (consentVisible()) hidePrompt();
+    tick();
+  });
   window.srConsent.onChange(value => {
-    if (!value) hidePrompt();
+    if (!value || consentVisible()) hidePrompt();
     tick();
   });
   const complete = form => {

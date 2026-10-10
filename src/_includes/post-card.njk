@@ -1,0 +1,10 @@
+<article class="post-card" data-card>
+  <div class="post-card-media">
+    {% picture item.data.hero, item.data.heroAlt, postCardSizes or "(min-width: 1312px) 400px, (min-width: 960px) calc((100vw - 112px) / 3), (min-width: 640px) calc((100vw - 88px) / 2), calc(100vw - 40px)", "eager" if cardEager and loop.first else "lazy", "high" if cardEager and loop.first else "auto", "post-card-image", item.data.title %}
+  </div>
+  <div class="post-card-body">
+    <div class="post-card-meta"><span class="post-card-category">{{ item.data.category }}</span><time class="post-card-date" datetime="{{ item.date | isoDate }}">{{ item.date | readableDate }}</time></div>
+    <{{ cardHeading or "h2" }} class="post-card-title"><a class="post-card-link" href="{{ item.url }}" data-story-link>{{ item.data.title | sentenceTitle }}</a></{{ cardHeading or "h2" }}>
+    <p class="post-card-excerpt">{{ item.data.description }}</p>
+  </div>
+</article>

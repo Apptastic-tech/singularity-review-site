@@ -14,7 +14,7 @@ adsense.slots contains articleA, articleB and homeGrid, each initially [AdSense 
 
 ## Placement and reserved geometry
 
-Article slots follow the third and seventh top-level paragraph of the rendered article body, only when a later top-level paragraph exists. Paragraphs inside quotations, lists and other containers are excluded. Takeaways, sources and the headline are outside the filter input. The homepage slot follows the third story block in Latest and spans all grid columns. It occupies its own row on smaller grids too. No ads are above the lead headline, in the skyline band, in the header or footer, sticky or anchored.
+Article slots follow the third and seventh top-level paragraph of the rendered article body, only when a later top-level paragraph exists. Paragraphs inside quotations, lists and other containers are excluded. Takeaways, sources and the headline are outside the filter input. The homepage homeGrid slot occupies the full content width between the complete Singularity headline news row and the Featured author articles carousel. No ads are above the headline row heading, in the skyline band, in the header or footer, sticky or anchored.
 
 Each slot has a muted Inter Tight Advertisement label and a fixed reserved container. Article containers are 280px on mobile and 250px from 640px width. The homepage container is 250px at all widths. Height equals min-height and overflowing creative content is contained, so a fill cannot move following content. The label adds a reserved 26px. All reservations are present in the initial HTML when enabled.
 

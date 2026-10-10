@@ -6,7 +6,7 @@ import { createRequire } from 'node:module';
 // Owner-run only. Never run this in a browser-prohibited task.
 // node scripts/verify-consent-browser.mjs http://localhost:8770
 // All requests are intercepted; no server, external network or screenshots are used.
-const require = createRequire('/Users/araratovsepian/Agent-RSOC-Platform/Agent-RSOC-Platform/investor-deck/package.json');
+const require = createRequire(path.join(process.env.BROWSER_RUNTIME_ROOT || '/Users/araratovsepian/Agent-RSOC-Platform/Agent-RSOC-Platform/investor-deck', 'package.json'));
 const { chromium } = require('playwright');
 const base = new URL(process.argv[2] || 'http://localhost:8770');
 assert.ok(['localhost', '127.0.0.1', '[::1]'].includes(base.hostname), 'Use a localhost origin for the test timer override');
@@ -99,6 +99,10 @@ try {
   await goto(test.page, '/?nl-delay=2');
   const banner = test.page.locator('[data-consent-banner]');
   assert.equal(await banner.isVisible(), true);
+  assert.ok((await banner.getAttribute('class')).split(' ').includes('popup-card'));
+  assert.equal(await banner.locator('h2').textContent(),'Cookies and privacy');
+  const heroBox=await test.page.locator('.hero-statement h1').boundingBox(), popupBox=await banner.boundingBox();
+  assert.ok(popupBox.y>=heroBox.y+heroBox.height || popupBox.x+popupBox.width<=heroBox.x || popupBox.x>=heroBox.x+heroBox.width,'Desktop consent does not cover the h1');
   const sizes = await banner.locator('button').evaluateAll(buttons => buttons.map(button => {
     const rect = button.getBoundingClientRect(), css = getComputedStyle(button);
     return { width: rect.width, height: rect.height, weight: css.fontWeight, background: css.backgroundColor, border: css.border, fontSize: css.fontSize };
@@ -125,6 +129,11 @@ try {
   await footerControl.click();
   const dialog = test.page.locator('[data-consent-dialog]');
   assert.equal(await dialog.isVisible(), true);
+  assert.equal(await test.page.locator('[data-newsletter-prompt]').isVisible(),false,'Settings hide an already-visible newsletter');
+  assert.ok((await dialog.getAttribute('class')).split(' ').includes('popup-card'));
+  const dialogChoices=await dialog.locator('[data-consent-choice]').evaluateAll(buttons=>buttons.map(button=>{const box=button.getBoundingClientRect();const css=getComputedStyle(button);return {className:button.className,width:box.width,height:box.height,background:css.backgroundColor,weight:css.fontWeight};}));
+  assert.ok(Math.abs(dialogChoices[0].width-dialogChoices[1].width)<.1);
+  assert.deepEqual({...dialogChoices[0],width:0},{...dialogChoices[1],width:0});
   assert.equal(await dialog.locator('[name="analytics"]').isChecked(), false);
   assert.equal(await dialog.locator('[name="marketing"]').isChecked(), false);
   assert.equal(await dialog.locator('[name="necessary"]').isDisabled(), true);
@@ -140,8 +149,8 @@ try {
   assert.equal((await consentGet(test.page)).analytics, true);
   assert.equal((await consentGet(test.page)).marketing, true);
   await noCookies(test.context);
-  await test.page.locator('[data-newsletter-close]').click();
-  assert.equal(await test.page.evaluate(() => JSON.parse(localStorage.getItem('sr-newsletter')).state), 'dismissed');
+  assert.equal(await test.page.locator('[data-newsletter-prompt]').isVisible(),false);
+  assert.equal(await test.page.evaluate(() => JSON.parse(sessionStorage.getItem('sr-newsletter-session')).seen),true,'The invitation is shown only once in a session');
   await goto(test.page, '/?nl-delay=2'); await test.page.waitForTimeout(2300);
   assert.equal(await test.page.locator('[data-newsletter-prompt]').isVisible(), false, 'Dismissal survives navigation');
   assert.deepEqual(test.errors, []);
@@ -151,18 +160,43 @@ try {
   await delay.page.locator('[data-consent-banner]').getByRole('button', { name: 'Reject all', exact: true }).click();
   assert.equal(await delay.page.locator('[data-newsletter-prompt]').isVisible(), false);
   await waitPrompt(delay.page); await assertCLS(delay.page);
+  assert.ok((await delay.page.locator('[data-newsletter-prompt]').getAttribute('class')).split(' ').includes('popup-card'));
   await delay.page.keyboard.press('Escape');
   assert.equal(await delay.page.locator('[data-newsletter-prompt]').isVisible(), false);
+  assert.equal(await delay.page.evaluate(()=>JSON.parse(localStorage.getItem('sr-newsletter')).state),'dismissed');
+  await goto(delay.page,'/?nl-delay=2'); await delay.page.waitForTimeout(2300);
+  assert.equal(await delay.page.locator('[data-newsletter-prompt]').isVisible(),false,'Dismissal survives navigation');
   assert.deepEqual(delay.errors, []);
 
   const mobile = await setup({ viewport: { width: 390, height: 844 }, seed: { 'sr-consent': decision } });
   await goto(mobile.page, '/?nl-delay=2'); await waitPrompt(mobile.page);
   const sheet = await mobile.page.locator('[data-newsletter-prompt]').boundingBox();
-  assert.ok(sheet.height < 844 * .5 && Math.abs(sheet.width - 390) < 1);
+  assert.ok(sheet.height <= 844 * .6 && Math.abs(sheet.width - 390) < 1);
   assert.ok(Math.abs(sheet.y + sheet.height - 844) < 1);
   assert.equal(await mobile.page.evaluate(() => document.body.style.overflow), '', 'No prompt scroll lock');
   await assertCLS(mobile.page);
   assert.deepEqual(mobile.errors, []);
+
+  for (const width of [320,390,640,768,1024,1440,1920]) {
+    const footer = await setup({viewport:{width,height:900},seed:{'sr-consent':decision,'sr-newsletter':{state:'dismissed',at:new Date().toISOString()}}});
+    await goto(footer.page);
+    const fit=await footer.page.locator('.newsletter-footer').evaluate(section=>{const row=section.querySelector('.newsletter-input-row').getBoundingClientRect(),input=section.querySelector('input[type=email]').getBoundingClientRect(),button=section.querySelector('button[type=submit]').getBoundingClientRect(),container=document.querySelector('.footer-inner').getBoundingClientRect();return {row:{left:row.left,right:row.right},input:{left:input.left,right:input.right,width:input.width,height:input.height},button:{left:button.left,right:button.right,height:button.height},container:{left:container.left,right:container.right},overflow:document.documentElement.scrollWidth>innerWidth};});
+    assert.equal(fit.overflow,false); assert.ok(Math.abs(fit.input.left-fit.container.left)<1);
+    assert.ok(fit.input.width>100 && fit.input.right<=fit.button.left && fit.button.right<=fit.container.right+.5);
+    assert.equal(fit.input.height,44); assert.equal(fit.button.height,44);
+    await assertCLS(footer.page);
+  }
+  const phoneConsent = await setup({viewport:{width:390,height:844},reducedMotion:'no-preference'});
+  await goto(phoneConsent.page,'/?nl-delay=2'); await phoneConsent.page.waitForTimeout(300);
+  const consentSheet=await phoneConsent.page.locator('[data-consent-banner]').boundingBox();
+  const hero=await phoneConsent.page.locator('.hero-statement').boundingBox();
+  assert.ok(consentSheet.height<=844*.6 && consentSheet.width===390 && consentSheet.y>=hero.y+hero.height,'Phone consent keeps the hero readable');
+  await phoneConsent.page.waitForTimeout(2300);
+  await phoneConsent.page.locator('[data-consent-banner] [data-consent-choice="reject"]').click();
+  assert.equal(await phoneConsent.page.locator('[data-newsletter-prompt]').isVisible(),false,'Exit animation does not overlap newsletter');
+  await waitPrompt(phoneConsent.page);
+  assert.equal(await phoneConsent.page.locator('[data-consent-banner]').isVisible(),false);
+  await assertCLS(phoneConsent.page);
 
   const articles = (await fs.readdir('_site/articles')).filter(name => !name.startsWith('.'));
   assert.ok(articles.length);

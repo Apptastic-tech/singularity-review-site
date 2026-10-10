@@ -17,7 +17,7 @@ export function verifyHero(html, css) {
     assert.ok(layout.statement.top > layout.lensingRegionBottom, width + ': statement below the full lensing influence region');
   }
   assert.equal((html.match(/<h1\b/g) || []).length, 1, 'Homepage has one h1');
-  const band = html.slice(html.indexOf('<div class="night-cover"'), html.indexOf('<section class="feed'));
+  const band = html.slice(html.indexOf('<div class="night-cover"'), html.indexOf('<section class="card-row'));
   const visibleText = plain(band.replace(/<svg\b[\s\S]*?<\/svg>/g, ''));
   assert.equal(visibleText, heroLines.join(' '), 'No extra hero slogan, eyebrow or CTA');
   assert.doesNotMatch(band, /<a\b|<strong\b|<mark\b/);

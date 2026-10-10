@@ -18,15 +18,15 @@ export async function publishedArticles(root) {
   return result.sort((a, b) => b.date - a.date);
 }
 
-export const cardLinks = html => [...html.matchAll(/class="(?:card-link|story-block-link)" href="([^"]+)"/g)].map(match => match[1]);
+export const cardLinks = html => [...html.matchAll(/class="post-card-link" href="([^"]+)"/g)].map(match => match[1]);
 export const carouselLinks = html => [...html.matchAll(/class="carousel-story" href="([^"]+)"/g)].map(match => match[1]);
 export const articleUrl = article => `/articles/${article.slug}/`;
 
 const menu = [
-  ['/', 'News'],
-  ['/featured/', 'Featured'],
-  ['/what-is-singularity/', 'Explainer'],
-  ['/about/', 'About'],
+  ['/', 'Singularity headline news'],
+  ['/featured/', 'Featured author articles'],
+  ['/what-is-singularity/', 'What is singularity'],
+  ['/about/', 'Who we are'],
 ];
 export function verifyNavigation(html, active = '/') {
   for (const className of ['desktop-nav', 'menu-links', 'no-js-nav', 'footer-links']) {

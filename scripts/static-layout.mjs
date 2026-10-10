@@ -72,12 +72,11 @@ export function coverLayout(css, width, height) {
   const hero = get('.hero-statement'), inset = length(hero['inset-inline'], width, height);
   const statementWidth = Math.min(width - inset * 2, length(hero['max-width'], width, height));
   const statement = { left: (width - statementWidth) / 2, top: length(hero.top, width, height, bandHeight, variables), width: statementWidth };
-  const body = get('.card--lead .card-body'), paddingTop = length(body.padding.split(' ')[0], width, height);
-  const category = get('.category-link');
   const mastheadHeight = length(get('.header-inner').height, width, height);
-  const leadY = mastheadHeight + bandHeight + paddingTop + length(category['min-height'], width, height);
+  const row = get('.card-row');
+  const rowHeadingY = mastheadHeight + bandHeight + length(row['margin-block'].split(' ')[0], width, height);
   // Include the full circular shader influence, a stricter bound than its shadow/ring.
   const diskBottom = disk.top + disk.height;
   const lensingRegionBottom = disk.top + disk.height * .48 + disk.width * .109 * 4.5;
-  return { rules, get, bandHeight, disk, diskBottom, lensingRegionBottom, statement, mastheadHeight, leadY };
+  return { rules, get, bandHeight, disk, diskBottom, lensingRegionBottom, statement, mastheadHeight, rowHeadingY };
 }

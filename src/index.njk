@@ -1,6 +1,6 @@
 ---
 layout: layouts/base.njk
-title: News
+title: Singularity headline news
 description: "AI news, research, and analysis"
 pagination:
   data: collections.headlines
@@ -12,7 +12,7 @@ homeFeed: true
 hasCarousel: true
 eleventyExcludeFromCollections: true
 ---
-{% if pagination.pageNumber == 0 %}
+{% ifAsync pagination.pageNumber == 0 %}
 <div class="night-cover" data-cover>
   <div class="cover-atmosphere" aria-hidden="true">
   <div class="cover-sky" aria-hidden="true">{% brandPicture "skyline-kittpeak", "(max-width: 639px) 640px, 100vw", "cover-sky-image", "low" %}</div>
@@ -25,47 +25,28 @@ eleventyExcludeFromCollections: true
   </header>
   <button type="button" class="cover-motion" aria-label="Pause sky animation" aria-pressed="false" data-motion-toggle hidden><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><path data-motion-glyph d="M7 5h3v14H7zm7 0h3v14h-3z" fill="currentColor"/></svg></button>
 </div>
-{% else %}
-<header class="feed-intro feed-width">
-  <h1>News</h1>
-  {% if pagination.pageNumber > 0 %}<p class="meta">Page {{ pagination.pageNumber + 1 }}</p>{% endif %}
-</header>
-{% endif %}
-<section class="feed headline-feed feed-width" aria-label="News">
-  {% if feedItems.length %}
-    {% ifAsync pagination.pageNumber == 0 %}
-      {% asyncEach item in feedItems %}
-        {% ifAsync loop.first %}
-          {% set featured = true %}
-          {% set lead = true %}
-          {% include "card.njk" %}
-        {% endif %}
-      {% endeach %}
-      {% ifAsync collections.featured.length %}
-        {% set carouselItems = collections.featured %}
-        {% include "carousel.njk" %}
-      {% endif %}
-      <section class="story-section" aria-labelledby="latest-heading">
-        <h2 class="archive-title" id="latest-heading">Latest</h2>
-        <div class="story-grid" data-feed>
-          {% set storyHeading = "h3" %}
-          {% asyncEach item in feedItems %}
-            {% ifAsync not loop.first %}{% include "story-block.njk" %}{% if loop.index == 4 %}{% set name = "homeGrid" %}{% include "ad-slot.njk" %}{% endif %}{% endif %}
-          {% endeach %}
-        </div>
-      </section>
-    {% else %}
-      <div class="story-grid" data-feed>
-        {% set storyHeading = "h2" %}
-        {% asyncEach item in feedItems %}{% include "story-block.njk" %}{% endeach %}
-      </div>
-    {% endif %}
-  {% else %}<header class="feed-intro"><h2>News</h2><p class="empty-state">No headline articles are published yet. Read <a href="/featured/">Featured</a>.</p></header>{% endif %}
-</section>
-{% ifAsync not feedItems.length and pagination.pageNumber == 0 and collections.featured.length %}
+{% set rowItems = feedItems %}
+{% set rowTitle = "Singularity headline news" %}
+{% set rowId = "headline-news" %}
+{% set rowTarget = pagination.href.next %}
+{% set cardEager = true %}
+{% include "card-row.njk" %}
+{% set name = "homeGrid" %}
+{% if site.adsense.client or site.adsense.preview %}<div class="home-ad feed-width">{% include "ad-slot.njk" %}</div>{% endif %}
+{% ifAsync collections.featured.length %}
   {% set carouselItems = collections.featured %}
   {% include "carousel.njk" %}
 {% endif %}
+{% else %}
+<header class="feed-intro feed-width">
+  <h1>Singularity headline news</h1>
+  <p class="meta">Page {{ pagination.pageNumber + 1 }}</p>
+</header>
+<section class="post-grid feed-width" aria-label="Singularity headline news" data-feed>
+  {% set cardHeading = "h2" %}
+  {% set cardEager = true %}
+  {% asyncEach item in feedItems %}{% include "post-card.njk" %}{% endeach %}
+</section>
 <nav class="pagination feed-width" aria-label="Article pages">
   {% if pagination.href.previous %}<a class="page-link" href="{{ pagination.href.previous }}">Previous page</a>{% endif %}
   {% if pagination.href.next %}
@@ -74,3 +55,4 @@ eleventyExcludeFromCollections: true
   <p class="load-status meta" role="status" aria-live="polite" data-load-status></p>
   {% endif %}
 </nav>
+{% endif %}

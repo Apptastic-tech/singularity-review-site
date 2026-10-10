@@ -2,7 +2,7 @@
   const header = document.querySelector('[data-header]');
   const toggle = document.querySelector('[data-menu-toggle]');
   const menu = document.querySelector('[data-menu]');
-  const desktop = matchMedia('(min-width: 960px)');
+  const desktop = matchMedia('(min-width: 1280px)');
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
   const inertRegions = [...document.querySelectorAll('main, .site-footer, .skip, .brand')];
   let menuOpen = false;
@@ -160,7 +160,7 @@
     document.addEventListener('visibilitychange', updateCover);
   }
 
-  const feed = document.querySelector('.story-grid[data-feed]');
+  const feed = document.querySelector('.post-grid[data-feed]');
   const link = document.querySelector('[data-load-more]');
   const sentinel = document.querySelector('[data-sentinel]');
   const status = document.querySelector('[data-load-status]');
@@ -183,20 +183,20 @@
       const response = await fetch(next.href, { credentials: 'same-origin' });
       if (!response.ok) throw new Error('Page unavailable');
       const doc = new DOMParser().parseFromString(await response.text(), 'text/html');
-      const cards = [...doc.querySelectorAll('.story-grid[data-feed] > .story-block[data-card]')];
+      const cards = [...doc.querySelectorAll('.post-grid[data-feed] > .post-card[data-card]')];
       if (!cards.length) throw new Error('No articles found');
-      const existing = new Set([...feed.querySelectorAll('.story-block-link')].map(card => card.getAttribute('href')));
+      const existing = new Set([...feed.querySelectorAll('.post-card-link')].map(card => card.getAttribute('href')));
       const appended = [];
       cards.forEach(card => {
-        const href = card.querySelector('.story-block-link').getAttribute('href');
+        const href = card.querySelector('.post-card-link').getAttribute('href');
         if (existing.has(href)) return;
         existing.add(href);
-        const heading = card.querySelector('.story-block-title');
+        const heading = card.querySelector('.post-card-title');
         const headingTag = feed.closest('[aria-labelledby]') ? 'h3' : 'h2';
         if (heading.tagName.toLowerCase() !== headingTag) {
           const replacement = document.createElement(headingTag);
           replacement.className = heading.className;
-          replacement.textContent = heading.textContent;
+          replacement.append(...heading.childNodes);
           heading.replaceWith(replacement);
         }
         const image = card.querySelector('img');
@@ -206,7 +206,7 @@
         appended.push(card);
       });
       status.textContent = `${appended.length} more stories loaded.`;
-      if (fromClick && appended.length) appended[0].querySelector('.story-block-link').focus({ preventScroll: true });
+      if (fromClick && appended.length) appended[0].querySelector('.post-card-link').focus({ preventScroll: true });
       const nextLink = doc.querySelector('[data-load-more]');
       if (nextLink) {
         link.href = new URL(nextLink.getAttribute('href'), next.href).href;

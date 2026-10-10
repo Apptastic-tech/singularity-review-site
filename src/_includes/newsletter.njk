@@ -7,8 +7,7 @@
       <input id="newsletter-email-{{ source }}" name="email" type="email" autocomplete="email" maxlength="254" required>
       <button class="privacy-button" type="submit">Subscribe</button>
     </div>
-    <label class="newsletter-choice" for="newsletter-choice-{{ source }}"><input id="newsletter-choice-{{ source }}" name="newsletterConsent" type="checkbox" required><span>Send me the Singularity Review newsletter. Unsubscribe anytime.</span></label>
-    <a class="newsletter-privacy" href="/privacy/">Privacy policy</a>
+    <label class="newsletter-choice" for="newsletter-choice-{{ source }}"><input id="newsletter-choice-{{ source }}" name="newsletterConsent" type="checkbox" required><span>Send me the Singularity Review newsletter. Unsubscribe anytime. <a class="newsletter-privacy" href="/privacy/">Privacy policy</a></span></label>
     <div hidden aria-hidden="true"><label for="newsletter-website-{{ source }}">Website</label><input id="newsletter-website-{{ source }}" name="website" type="text" tabindex="-1" autocomplete="off"></div>
   </fieldset>
   <p class="newsletter-status" data-newsletter-status role="status" aria-live="polite" aria-atomic="true"></p>

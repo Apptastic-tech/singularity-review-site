@@ -33,8 +33,8 @@ assert.match(css, /font-display: optional/);
 assert.doesNotMatch(css, /font-display: swap|text-shadow|cover-copy|cover-dek|\.kicker/);
 assert.match(css, /\.cover-motion \{[^}]*position: absolute;[^}]*width: 44px; height: 44px;/);
 assert.match(css, /::selection \{[^}]*background: #C8CDD1;/);
-const decorativeDivider = /\.(?:site-header|menu-links(?: > a)?|follow|read-next|site-footer|footer-links|desktop-nav|share-end|author-shelf|explainer-section|expert-card)\s*\{[^}]*border-(?:top|bottom|block):\s*[1-9]/;
-assert.ok(decorativeDivider.test('.site-footer { border-top: 1px solid gray; }'), 'Divider checker rejects a positive fixture');
+const decorativeDivider = /\.(?:site-header|menu-links(?: > a)?|follow|read-next|footer-links|desktop-nav|share-end|author-shelf|explainer-section|expert-card)\s*\{[^}]*border-(?:top|bottom|block):\s*[1-9]/;
+assert.ok(decorativeDivider.test('.site-header { border-top: 1px solid gray; }'), 'Divider checker rejects a positive fixture');
 assert.doesNotMatch(css, decorativeDivider, 'Sections use spacing instead of decorative rules');
 // Desktop uses the full 3:2 source; mobile uses a square art-directed crop.
 assert.match(picture, /media="\(max-width: 639px\)"/);
@@ -54,6 +54,6 @@ for (const file of await fs.readdir('_site', { recursive: true })) {
   if (file.endsWith('.html')) assert.ok(!banned.test(await fs.readFile('_site/' + file, 'utf8')), `Plain copy: ${file}`);
 }
 for (const file of ['eleventy.config.js','scripts/prepare-brand.mjs','src/js/lensing.js','docs/DESIGN.md','docs/REBRAND_V4_REPORT.md']) assert.ok(!(await fs.readFile(file, 'utf8')).includes(oldName), `Retired photo has no active references: ${file}`);
-console.log('REWORK VERIFIED: original photo, four high quality desktop sky widths in three formats, mobile art direction, full chroma, height-aware desktop sizes, resource-pixel textures, stable font policy, no decorative section dividers and site-wide copy cleanup');
+console.log('REWORK VERIFIED: original photo, four high quality desktop sky widths in three formats, mobile art direction, full chroma, height-aware desktop sizes, resource-pixel textures, stable font policy, approved footer hairline and no decorative section dividers and site-wide copy cleanup');
 
 checkHeroControls(home, css);

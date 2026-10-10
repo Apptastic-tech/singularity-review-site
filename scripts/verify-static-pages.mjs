@@ -34,18 +34,11 @@ for (const file of (await fs.readdir('_site', { recursive: true })).filter(x => 
   assert.equal(headings.length, 1, `${file}: one main h1`);
   const identity = file === 'index.html' ? 'home' : file.startsWith('articles/') ? 'article' : file.startsWith('featured/') ? 'featured' : file.startsWith('what-is-singularity/') ? 'explainer' : file.startsWith('about/') ? 'about' : file.startsWith('authors/') ? 'author' : file.startsWith('category/') ? 'category' : 'other';
   archetypes.add(identity);
-  for (const card of nodes.filter(node => hasClass(node, 'card'))) {
-    const body = card.children.find(node => hasClass(node, 'card-body')), media = card.children.find(node => hasClass(node, 'card-media'));
-    assert.ok(body && media, `${file}: each story keeps media and body as separate siblings`);
-    assert.equal(elements(body).filter(node => node.name === 'h2').length, 1, `${file}: story title is h2`);
-    assert.ok(!ancestor(body, node => node.name === 'picture' || hasClass(node, 'card-media')), `${file}: body is outside imagery`);
-    if (hasClass(card, 'card--lead')) assert.ok(card.children.indexOf(body) < card.children.indexOf(media), 'Lead title and byline precede its photograph');
-  }
-  for (const block of nodes.filter(node => hasClass(node, 'story-block'))) {
-    const body = block.children.find(node => hasClass(node, 'story-block-body')), media = block.children.find(node => hasClass(node, 'story-block-media'));
+  for (const block of nodes.filter(node => hasClass(node, 'post-card'))) {
+    const body = block.children.find(node => hasClass(node, 'post-card-body')), media = block.children.find(node => hasClass(node, 'post-card-media'));
     assert.ok(body && media, `${file}: block media and text are separate siblings`);
     assert.ok(block.children.indexOf(media) < block.children.indexOf(body), `${file}: block text follows the image`);
-    assert.ok(!ancestor(body, node => node.name === 'picture' || hasClass(node, 'story-block-media')), `${file}: block text is outside imagery`);
+    assert.ok(!ancestor(body, node => node.name === 'picture' || hasClass(node, 'post-card-media')), `${file}: block text is outside imagery`);
     assert.equal(elements(body).filter(node => /^h[23]$/.test(node.name)).length, 1, `${file}: one block headline`);
   }
   for (const heading of nodes.filter(node => /^h[123]$/.test(node.name))) assert.ok(!ancestor(heading, node => node.name === 'picture' || hasClass(node, 'card-media')), `${file}: heading is outside media`);
@@ -53,16 +46,17 @@ for (const file of (await fs.readdir('_site', { recursive: true })).filter(x => 
     assert.ok(+image.attribs.width > 0 && +image.attribs.height > 0, `${file}: intrinsic image geometry reserved`);
   }
   const footerColumns = nodes.filter(node => hasClass(node, 'footer-column'));
-  assert.equal(footerColumns.length, 4);
+  assert.equal(footerColumns.length, 0);
+  assert.ok(nodes.some(node => hasClass(node, 'footer-top')) && nodes.some(node => hasClass(node, 'footer-bottom')));
   const viewportReports = [];
   for (const [width, height] of matrix) {
     const get = selector => styleAt(rules, selector, width, height);
-    for (const selector of ['.card', '.card-body', '.card--lead .card-body', '.carousel-story', '.expert-card', '.article-takeaways', '.article-sources']) unboxed(get(selector));
+    for (const selector of ['.carousel-story', '.expert-card', '.article-takeaways', '.article-sources']) unboxed(get(selector));
     const widthStyle = get('.feed-width');
     const gridWidth = Math.min(length(widthStyle.width, width, height), length(widthStyle['max-width'], width, height));
     assert.ok(gridWidth <= width && gridWidth > 0, `${file} ${width}: page grid fits`);
-    assert.equal(get('.footer-columns').display, 'grid');
-    assert.ok(get('.footer-columns')['grid-template-columns'].includes(width < 640 ? 'repeat(3' : '2fr repeat(3'), 'Compact footer columns at every breakpoint');
+    assert.equal(get('.footer-top').display, 'flex');
+    assert.equal(get('.footer-top')['flex-wrap'], 'wrap');
     const footerLink = get('.footer-links a');
     assert.ok(length(footerLink['min-height'], width, height) >= 24, 'Footer link targets remain usable');
     const expertWidth = width >= 960 ? 104 : 96;
@@ -73,18 +67,18 @@ for (const file of (await fs.readdir('_site', { recursive: true })).filter(x => 
       const layout = coverLayout(css, width, height);
       assert.ok(layout.disk.left >= 24 && layout.disk.left + layout.disk.width <= width - 24);
       assert.ok(layout.disk.top >= 16 && layout.disk.top + layout.disk.height <= layout.bandHeight - 16);
-      assert.ok(layout.leadY < (width < 640 ? 900 : height + 80));
-      assert.equal(get('.skyline-home .headline-feed')['margin-top'], '0');
-      assert.equal(get('.card--lead .card-media').order, '0');
-      report.bandHeight = layout.bandHeight; report.leadHeadlineDocumentY = layout.leadY;
+      assert.ok(layout.rowHeadingY < (width < 640 ? 900 : height + 80));
+      assert.ok(!get('.card-row').transform, 'The row remains in normal flow');
+      assert.equal(get('.post-card-media')['aspect-ratio'], '16 / 9');
+      report.bandHeight = layout.bandHeight; report.rowHeadingDocumentY = layout.rowHeadingY;
     }
     viewportReports.push(report);
   }
-  pages.push({ file, archetype: identity, mainHeading: textContent(headings[0]).trim(), storyCount: nodes.filter(node => hasClass(node, 'card') || hasClass(node, 'story-block')).length, viewports: viewportReports });
+  pages.push({ file, archetype: identity, mainHeading: textContent(headings[0]).trim(), storyCount: nodes.filter(node => hasClass(node, 'post-card')).length, viewports: viewportReports });
 }
 for (const archetype of ['home','article','featured','explainer','about','author','category']) assert.ok(archetypes.has(archetype), `Requested ${archetype} page exists`);
 // Inspect every matching reading-surface rule, including responsive overrides.
-for (const rule of rules.filter(rule => /\.(?:card|card-body|carousel-story|expert-card)$/.test(rule.selector))) unboxed(rule.declarations);
+for (const rule of rules.filter(rule => /\.(?:carousel-story|expert-card)$/.test(rule.selector))) unboxed(rule.declarations);
 assert.doesNotMatch(css, /background-clip:\s*text|text-transform:\s*capitalize|cursor:\s*none|backdrop-filter/);
 for (const file of ['src/js/lensing.js', 'src/js/site.js']) assert.doesNotMatch(await fs.readFile(file, 'utf8'), /pointermove|mousemove|spotlight|uPointer|uCursor/i);
 await fs.mkdir('.audit/hero-statement/static', { recursive: true });

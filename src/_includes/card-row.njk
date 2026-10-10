@@ -1,0 +1,19 @@
+<section class="card-row feed-width" aria-labelledby="{{ rowId }}-heading" data-card-row>
+  <div class="card-row-header">
+    <h2 id="{{ rowId }}-heading">{{ rowTitle }}</h2>
+    <div class="card-row-tools">
+      {% if rowTarget %}<a class="card-row-all" href="{{ rowTarget }}">See all</a>{% endif %}
+      {% if rowItems.length %}<div class="card-row-arrows" data-row-arrows hidden>
+        <button type="button" class="card-row-arrow" aria-label="Previous" aria-controls="{{ rowId }}-track" data-row-prev disabled><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="m14 6-6 6 6 6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button>
+        <button type="button" class="card-row-arrow" aria-label="Next" aria-controls="{{ rowId }}-track" data-row-next disabled><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="m10 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button>
+      </div>{% endif %}
+    </div>
+  </div>
+  {% if rowItems.length %}
+  <ul class="card-row-track" id="{{ rowId }}-track" role="list" tabindex="0" aria-label="{{ rowTitle }} (scrollable)" data-row-track>
+    {% set cardHeading = "h3" %}
+    {% set postCardSizes = "(min-width: 960px) clamp(300px, 28vw, 400px), (min-width: 640px) 45vw, 84vw" %}
+    {% asyncEach item in rowItems %}<li>{% include "post-card.njk" %}</li>{% endeach %}
+  </ul>
+  {% else %}<p class="empty-state">No headline articles are published yet. Read <a href="/featured/">Featured author articles</a>.</p>{% endif %}
+</section>

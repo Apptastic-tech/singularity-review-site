@@ -49,14 +49,15 @@
   <link rel="alternate" type="application/rss+xml" title="{{ site.title }}" href="/rss.xml">
   <link rel="alternate" type="application/atom+xml" title="{{ site.title }} Atom feed" href="/atom.xml">
   <link rel="preload" href="/fonts/newsreader-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-  {% set storyBlockSizes = "(min-width: 1312px) 400px, (min-width: 960px) calc((100vw - 128px) / 3), (min-width: 640px) calc((100vw - 96px) / 2), 100vw" %}
+  {% set postCardSizes = "(min-width: 1312px) 400px, (min-width: 960px) calc((100vw - 112px) / 3), (min-width: 640px) calc((100vw - 88px) / 2), calc(100vw - 40px)" %}
   {% if hero %}{% preloadHero hero, "(min-width: 1440px) 1440px, 100vw", title %}
-  {% elif feedItems and feedItems.length %}{% preloadHero feedItems[0].data.hero, "(min-width: 1312px) 1248px, (min-width: 640px) calc(100vw - 64px), 100vw" if pagination.pageNumber == 0 else storyBlockSizes, feedItems[0].data.title %}
-  {% elif cat and cat.articles.length %}{% preloadHero cat.articles[0].data.hero, storyBlockSizes, cat.articles[0].data.title %}{% endif %}
-  {% if person and person.articles.length %}{% preloadHero person.articles[0].data.hero, storyBlockSizes, person.articles[0].data.title %}{% endif %}
+  {% elif feedItems and feedItems.length %}{% preloadHero feedItems[0].data.hero, "(min-width: 960px) clamp(300px, 28vw, 400px), (min-width: 640px) 45vw, 84vw" if pagination.pageNumber == 0 else postCardSizes, feedItems[0].data.title %}
+  {% elif cat and cat.articles.length %}{% preloadHero cat.articles[0].data.hero, postCardSizes, cat.articles[0].data.title %}{% endif %}
+  {% if person and person.articles.length %}{% preloadHero person.articles[0].data.hero, postCardSizes, person.articles[0].data.title %}{% endif %}
   <link rel="stylesheet" href="{{ '/css/style.css' | asset }}">
   <script src="{{ '/js/transitions.js' | asset }}"></script>
   <script src="{{ '/js/site.js' | asset }}" defer></script>
+  <script src="{{ '/js/card-row.js' | asset }}" defer></script>
   <script src="{{ '/js/consent.js' | asset }}" defer></script>
   <script src="{{ '/js/newsletter.js' | asset }}" defer></script>
   {% if site.adsense.client or site.adsense.preview %}<script src="{{ '/js/ads.js' | asset }}" data-ad-client="{{ site.adsense.client }}" data-ad-preview="{{ 'true' if site.adsense.preview else 'false' }}" defer></script>{% endif %}
@@ -80,31 +81,18 @@
   <main id="main" tabindex="-1">{{ content | safe }}</main>
   <footer class="site-footer">
     <div class="footer-inner">
-      <div class="footer-columns">
-        <div class="footer-column footer-identity">
-          <a class="footer-brand" href="/">Singularity Review</a>
-          <p class="footer-description">{{ site.description }}</p>
-        </div>
-        <div class="footer-column">
-          <h2 class="footer-heading" id="footer-sections">Sections</h2>
-          <nav class="footer-links" aria-label="Sections" aria-labelledby="footer-sections">{{ navLinks(navigation, activeSection) }}</nav>
-        </div>
-        <div class="footer-column">
-          <h2 class="footer-heading" id="footer-topics">Topics</h2>
-          <nav class="footer-topics" aria-label="Topics" aria-labelledby="footer-topics">{% for topic in collections.categories %}<a href="/category/{{ topic.slug }}/"{% if cat and cat.slug == topic.slug %} aria-current="page"{% endif %}>{{ topic.name }}</a>{% endfor %}</nav>
-        </div>
-        <div class="footer-column">
-          <h2 class="footer-heading" id="footer-follow">Follow</h2>
-          <nav class="footer-social" aria-label="Follow" aria-labelledby="footer-follow">{{ socialLink(site.facebook, "Facebook", true) }}{{ socialLink(site.instagram, "Instagram", true) }}<a class="social-link social-link--text" href="/rss.xml">{{ icon("RSS") }}<span>RSS</span></a></nav>
-        </div>
+      <div class="footer-top">
+        <a class="footer-brand" href="/">Singularity Review</a>
+        <nav class="footer-links" aria-label="Publication sections">{{ navLinks(navigation, activeSection) }}</nav>
+        <nav class="footer-social" aria-label="Social links">{{ socialLink(site.facebook, "Facebook") }}{{ socialLink(site.instagram, "Instagram") }}<a class="social-link" href="/rss.xml" aria-label="RSS">{{ icon("RSS") }}</a></nav>
       </div>
       <section class="newsletter-inline newsletter-footer" aria-labelledby="newsletter-footer-heading">
         <h2 id="newsletter-footer-heading">Get the newsletter</h2>
         {{ newsletterForm("footer") }}
       </section>
       <div class="footer-bottom">
+        <nav class="footer-legal" aria-label="Policies and contact"><a href="/privacy/">Privacy</a><a href="/cookies/">Cookies</a><a href="/terms/">Terms</a><a href="/contact/">Contact</a><button class="privacy-link" type="button" data-consent-open hidden>Cookie settings</button></nav>
         <p class="footer-copy">&copy; {{ site.year }} Singularity Review</p>
-        <nav class="footer-legal" aria-label="Legal" aria-labelledby="footer-legal-heading"><h2 class="footer-heading footer-legal-title" id="footer-legal-heading">Legal</h2><a href="/about/">About</a><a href="/contact/">Contact</a><a href="/editorial-standards/">Editorial standards</a><a href="/privacy/">Privacy</a><a href="/cookies/">Cookies</a><a href="/terms/">Terms</a><button class="privacy-link" type="button" data-consent-open hidden>Cookie settings</button></nav>
         <p class="photo-credit skyline-credit">Skyline: <a href="https://commons.wikimedia.org/wiki/File:Kitt_Peak_at_Night_(3S8A6804).jpg">Kitt Peak at Night</a>, KPNO/NOIRLab/NSF/AURA/P. Marenfeld, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Colour graded; satellite trail removed.</p>
       </div>
     </div>

@@ -24,29 +24,29 @@ function runtime(sectionHeading) {
     const block = element(), story = element(), image = element();
     story.setAttribute('href', href);
     story.focus = () => { story.focused = true; };
-    block.heading = { tagName: tag.toUpperCase(), className: 'story-block-title', textContent: href };
+    block.heading = { tagName: tag.toUpperCase(), className: 'post-card-title', textContent: href, childNodes: [story] };
     block.heading.replaceWith = replacement => { block.heading = replacement; };
-    block.querySelector = selector => selector === '.story-block-link' ? story : selector === '.story-block-title' ? block.heading : selector === 'img' ? image : null;
+    block.querySelector = selector => selector === '.post-card-link' ? story : selector === '.post-card-title' ? block.heading : selector === 'img' ? image : null;
     block.querySelectorAll = () => [];
     block.matches = selector => selector === '[data-reveal]';
     return block;
   };
   const feed = element();
   feed.cards = [card('/articles/existing/', sectionHeading ? 'h3' : 'h2')];
-  feed.querySelectorAll = selector => selector === '.story-block-link' ? feed.cards.map(block => block.querySelector(selector)) : [];
+  feed.querySelectorAll = selector => selector === '.post-card-link' ? feed.cards.map(block => block.querySelector(selector)) : [];
   feed.closest = () => sectionHeading ? {} : null;
   feed.append = block => feed.cards.push(block);
   const link = element(), sentinel = element(), status = element();
   link.href = 'https://example.org/page/2/';
   const document = {
-    querySelector: selector => ({ '.story-grid[data-feed]': feed, '[data-load-more]': link, '[data-sentinel]': sentinel, '[data-load-status]': status })[selector] || null,
+    querySelector: selector => ({ '.post-grid[data-feed]': feed, '[data-load-more]': link, '[data-sentinel]': sentinel, '[data-load-status]': status })[selector] || null,
     querySelectorAll: () => [],
-    createElement: tag => ({ tagName: tag.toUpperCase() }),
+    createElement: tag => ({ tagName: tag.toUpperCase(), append(...children) { this.childNodes = children; } }),
     addEventListener() {}
   };
   const responsePage = (cards, next) => ({
     querySelectorAll: selector => {
-      assert.equal(selector, '.story-grid[data-feed] > .story-block[data-card]', 'Fetched items are direct grid children');
+      assert.equal(selector, '.post-grid[data-feed] > .post-card[data-card]', 'Fetched items are direct grid children');
       return cards;
     },
     querySelector: selector => {
@@ -101,7 +101,8 @@ for (const underHeading of [true, false]) {
   await settle();
   assert.equal(test.feed.cards.length, 2, 'Existing and repeated fetched URLs are skipped');
   assert.equal(first.heading.tagName, underHeading ? 'H3' : 'H2', 'Appended headline matches the destination section');
-  assert.equal(first.querySelector('.story-block-link').focused, true, 'Manual loading focuses the first new story');
+  assert.equal(first.heading.childNodes[0], first.querySelector('.post-card-link'), 'Heading normalization retains the linked headline');
+  assert.equal(first.querySelector('.post-card-link').focused, true, 'Manual loading focuses the first new story');
   assert.equal(first.querySelector('img').loading, 'lazy');
   assert.equal(first.querySelector('img').attributes.get('fetchpriority'), 'auto');
   assert.equal(test.link.href, 'https://example.org/page/3/');
@@ -144,4 +145,4 @@ foreign.loader.callback([{ isIntersecting: true }]);
 await settle();
 assert.equal(foreign.requests.length, 0, 'Foreign next-page origins are rejected before fetching');
 assert.match(foreign.status.textContent, /Could not load/);
-console.log('FEED VERIFIED: grid appends on home and later pages, heading levels, deduplication, click focus, busy status, native modified clicks, retry and same-origin fallback. No browser or network was used.');
+console.log('FEED VERIFIED: post-card grid appends on pagination pages, heading levels, deduplication, click focus, busy status, native modified clicks, retry and same-origin fallback. No browser or network was used.');

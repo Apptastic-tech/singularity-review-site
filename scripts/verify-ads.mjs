@@ -25,7 +25,7 @@ assert.throws(() => checkAdsTxt(exact)); assert.throws(() => checkAdsTxt('# TODO
 assert.equal(site.adsense.client, ''); assert.equal(site.adsense.verificationMeta, ''); assert.equal(site.adsense.preview, false, 'Run the verifier against the default build');
 const header = JSON.parse(await read('firebase.json')).hosting[0].headers.find(item => item.source === '/ads.txt');
 assert.equal(header.headers.find(item => item.key === 'Content-Type').value, 'text/plain; charset=utf-8');
-const footerRoutes = ['/about/', '/contact/', '/editorial-standards/', '/privacy/', '/cookies/', '/terms/'];
+const footerRoutes = ['/privacy/', '/cookies/', '/terms/', '/contact/'];
 function footer(html) {
   const dom = parseDocument(html), legal = nodes(dom).find(node => hasClass(node, 'footer-legal'));
   assert.ok(legal); assert.deepEqual(nodes(legal).filter(node => node.name === 'a').map(node => node.attribs.href), footerRoutes);
@@ -44,7 +44,7 @@ for (const width of [390, 768, 1440]) {
   assert.equal(article['min-height'], width < 640 ? '280px' : '250px'); assert.equal(article.height, article['min-height']);
   const home = styleAt(rules, '.ad-slot--homeGrid .ad-slot-reserved', width, 900);
   assert.equal(home['min-height'], '250px'); assert.equal(home.height, '250px');
-  assert.equal(styleAt(rules, '.ad-slot--homeGrid', width, 900)['grid-column'], '1 / -1');
+  assert.equal(styleAt(rules, '.home-ad', width, 900)['margin-block'], '32px 48px');
 }
 assert.equal(styleAt(rules, '.ad-slot-label', 390, 844)['font'], '400 12px/1.5 var(--sans)');
 assert.equal(styleAt(rules, '.ad-slot[data-ad-preview="true"] .ad-slot-reserved', 390, 844).border, '1px solid var(--line)');
@@ -77,6 +77,10 @@ try {
   for (const file of files) {
     const html = await read(path.join(temp, file)), dom = parseDocument(html), all = nodes(dom), renderedSlots = slots(dom);
     footer(html); assert.doesNotMatch(html, /<meta name="google-adsense-account"/);
+    for (const image of all.filter(node => ['img','source'].includes(node.name))) {
+      const urls = [...(image.attribs.src ? [image.attribs.src] : []), ...(image.attribs.srcset || '').split(',').filter(Boolean).map(value => value.trim().split(/\s+/)[0])];
+      for (const url of urls.filter(url => url.startsWith('/'))) await fs.access(path.join(temp, url.split('?')[0]));
+    }
     assert.match(html, /src="\/js\/ads\.js\?v=[a-f0-9]{10}" data-ad-client="" data-ad-preview="true" defer/);
     for (const slot of renderedSlots) {
       assert.equal(slot.attribs['aria-label'], 'Advertisement'); assert.equal(slot.attribs['data-ad-preview'], 'true');
@@ -94,12 +98,14 @@ try {
         if (name === 'articleA') articleA++; else articleB++;
       }
     } else if (file === 'index.html') {
-      const grid = all.find(node => hasClass(node, 'story-grid'));
-      const children = grid.children.filter(node => node.type === 'tag');
-      assert.ok(children.filter(node => hasClass(node, 'story-block')).length >= 3, 'Current homepage has a full first row');
-      assert.equal(renderedSlots.length, 1); assert.equal(children[3].attribs['data-ad-slot'], 'homeGrid');
-      assert.ok(children.slice(0, 3).every(node => hasClass(node, 'story-block')));
-      assert.ok(html.indexOf('data-ad-slot="homeGrid"') > html.indexOf('class="card-title"'));
+      const main = all.find(node => node.name === 'main');
+      const children = main.children.filter(node => node.type === 'tag');
+      const row = children.findIndex(node => hasClass(node, 'card-row'));
+      assert.equal(renderedSlots.length, 1);
+      assert.equal(renderedSlots[0].attribs['data-ad-slot'], 'homeGrid');
+      assert.ok(hasClass(children[row + 1], 'home-ad'), 'Ad follows the complete headline row');
+      assert.ok(hasClass(children[row + 2], 'author-shelf'), 'Carousel follows the homepage ad');
+      assert.equal(renderedSlots[0].parent, children[row + 1]);
     } else assert.equal(renderedSlots.length, 0);
   }
   assert.ok(articleA > 0 && articleB > 0, 'Actual long articles cover both insertion locations');
@@ -154,4 +160,4 @@ const tracked = ['src','scripts','docs'];
 for (const dir of tracked) for (const file of (await fs.readdir(dir, { recursive: true })).filter(file => /\.(?:js|mjs|njk|md|json|css)$/.test(file))) {
   assert.doesNotMatch(await read(dir + '/' + file), /[\u2013\u2014]/, dir + '/' + file + ': no forbidden dashes');
 }
-console.log('ADS VERIFIED: disabled and isolated preview builds, exact seller record, placements, fixed reservations, policy links, default-denied v2 consent, reject/accept/revoke, no preview requests and placeholder guards. Browser checks were not run.');
+console.log('AdSense verification passed. ADS VERIFIED: disabled and isolated preview builds, exact seller record, placements, fixed reservations, policy links, default-denied v2 consent, reject/accept/revoke, no preview requests and placeholder guards. Browser checks were not run.');

@@ -66,14 +66,14 @@ try {
     assert.ok(description.length >= 70 && description.length <= 160);
     if (page > 1) { assert.ok(title.includes(`Page ${page}`)); assert.ok(description.includes(`Page ${page}`)); }
     assert.deepEqual(cardLinks(content), headlines.slice((page-1)*10, page*10).map(articleUrl));
-    assert.equal((content.match(/class="story-block"/g) || []).length, Math.min(10, headlines.length - (page-1)*10) - (page === 1 ? 1 : 0), 'Only page 1 separates its lead from the grid');
-    assert.equal((content.match(/class="story-grid" data-feed/g) || []).length, 1, 'Each pagination page exposes the grid for loading');
-    assert.equal((content.match(/<h3 class="story-block-title"/g) || []).length, page === 1 ? 9 : 0, 'Home blocks sit under Latest; subsequent pages use h2');
+    assert.equal((content.match(/class="post-card"/g) || []).length, Math.min(10, headlines.length - (page-1)*10), 'Every page-1 headline appears once in the row');
+    assert.equal((content.match(/class="post-grid[^"]*"[^>]*data-feed/g) || []).length, page === 1 ? 0 : 1, 'Only later pagination pages expose a grid for loading');
+    assert.equal((content.match(/<h3 class="post-card-title"/g) || []).length, page === 1 ? Math.min(10, headlines.length) : 0, 'Home cards use h3 under their row heading; subsequent pages use h2');
     if (page > 1) assert.doesNotMatch(content, /card--lead|id="latest-heading"|data-carousel-track/);
     seen.push(...cardLinks(content));
     verifyNavigation(content);
     assert.match(content, new RegExp(`rel="canonical" href="[^" ]+${page === 1 ? '/' : `/page/${page}/`}"`));
-    if (page < totalPages) assert.match(content, new RegExp(`href="/page/${page+1}/" data-load-more`));
+    if (page < totalPages) assert.match(content, new RegExp(page === 1 ? `href="/page/${page+1}/">See all` : `href="/page/${page+1}/" data-load-more`));
     else assert.ok(!content.includes('data-load-more'));
     if (page > 1) assert.ok(!content.includes('/js/carousel.js'));
     assert.equal(content.includes('/js/lensing.js'), page === 1, 'Only the homepage loads lensing, including with future pagination');
@@ -89,8 +89,8 @@ try {
   assert.doesNotMatch(archive, /author-avatar|authorPhoto|<img[^>]+apple-touch-icon/);
   assert.match(archive, /class="carousel-byline meta">By <a class="byline-author" href="\/authors\/ada-example\/" rel="author">Ada Example<\/a> <span aria-hidden="true">·<\/span> <time/);
   assert.doesNotMatch(archive, /class="card-byline/, 'Archive blocks have a date without a byline');
-  assert.equal((archive.match(/<time class="story-block-date"/g) || []).length, featured.length, 'Every featured block retains its date');
-  assert.equal((archive.match(/class="story-block-link"/g) || []).length, featured.length, 'Every featured article has a block link');
+  assert.equal((archive.match(/<time class="post-card-date"/g) || []).length, featured.length, 'Every featured block retains its date');
+  assert.equal((archive.match(/class="post-card-link"/g) || []).length, featured.length, 'Every featured article has a block link');
   assert.match(archive, /By Singularity Review <span aria-hidden="true">·<\/span>/);
   assert.ok(!archive.includes('/articles/draft-fixture/'));
   verifyNavigation(archive, '/featured/');
@@ -115,7 +115,8 @@ try {
   assert.match(inline, /width="320" height="180" loading="lazy" decoding="async"/, 'Inline image geometry is reserved without editing Markdown');
   assert.equal(JSON.parse(small.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1])['@graph'].find(node => node['@type'] === 'NewsArticle').dateModified, '2026-10-10T09:00:00.000Z');
   const research = await html('category/research/index.html');
-  assert.match(research, /href="\/category\/research\/" aria-current="page"/);
+  assert.match(research, /<h1>Research<\/h1>/);
+  assert.deepEqual(cardLinks(research), articles.filter(item => item.category === 'Research').map(articleUrl));
   const sitemap = await html('sitemap.xml');
   const rss = await html('rss.xml');
   const atom = await html('atom.xml');
@@ -162,10 +163,11 @@ try {
   await fixture('only-news');
   rebuild();
   const single = await html('index.html');
-  assert.equal(cardLinks(single).length, 1, 'One headline retains the lead');
-  assert.equal((single.match(/class="story-block"/g) || []).length, 0, 'The lead is not duplicated into the grid');
-  assert.match(single, /id="latest-heading">Latest<\/h2>/);
-  assert.match(single, /class="story-grid" data-feed/);
+  assert.equal(cardLinks(single).length, 1, 'One headline appears once in the row');
+  assert.equal((single.match(/class="post-card"/g) || []).length, 1, 'The single card is not duplicated');
+  assert.match(single, /id="headline-news-heading">Singularity headline news<\/h2>/);
+  assert.match(single, /class="card-row-track"/);
+  assert.doesNotMatch(single, /class="post-grid"/);
   assert.doesNotMatch(single, /data-load-more/);
   await fs.unlink(path.join(temp, 'src/articles/2026-10-09-only-news.md'));
 

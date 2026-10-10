@@ -1,13 +1,14 @@
 {% from "newsletter.njk" import newsletterForm %}
-<section class="consent-banner" data-consent-banner role="region" aria-label="Cookie consent" hidden>
-  <p>{% if site.adsense.client and not site.adsense.preview %}We use device storage for your choices and reactions. Google advertising loads only after your cookie choice. Marketing controls personalised ads.{% else %}We use device storage for your choices and reactions. We set no cookies and use no analytics or marketing tools.{% endif %} <a href="/cookies/">Cookie policy</a></p>
+<section class="popup-card consent-banner" data-consent-banner role="region" aria-labelledby="consent-banner-heading" hidden>
+  <h2 id="consent-banner-heading">Cookies and privacy</h2>
+  <p>Only necessary storage is used by default. Analytics and ad cookies need acceptance. <a href="/cookies/">Cookie policy</a>.</p>
   <div class="consent-actions">
     <button class="privacy-button consent-choice" type="button" data-consent-choice="accept">Accept all</button>
     <button class="privacy-button consent-choice" type="button" data-consent-choice="reject">Reject all</button>
     <button class="privacy-button consent-choice" type="button" data-consent-open>Settings</button>
   </div>
 </section>
-<dialog class="consent-dialog" data-consent-dialog aria-labelledby="consent-heading" aria-describedby="consent-explanation">
+<dialog class="popup-card consent-dialog" data-consent-dialog aria-labelledby="consent-heading" aria-describedby="consent-explanation">
   <button class="privacy-close" type="button" data-consent-close aria-label="Close cookie settings"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button>
   <h2 id="consent-heading" tabindex="-1">Cookie settings</h2>
   <p id="consent-explanation">Necessary storage supports features you request. Analytics is a separate choice. Marketing controls personalised advertising when ads are enabled.{% if not site.adsense.client or site.adsense.preview %} Ads are not active yet.{% endif %}</p>
@@ -25,7 +26,7 @@
     </div>
   </form>
 </dialog>
-<section class="newsletter-prompt" data-newsletter-prompt role="region" aria-labelledby="newsletter-prompt-heading" hidden>
+<section class="popup-card newsletter-prompt" data-newsletter-prompt role="region" aria-labelledby="newsletter-prompt-heading" hidden>
   <button class="privacy-close" type="button" data-newsletter-close aria-label="Close"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button>
   <h2 id="newsletter-prompt-heading" tabindex="-1">Get the newsletter</h2>
   <p class="newsletter-description">The week's AI news, research and analysis.</p>

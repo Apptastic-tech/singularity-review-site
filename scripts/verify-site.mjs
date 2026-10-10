@@ -41,14 +41,15 @@ const home = await html('index.html');
 const cards = cardLinks(home);
 assert.deepEqual(cards, headlines.slice(0,10).map(articleUrl));
 if (headlines.length) {
-  const lead = headlines[0];
-  assert.match(home, /class="card card--featured card--lead"/);
-  assert.match(home, /<h2 class="card-title"/);
-  assert.ok(home.includes(sentenceTitle(lead.source.match(/^title: (.+)$/m)[1].replace(/^"|"$/g, ''))), 'Lead is the actual newest news story');
-  const firstCard = home.slice(home.indexOf('<article class="card'), home.indexOf('</article>', home.indexOf('<article class="card')));
-  assert.ok(firstCard.indexOf('class="card-title"') < firstCard.indexOf('class="card-media"'), 'Lead headline precedes the photo');
-  assert.match(firstCard, /class="card-byline meta lead-byline"/);
-  assert.match(firstCard, /<time datetime=/);
+  const first = headlines[0];
+  assert.match(home, /class="post-card"/);
+  assert.match(home, /<h3 class="post-card-title"/);
+  assert.ok(home.includes(sentenceTitle(first.title)), 'First card is the newest headline');
+  const firstCard = home.slice(home.indexOf('<article class="post-card'), home.indexOf('</article>', home.indexOf('<article class="post-card')));
+  assert.ok(firstCard.indexOf('class="post-card-media"') < firstCard.indexOf('class="post-card-title"'), 'Image precedes the headline');
+  assert.match(firstCard, /class="post-card-meta"/);
+  assert.match(firstCard, /<time class="post-card-date" datetime=/);
+  assert.doesNotMatch(firstCard, /byline/);
 }
 assert.doesNotMatch(home, /<h1>Singularity headline news<\/h1>/);
 const retiredImage = ['skyline', 'clean'].join('-');
@@ -63,8 +64,8 @@ assert.match(motion[1], /<svg[^>]+aria-hidden="true"/);
 assert.equal(motion[1].replace(/<[^>]*>/g, '').trim(), '', 'Motion control has no visible text');
 assert.ok(!home.includes(retiredImage));
 verifyNavigation(home);
-if (headlines.length) assert.match(home, /loading="eager" fetchpriority="high" class="card-image"/);
-assert.equal((home.match(/loading="lazy" fetchpriority="auto" class="story-block-image"/g) || []).length, Math.max(0,cards.length-1));
+if (headlines.length) assert.match(home, /loading="eager" fetchpriority="high" class="post-card-image"/);
+assert.equal((home.match(/loading="lazy" fetchpriority="auto" class="post-card-image"/g) || []).length, Math.max(0,cards.length-1));
 if (headlines.length) assert.match(home, /rel="preload" as="image" type="image\/avif"/);
 assert.deepEqual(carouselLinks(home), featured.map(articleUrl));
 const featuredPage = await html('featured/index.html');
@@ -79,7 +80,7 @@ for (const route of ['about/index.html','featured/index.html','what-is-singulari
 for (const category of new Set(articles.map(article => article.category))) {
   const slug = category.toLowerCase().replace(/[^a-z0-9]+/g,'-');
   const page = await html(`category/${slug}/index.html`);
-  assert.match(page, new RegExp(`href="/category/${slug}/" aria-current="page"`));
+  assert.deepEqual(cardLinks(page), articles.filter(article => article.category === category).map(articleUrl));
   assert.equal((page.match(/data-card/g)||[]).length, articles.filter(article => article.category===category).length);
 }
 const totalPages = Math.max(1, Math.ceil(headlines.length/10));
@@ -142,7 +143,7 @@ assert.ok(!forbiddenTreatment.test(css), 'No link lines, capsules or glass surfa
 assert.ok(!/\.desktop-nav\s*>\s*a[^{}]*::after/.test(css), 'Navigation has no decorative active rule');
 assert.match(css, /\.reaction\s*\{[^}]*border:\s*0;[^}]*background:\s*transparent;/);
 assert.doesNotMatch(css, /\.tags li\s*\{[^}]*letter-spacing/);
-assert.match(css, /\.feed-width\s*\{[^}]*width:\s*100%;[^}]*max-width:\s*1248px/);
+assert.match(css, /\.feed-width\s*\{[^}]*width:\s*calc\(100% - 40px\);[^}]*max-width:\s*1248px/);
 assert.match(css, /@view-transition\s*\{\s*navigation:\s*auto;/);
 assert.match(css, /view-transition-name:\s*masthead/);
 assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)/);

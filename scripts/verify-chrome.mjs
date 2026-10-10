@@ -5,10 +5,10 @@ import { checkHeroControls } from './hero-contract.mjs';
 import { verifyNavigation, publishedArticles } from './verification-helpers.mjs';
 import navigation from '../src/_data/navigation.js';
 
-const expected = ['News', 'Featured', 'Explainer', 'About'];
+const expected = ['Singularity headline news', 'Featured author articles', 'What is singularity', 'Who we are'];
 assert.deepEqual(navigation.map(item => item.label), expected);
 const legacy = /(?:author-avatar|expert-photo--initials|brand-mark|\binitials\b|\beyebrow\b|\bkicker\b)/;
-const sectionCopy = /Singularity headline news|Featured author articles|What is singularity|Who we are|Explore Singularity Review|From our authors|IDEAS, ANALYSIS|THE LATEST DEVELOPMENTS IN AI/;
+const sectionCopy = /Explore Singularity Review|From our authors|IDEAS, ANALYSIS|THE LATEST DEVELOPMENTS IN AI/;
 const plain = value => value.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
 const markup = (html, tag, name) => html.match(new RegExp(`<${tag} class="${name}"[^>]*>([\\s\\S]*?)</${tag}>`))?.[1];
 function checkChrome(html, file) {
@@ -28,12 +28,9 @@ function checkChrome(html, file) {
   assert.doesNotMatch(menu, /<p|<h[1-6]|menu-social/);
   const footer = markup(html, 'footer', 'site-footer');
   assert.ok(footer);
-  assert.equal((footer.match(/class="footer-column(?: footer-identity)?"/g) || []).length, 4);
-  assert.doesNotMatch(footer, /<img|<picture|<em/);
+  assert.doesNotMatch(footer, /class="footer-(?:columns?|description|heading|topics)\b|<img|<picture|<em/);
   assert.equal(plain(markup(footer, 'a', 'footer-brand')), 'Singularity Review');
-  assert.equal(plain(markup(footer, 'p', 'footer-description')), 'AI news, research, and analysis');
-  assert.deepEqual([...footer.matchAll(/<h2 class="footer-heading"[^>]*>([^<]+)<\/h2>/g)].map(item => item[1]), ['Sections', 'Topics', 'Follow']);
-  assert.deepEqual([...markup(footer, 'nav', 'footer-social').matchAll(/<span>([^<]+)<\/span>/g)].map(item => item[1]), ['Facebook', 'Instagram', 'RSS']);
+  assert.deepEqual([...markup(footer, 'nav', 'footer-social').matchAll(/aria-label="([^"]+)"/g)].map(item => item[1]), ['Singularity Review on Facebook', 'Singularity Review on Instagram', 'RSS']);
   assert.match(footer, /&copy; \d{4} Singularity Review/);
   for (const text of ['Kitt Peak at Night', 'KPNO/NOIRLab/NSF/AURA/P. Marenfeld', 'CC BY 4.0']) assert.ok(footer.includes(text));
   for (const [, byline] of html.matchAll(/<p class="(?:byline meta|card-byline meta(?: lead-byline)?|carousel-byline meta)">([\s\S]*?)<\/p>/g)) {
@@ -54,18 +51,16 @@ const home = await fs.readFile('_site/index.html', 'utf8');
 // Mutations prove the absence checks reject the very markup they are intended to catch.
 for (const [oldValue, newValue] of [
   ['<span class="brand-wordmark">', '<img src="/favicon-32.png"><span class="brand-wordmark">'],
-  ['class="footer-column footer-identity"', 'class="missing-column"'],
+  ['class="footer-top"', 'class="footer-column"'],
   ['Singularity Review</span>', 'Singularity Review</span><span class="author-avatar">AO</span>'],
-  ['class="footer-description"', 'class="eyebrow"'],
-  ['>News</a>', '>Old news label</a>'],
+  ['class="footer-brand"', 'class="eyebrow"'],
+  ['>Singularity headline news</a>', '>Old news label</a>'],
 ]) assert.throws(() => { const fixture = home.replace(oldValue, newValue); checkChrome(fixture, 'negative control'); verifyNavigation(fixture); });
-assert.match(home, /id="carousel-heading">Featured<\/h2>/);
-assert.deepEqual([...markup(home, 'nav', 'footer-topics').matchAll(/<a[^>]*>([^<]+)<\/a>/g)].map(item => item[1]), ['Agents', 'Models', 'Policy']);
-for (const [file, title, heading] of [['index.html','News',null], ['featured/index.html','Featured','Featured'], ['about/index.html','About','About'], ['what-is-singularity/index.html','Explainer','What is the singularity?']]) {
+assert.match(home, /id="carousel-heading">Featured author articles<\/h2>/);
+for (const [file, title, heading] of [['index.html','Singularity headline news',null], ['featured/index.html','Featured author articles','Featured author articles'], ['about/index.html','Who we are and our mission','Who we are and our mission'], ['what-is-singularity/index.html','What is singularity','What is singularity']]) {
   const html = await fs.readFile('_site/' + file, 'utf8');
-  if (file === 'index.html') assert.match(html, /<title>Singularity Review: AI news, research, and analysis<\/title>/);
-  else assert.match(html, new RegExp(`<title>${title} \\| Singularity Review</title>`));
-  if (heading) assert.ok(html.includes(`<h1>${heading}</h1>`));
+  assert.ok(html.includes('<title>' + title + ' | Singularity Review</title>'));
+  if (heading) assert.ok(html.includes('<h1>' + heading + '</h1>'));
 }
 for (const article of await publishedArticles(process.cwd())) {
   const html = await fs.readFile(`_site/articles/${article.slug}/index.html`, 'utf8');
@@ -74,7 +69,7 @@ for (const article of await publishedArticles(process.cwd())) {
 }
 const css = await fs.readFile('src/css/style.css', 'utf8');
 assert.doesNotMatch(css, legacy);
-for (const selector of ['.desktop-nav > a[aria-current]', '.menu-links > a[aria-current]', '.footer-links a[aria-current]', '.footer-topics a[aria-current]']) {
+for (const selector of ['.desktop-nav > a[aria-current]', '.menu-links > a[aria-current]']) {
   const rule = css.slice(css.indexOf(selector)).match(/^[^{]+\{([^}]+)\}/)?.[1];
   assert.match(rule, /color: #fff;/);
   assert.doesNotMatch(rule, /signal|font-weight|text-decoration|border/);
@@ -83,14 +78,15 @@ assert.match(css, /\.desktop-nav > a \{[^}]*color: rgb\(255 255 255 \/ \.63\)/);
 assert.match(css, /\.brand-wordmark \{[^}]*font: 500 28px\/1 var\(--serif\)/);
 assert.match(css, /\.brand-wordmark \{ font-size: 38px; \}/);
 assert.doesNotMatch(css, /--header-height: (?!72px)\d+px|is-condensed|\.header-inner::before/);
-assert.match(css, /\.footer-columns \{ grid-template-columns: 2fr repeat\(3, minmax\(0, 1fr\)\);/);
-assert.doesNotMatch(css, /(?:\.byline|\.article-header|\.shelf-heading|\.section-title|\.feed-intro|\.site-footer|\.footer-columns)[^{]*\{[^}]*border-(?:top|bottom|block):\s*[1-9]/);
+assert.match(css, /\.footer-top \{[^}]*flex-wrap: wrap/);
+assert.match(css, /\.site-footer \{[^}]*border-top: 1px solid var\(--line\)/);
+assert.doesNotMatch(css, /(?:\.byline|\.article-header|\.shelf-heading|\.section-title|\.feed-intro)[^{]*\{[^}]*border-(?:top|bottom|block):\s*[1-9]/);
 assert.doesNotMatch(css, /(?:category-label|plain-label|footer-heading|brand-wordmark)[^{]*\{[^}]*letter-spacing/);
 for (const [path, size] of [['src/favicon-32.png',32], ['src/favicon-48.png',48], ['src/images/brand/apple-touch-icon.png',180], ['src/images/brand/social-avatar.png',512]]) {
   const info = await sharp(path).metadata(); assert.equal(info.width,size); assert.equal(info.height,size);
 }
 const guide = await fs.readFile('CONTENT_GUIDE.md', 'utf8');
-const outdated = guide.split('\n').flatMap((line, index) => /Singularity headline news|Featured author articles|Without a photo,.*initials|amber circle|Self-hosted avatar|Shown as plain small caps|Article kicker links/.test(line) ? [index+1] : []);
-console.log(`CHROME VERIFIED: ${pages.length} routes, exact navigation, text masthead, linked dot-separated bylines, plain headings, four footer columns, crop dimensions and negative controls. Protected guide lines for owner follow-up: ${outdated.join(', ')}.`);
+const outdated = guide.split('\n').flatMap((line, index) => /Without a photo,.*initials|amber circle|Self-hosted avatar|Shown as plain small caps|Article kicker links/.test(line) ? [index+1] : []);
+console.log(`CHROME VERIFIED: ${pages.length} routes, exact navigation, text masthead, linked dot-separated bylines, plain headings, compact footer rows, crop dimensions and negative controls. Protected guide lines for owner follow-up: ${outdated.join(', ')}.`);
 
 checkHeroControls(home, css);

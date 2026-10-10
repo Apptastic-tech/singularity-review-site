@@ -7,6 +7,7 @@ function surface() {
   const events = new Map();
   return {
     events, hidden: false, isConnected: true, dataset: {},
+    classList: { values: new Set(), add(value) { this.values.add(value); }, remove(value) { this.values.delete(value); }, contains(value) { return this.values.has(value); } },
     addEventListener(type, callback) { if (!events.has(type)) events.set(type, []); events.get(type).push(callback); },
     removeEventListener(type, callback) { events.set(type, (events.get(type) || []).filter(value => value !== callback)); },
     dispatchEvent(event) { for (const callback of events.get(event.type) || []) callback(event); },
@@ -29,6 +30,7 @@ function environment(options = {}) {
   const closeSettings = surface(), open = surface(), accept = surface(), reject = surface();
   accept.dataset.consentChoice = 'accept'; reject.dataset.consentChoice = 'reject';
   consentForm.elements = { analytics: { checked: false }, marketing: { checked: false } };
+  banner.hidden = true;
   dialog.open = false;
   dialog.showModal = () => { dialog.open = true; };
   dialog.close = () => { dialog.open = false; dialog.emit('close'); };
@@ -71,9 +73,10 @@ function environment(options = {}) {
   }
   Object.assign(window, {
     window, document, localStorage, sessionStorage, Date: ClockDate, URLSearchParams,
+    matchMedia: () => ({ matches: options.reducedMotion === true }),
     performance: { now: () => clock.time }, crypto: webcrypto, TextEncoder, AbortController,
     location: { hostname: options.hostname || 'localhost', search: options.search || '', pathname: options.pathname || '/' },
-    CustomEvent: class { constructor(type, init) { this.type = type; this.detail = init.detail; } },
+    CustomEvent: class { constructor(type, init) { this.type = type; this.detail = init?.detail; } },
     setTimeout(callback, delay) { const id = ++nextTimer; timers.set(id, { callback, at: clock.time + delay }); return id; },
     clearTimeout(id) { timers.delete(id); },
     fetch: async (url, init) => { requests.push({ url, init, body: JSON.parse(init.body) }); return responses.shift() || { ok: true }; },
@@ -131,12 +134,27 @@ export async function verifyConsentRuntime({ consent, newsletter, fields, senten
 
   const timer = environment(); timer.run(consent); timer.run(newsletter);
   timer.advance(61000); assert.equal(timer.prompt.hidden, true, 'Consent must be resolved first');
-  timer.reject.emit('click'); assert.equal(timer.prompt.hidden, false, 'Visible time still accumulates before deciding');
+  timer.reject.emit('click');
+  assert.equal(timer.prompt.hidden, true, 'Newsletter waits during the consent exit animation');
+  assert.equal(timer.banner.classList.contains('is-leaving'), true);
+  timer.advance(239); assert.equal(timer.prompt.hidden, true);
+  timer.advance(1); assert.equal(timer.banner.hidden, true);
+  assert.equal(timer.prompt.hidden, false, 'Visible time still accumulates before deciding');
   assert.equal(timer.document.activeElement, timer.main, 'Prompt appearance does not steal focus');
   timer.promptClose.emit('click'); timer.advance(100000);
   assert.equal(timer.prompt.hidden, true);
   assert.equal(JSON.parse(timer.localStorage.getItem('sr-newsletter')).state, 'dismissed');
   const fresh = () => { const test = environment({ local: { 'sr-consent': JSON.stringify(record) } }); test.run(consent); test.run(newsletter); return test; };
+  const overlapping = fresh(); overlapping.advance(61000);
+  assert.equal(overlapping.prompt.hidden, false);
+  overlapping.open.emit('click');
+  assert.equal(overlapping.prompt.hidden, true, 'Opening settings hides an already-visible newsletter');
+  assert.equal(overlapping.dialog.open, true);
+  overlapping.advance(5000); assert.equal(overlapping.prompt.hidden, true);
+  const guarded = fresh(); guarded.banner.hidden = false; guarded.advance(61000);
+  assert.equal(guarded.prompt.hidden, true, 'Explicit visible-banner guard applies even after a saved decision');
+  const reduced = environment({ reducedMotion: true }); reduced.run(consent); reduced.run(newsletter); reduced.advance(61000); reduced.reject.emit('click');
+  assert.equal(reduced.banner.hidden, true); assert.equal(reduced.prompt.hidden, false, 'Reduced motion skips exit delay');
   const visible = fresh(); visible.advance(30000);
   visible.document.hidden = true; visible.document.emit('visibilitychange'); visible.advance(120000);
   visible.document.hidden = false; visible.document.emit('visibilitychange'); visible.advance(29999);
