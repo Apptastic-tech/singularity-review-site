@@ -28,7 +28,7 @@ function classes() {
 function runtime(options = {}) {
   let timestamp = 0, nextId = 0, performanceTime = 0;
   const frames = new Map(), idle = new Map(), observers = [], resizes = [];
-  const calls = { contexts: 0, draws: [], deleted: [], shaders: [], uniforms: new Map(), uploads: 0 };
+  const calls = { contexts: 0, draws: [], deleted: [], shaders: [], uniforms: new Map(), uploads: 0, mipmaps: 0, filters: [], resamples: [] };
   const noop = () => {};
   const gl = {
     VERTEX_SHADER: 1, FRAGMENT_SHADER: 2, COMPILE_STATUS: 3, LINK_STATUS: 4, NO_ERROR: 0,
@@ -37,9 +37,15 @@ function runtime(options = {}) {
     createProgram: () => ({}), attachShader: noop, linkProgram: noop,
     getProgramParameter: () => !options.linkFailure, useProgram: noop,
     createBuffer: () => ({}), createTexture: () => ({}),
+    MAX_TEXTURE_SIZE: 10, TEXTURE0: 11, TEXTURE1: 12, TEXTURE_MIN_FILTER: 13, LINEAR: 14, LINEAR_MIPMAP_LINEAR: 15,
+    getParameter: () => options.textureLimit || 4096,
+    generateMipmap: () => { calls.mipmaps++; if (options.mipmapFailure) throw new Error('Mipmap failed'); },
     bindBuffer: noop, bufferData: noop, getAttribLocation: () => 0, enableVertexAttribArray: noop,
-    vertexAttribPointer: noop, activeTexture: noop, bindTexture: noop, texParameteri: noop, pixelStorei: noop,
-    texImage2D: () => { calls.uploads++; if (options.uploadFailure) throw new Error('Upload failed'); },
+    vertexAttribPointer: noop, activeTexture: noop, bindTexture: noop, texParameteri: (target, parameter, value) => calls.filters.push([parameter, value]), pixelStorei: noop,
+    texImage2D: () => {
+      calls.uploads++;
+      if (options.uploadFailure || (options.artUploadFailure && calls.uploads === 2)) throw new Error('Upload failed');
+    },
     getUniformLocation: (program, name) => name,
     uniform1i: (name, value) => calls.uniforms.set(name, value),
     uniform1f: (name, value) => calls.uniforms.set(name, value),
@@ -59,8 +65,16 @@ function runtime(options = {}) {
     const top = width < 640 ? 10 : width < 960 ? 8 : height() * 0.22 - diskHeight / 2;
     return { left, top, width: diskWidth, height: diskHeight };
   };
+  const fieldBox = () => {
+    const disk = box();
+    return { left: disk.left - disk.width * 0.4, top: disk.top + disk.height / 2 - disk.width * 0.9, width: disk.width * 1.8, height: disk.width * 1.8 };
+  };
+  const disk = { getBoundingClientRect: box };
+  const diskImage = events({ naturalWidth: 1280, naturalHeight: 720, complete: true,
+    decode: async () => { if (options.artDecodeFailure) throw new Error('Artwork decode failed'); },
+  });
   const canvas = events({
-    width: 1, height: 1, getBoundingClientRect: box,
+    width: 1, height: 1, getBoundingClientRect: fieldBox,
     getContext: () => { calls.contexts++; return options.noWebGL ? null : gl; },
   });
   const skyline = events({
@@ -73,11 +87,12 @@ function runtime(options = {}) {
   const cover = events({
     classList: classes(), dataset: { skyMotion: 'running' },
     getBoundingClientRect: () => ({ top: options.offscreen ? 1000 : 0, bottom: options.offscreen ? 1610 : height() }),
-    querySelector: selector => ({ '.cover-sky-image': skyline, '[data-lensing]': canvas, '[data-motion-toggle]': toggle })[selector],
+    querySelector: selector => ({ '.cover-sky-image': skyline, '.cover-disk': disk, '.cover-disk-image': diskImage, '[data-lensing]': canvas, '[data-motion-toggle]': toggle })[selector],
   });
   const reduced = events({ matches: !!options.reducedMotion });
   const connection = events({ saveData: !!options.saveData });
   const document = events({
+    createElement: () => ({ width: 0, height: 0, getContext: () => options.no2D ? null : { drawImage: (...args) => calls.resamples.push(args) } }),
     hidden: !!options.hidden,
     querySelector: selector => selector === '[data-cover]' && !options.noCover ? cover : null,
     querySelectorAll: () => [],
@@ -101,12 +116,12 @@ function runtime(options = {}) {
   });
   if (options.noObserver) delete context.IntersectionObserver;
   if (options.noIdle) { delete context.requestIdleCallback; delete context.cancelIdleCallback; }
-  if (options.noDecode) delete skyline.decode;
+  if (options.noDecode) { delete skyline.decode; delete diskImage.decode; }
   context.window = context;
   vm.createContext(context);
   if (options.withSite) vm.runInContext(site, context, { timeout: 1000 });
   vm.runInContext(source, context, { timeout: 1000 });
-  const settle = async () => { for (let i = 0; i < 4; i++) await Promise.resolve(); };
+  const settle = async () => { for (let i = 0; i < 12; i++) await Promise.resolve(); };
   const step = async (delta = 1000 / 60) => {
     timestamp += delta;
     const pending = [...frames.values()]; frames.clear();
@@ -117,7 +132,7 @@ function runtime(options = {}) {
   };
   const flushIdle = async () => { const pending = [...idle.values()]; idle.clear(); pending.forEach(callback => callback()); await settle(); };
   const boot = async () => { await visibility(true); await step(); await step(); await flushIdle(); };
-  return { context, document, cover, canvas, skyline, reduced, connection, toggle, calls, gl, frames, idle,
+  return { context, document, cover, canvas, skyline, disk, diskImage, reduced, connection, toggle, calls, gl, frames, idle,
     step, boot, visibility, flushIdle, settle,
     resize: async newWidth => { width = newWidth; context.innerWidth = width; context.emit('resize'); await settle(); },
   };
@@ -130,11 +145,11 @@ for (const option of ['reducedMotion', 'saveData', 'hidden']) {
   assert.equal(test.calls.contexts, 0, `${option} keeps original images without a GPU context`);
   assert.ok(!test.cover.classList.contains('has-lensing'));
 }
-for (const option of ['noWebGL', 'compileFailure', 'linkFailure', 'uploadFailure', 'decodeFailure', 'drawFailure', 'firstDrawError']) {
+for (const option of ['noWebGL', 'compileFailure', 'linkFailure', 'uploadFailure', 'artUploadFailure', 'mipmapFailure', 'decodeFailure', 'artDecodeFailure', 'no2D', 'drawFailure', 'firstDrawError']) {
   const test = runtime({ [option]: true }); await test.boot();
   assert.ok(!test.cover.classList.contains('has-lensing'), `${option} restores original art`);
   assert.equal(test.frames.size, 0, `${option} cannot leave a render loop running`);
-  if (!['noWebGL', 'decodeFailure'].includes(option)) assert.ok(test.calls.deleted.length, `${option} releases GPU objects`);
+  if (!['noWebGL', 'decodeFailure', 'artDecodeFailure'].includes(option)) assert.ok(test.calls.deleted.length, `${option} releases GPU objects`);
   const contexts = test.calls.contexts;
   await test.visibility(false); await test.visibility(true); await test.boot();
   assert.equal(test.calls.contexts, contexts, `${option} does not retry a broken renderer`);
@@ -148,10 +163,17 @@ await lazy.step(); assert.equal(lazy.calls.contexts, 0, 'Wait for idle work');
 await lazy.flushIdle(); assert.ok(lazy.cover.classList.contains('has-lensing'));
 assert.equal(lazy.skyline.style.transform, 'matrix(1.04, 0, 0, 1.04, -1, 0)', 'Freeze the current sky pose without a handover jump');
 assert.equal(lazy.calls.shaders.length, 2, 'Exactly one vertex and one fragment shader');
-assert.equal(lazy.calls.uploads, 1, 'Reuse one decoded skyline texture');
-assert.equal(lazy.canvas.width, 585, 'Phone DPR capped at 1.5');
+assert.equal(lazy.calls.uploads, 2, 'Reuse the decoded skyline and fallback artwork');
+assert.equal(lazy.calls.mipmaps, 1, 'Photograph gets mipmaps');
+assert.ok(lazy.calls.filters.some(([parameter, value]) => parameter === lazy.gl.TEXTURE_MIN_FILTER && value === lazy.gl.LINEAR_MIPMAP_LINEAR), 'Artwork uses trilinear minification');
+assert.equal(lazy.calls.resamples[0][0], lazy.diskImage, 'Resample the existing fallback image without a request');
+assert.deepEqual(lazy.calls.resamples[0].slice(3), [2048, 1024], 'Power-of-two artwork dimensions enable WebGL1 mipmaps');
+assert.equal(lazy.calls.uniforms.get('uArtwork'), 1, 'Artwork and sky use separate texture units');
+const limited = runtime({ textureLimit: 256 }); await limited.boot();
+assert.deepEqual(limited.calls.resamples[0].slice(3), [256, 256], 'Artwork resampling respects the GPU texture limit');
+assert.equal(lazy.canvas.width, 1053, 'Phone DPR capped at 1.5');
 await lazy.resize(1440); await lazy.step();
-assert.equal(lazy.canvas.width, 720, 'Desktop DPR capped at 2');
+assert.equal(lazy.canvas.width, 1296, 'Desktop DPR capped at 2');
 await lazy.step(); assert.ok(lazy.calls.draws.at(-1) > 0, 'Simulation advances');
 
 const active = runtime({ withSite: true }); await active.boot(); await active.step(); await active.step();
@@ -194,11 +216,14 @@ assert.ok(prevented); assert.ok(!active.cover.classList.contains('has-lensing'))
 const pausedResize = runtime(); await pausedResize.boot();
 pausedResize.cover.dataset.skyMotion = 'paused'; pausedResize.cover.emit('sky-motion-change');
 await pausedResize.resize(1920);
-assert.equal(pausedResize.canvas.width, 720, 'A paused shader resizes once without resuming');
+assert.equal(pausedResize.canvas.width, 1296, 'A paused shader resizes once without resuming');
 assert.equal(pausedResize.frames.size, 0);
 pausedResize.skyline.emit('load'); await pausedResize.boot();
-assert.equal(pausedResize.calls.uploads, 2, 'A responsive image source switch replaces the texture');
+assert.equal(pausedResize.calls.uploads, 4, 'A responsive sky switch replaces both textures');
 assert.equal(pausedResize.frames.size, 0, 'Responsive source changes preserve pause');
+pausedResize.diskImage.emit('load'); await pausedResize.boot();
+assert.equal(pausedResize.calls.uploads, 6, 'Responsive artwork switch also refreshes both textures');
+assert.equal(pausedResize.frames.size, 0, 'Artwork refresh preserves pause');
 
 for (const options of [{ noObserver: true, noIdle: true }, { noDecode: true }]) {
   const test = runtime(options); await test.boot();
@@ -236,17 +261,19 @@ for (let i = 0; i < 60; i++) await slow.step();
 assert.ok(slow.calls.draws.length - slowBefore <= 31, 'Slow frame delivery lowers the render target to 30fps');
 
 // Verify correspondence with the actual CSS rules and test conservative foreground exclusion.
-assert.match(css, /\.cover-disk, \.cover-lensing \{ position: absolute;[^}]*z-index: -1;/);
-assert.match(css, /\.cover-lensing \{ aspect-ratio: 16 \/ 9; height: auto; opacity: 0; pointer-events: none;/);
+assert.match(css, /\.night-cover \{[^}]*overflow: hidden;/);
+assert.match(css, /\.cover-disk, \.cover-lensing \{ position: absolute; z-index: -1;/);
+assert.match(css, /\.cover-lensing \{ width: calc\(var\(--disk-width\) \* 1\.8\);[^}]*aspect-ratio: 1; height: auto; opacity: 0; pointer-events: none;/);
 assert.match(css, /\.night-cover\.has-lensing \.cover-disk \{ opacity: 0; transition: opacity 800ms ease;/);
-assert.match(css, /left: calc\(58% - var\(--disk-width\) \/ 2\);[^}]*top: calc\(22% - var\(--disk-width\) \* 9 \/ 32\)/);
-assert.match(source, /float deflection = 0\.82 \/ max\(r, 0\.12\) \* influence/);
-assert.match(source, /vec3 color = background \* shadow;/);
-assert.match(source, /photonRing \* shadow/);
-assert.match(source, /mix\(shadow, 1\.0, front\)/);
-assert.match(source, /gl_FragColor = vec4\(clamp\(color, 0\.0, 1\.0\), alpha\)/);
-assert.match(source, /float alpha = softEdge \* skyMask \* influence;/);
+assert.match(css, /--disk-left: calc\(58% - var\(--disk-width\) \/ 2\);[^}]*--disk-top: calc\(22% - var\(--disk-width\) \* 9 \/ 32\)/);
+assert.match(source, /float deflection = 7\.0 \/ max\(r, 0\.25\) \* influence/);
+assert.match(source, /float alpha = skyMask \* influence;/);
 assert.match(source, /uv\.y = min\(uv\.y, skyBoundary\(uv\.x\) - 0\.032\)/);
+assert.match(source, /texture2D\(uArtwork,/);
+assert.match(source, /pow\(max\(diskRadius, 1\.2\), 1\.5\)/);
+assert.match(source, /float photonLock/);
+assert.match(source, /color = 1\.0 - \(1\.0 - color\) \* \(1\.0 - clamp\(emission/);
+assert.doesNotMatch(source, /diskLight|radius \* (72|137|18|37)\.0/, 'No high-frequency procedural ring bands');
 const boundary = x => x >= 0.625 && x <= 0.945 ? Math.min(0.64, 0.638 - 0.256 * Math.sqrt(Math.max(0, 1 - ((x - 0.785) / 0.16) ** 2))) : x > 0.945 ? 0.64 : 0.735;
 const foregroundPoints = [[0.64, 0.64], [0.68, 0.48], [0.72, 0.42], [0.75, 0.40], [0.785, 0.392], [0.83, 0.48], [0.88, 0.60], [0.97, 0.66], [0.30, 0.78]];
 assert.ok(0.20 < boundary(0.50) - 0.028, 'Mask positive control leaves open sky available');
@@ -254,13 +281,22 @@ for (const [x, y] of foregroundPoints) assert.ok(y >= boundary(x) - 0.012, `Dome
 for (const width of [390, 1024, 1280, 1440, 1920]) {
   const test = runtime({ width }); await test.boot();
   const origin = test.calls.uniforms.get('uSkyOrigin'), scale = test.calls.uniforms.get('uSkyScale');
-  const center = [origin[0] + scale[0] * 0.51, origin[1] + scale[1] * 0.48];
+  const artOrigin = test.calls.uniforms.get('uArtOrigin'), artScale = test.calls.uniforms.get('uArtScale');
+  const centerUV = [(0.51 - artOrigin[0]) / artScale[0], (0.48 - artOrigin[1]) / artScale[1]];
+  const center = [origin[0] + scale[0] * centerUV[0], origin[1] + scale[1] * centerUV[1]];
+  const field = test.canvas.getBoundingClientRect(), art = test.disk.getBoundingClientRect();
+  assert.ok(Math.abs(field.width / art.width - 1.8) < 1e-9, `${width}: field is 2.4 times the artwork's roughly 75 percent luminous width`);
+  assert.ok(Math.abs((field.left + centerUV[0] * field.width) - (art.left + 0.51 * art.width)) < 0.001, 'Field expansion preserves horizontal horizon position');
+  assert.ok(Math.abs((field.top + centerUV[1] * field.height) - (art.top + 0.48 * art.height)) < 0.001, 'Field expansion preserves vertical horizon position');
+  // The radial fade must be fully transparent before any square field edge.
+  const edgeRadius = Math.min(centerUV[0], 1 - centerUV[0], centerUV[1], 1 - centerUV[1]) * field.width / (art.width * 0.109);
+  assert.ok(edgeRadius > 8.0, `${width}: all rectangle edges are beyond the radial alpha falloff`);
   assert.ok(center[1] < boundary(center[0]) - 0.08, `${width}: horizon center stays in open sky`);
   // Sample the full shadow and upper arch, not only the center.
   for (let angle = 0; angle < Math.PI * 2; angle += Math.PI / 16) {
-    const x = center[0] + Math.cos(angle) * 0.109 * 1.48 * scale[0];
-    const y = center[1] + Math.sin(angle) * 0.109 * 1.48 * 16 / 9 * scale[1];
+    const x = center[0] + Math.cos(angle) * 0.109 * 1.48 * scale[0] / artScale[0];
+    const y = center[1] + Math.sin(angle) * 0.109 * 1.48 * 16 / 9 * scale[1] / artScale[1];
     assert.ok(y < boundary(x) - 0.028, `${width}: horizon and arch clear the foreground`);
   }
 }
-console.log('LENSING VERIFIED: lazy start, failure cleanup, reduced motion, Save-Data, pause/resume, visibility, BFCache, texture reuse, responsive sizing, DPR caps, simulated 60/30fps pacing, shader contract and five-width foreground geometry');
+console.log('LENSING VERIFIED: lazy start, failure cleanup, reduced motion, Save-Data, pause/resume, visibility, BFCache, two-texture reuse, mipmapped photograph, responsive source refresh, expanded field sizing, DPR caps, simulated 60/30fps pacing, shader contract and five-width foreground geometry');

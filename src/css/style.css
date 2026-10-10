@@ -310,13 +310,14 @@ figcaption { color: var(--muted); font-size: 13px; padding: 12px 20px 0; }
 
 /* The cover gives the supplied observatory photograph a place in the publication. */
 body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; background: var(--starfield-image) center top / cover; background-image: var(--starfield-sources); opacity: .22; }
-.night-cover { position: relative; isolation: isolate; overflow: hidden; min-height: 610px; display: flex; align-items: flex-end; margin-bottom: 40px; background: var(--ink-0); }
+.night-cover { --disk-width: min(100vw, 640px); --disk-left: calc(104% - var(--disk-width)); --disk-top: 10px; position: relative; isolation: isolate; overflow: hidden; min-height: 610px; display: flex; align-items: flex-end; margin-bottom: 40px; background: var(--ink-0); }
 .cover-sky { position: absolute; inset: 0; z-index: -2; overflow: hidden; }
 .cover-sky picture, .cover-sky-image { width: 100%; height: 100%; }
 .cover-sky-image { object-fit: cover; object-position: 80% center; opacity: .76; transform: scale(1.04); }
-.cover-disk, .cover-lensing { position: absolute; width: min(100%, 640px); top: 10px; right: -4%; z-index: -1; }
-.cover-disk { mix-blend-mode: screen; transform-origin: 50% 48%; }
-.cover-lensing { aspect-ratio: 16 / 9; height: auto; opacity: 0; pointer-events: none; }
+.cover-disk, .cover-lensing { position: absolute; z-index: -1; }
+.cover-disk { width: var(--disk-width); left: var(--disk-left); top: var(--disk-top); mix-blend-mode: screen; transform-origin: 50% 48%; }
+/* The luminous photograph fills roughly 75% of its frame; this field is 2.4 times that width. */
+.cover-lensing { width: calc(var(--disk-width) * 1.8); left: calc(var(--disk-left) - var(--disk-width) * .4); top: calc(var(--disk-top) + var(--disk-width) * 9 / 32 - var(--disk-width) * .9); aspect-ratio: 1; height: auto; opacity: 0; pointer-events: none; }
 .night-cover.has-lensing .cover-lensing { opacity: 1; transition: opacity 800ms ease; }
 .night-cover.has-lensing .cover-disk { opacity: 0; transition: opacity 800ms ease; }
 .night-cover.has-lensing .cover-sky-image, .night-cover.has-lensing .cover-disk { animation: none; }
@@ -365,14 +366,14 @@ body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-even
   .cover-copy { padding-block: 140px 64px; }
   .cover-copy h1 { font-size: clamp(76px, 8vw, 104px); max-width: 12ch; }
   .cover-dek { font-size: 26px; }
-  .cover-disk, .cover-lensing { top: 8px; right: 0; width: 55%; }
+  .night-cover { --disk-width: 55vw; --disk-left: 45%; --disk-top: 8px; }
   .cover-sky-image { object-position: center; }
   .carousel-slide { flex-basis: min(70vw, 520px); }
   .shelf-heading { flex-wrap: wrap; }
 }
 @media (min-width: 960px) {
   /* Keep the event horizon in open sky above and left of the observatory. */
-  .cover-disk, .cover-lensing { --disk-width: min(26vw, 360px); width: var(--disk-width); left: calc(58% - var(--disk-width) / 2); right: auto; top: calc(22% - var(--disk-width) * 9 / 32); }
+  .night-cover { --disk-width: min(26vw, 360px); --disk-left: calc(58% - var(--disk-width) / 2); --disk-top: calc(22% - var(--disk-width) * 9 / 32); }
 }
 @media (prefers-reduced-motion: reduce) {
   .cover-lensing { display: none; }

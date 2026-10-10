@@ -15,6 +15,9 @@ precision mediump float;
 #endif
 varying vec2 vUV;
 uniform sampler2D uSky;
+uniform sampler2D uArtwork;
+uniform vec2 uArtOrigin;
+uniform vec2 uArtScale;
 uniform vec2 uSkyOrigin;
 uniform vec2 uSkyScale;
 uniform vec2 uResolution;
@@ -58,60 +61,72 @@ vec3 sky(vec2 uv) {
   return texture2D(uSky, clamp(uv, 0.001, 0.999)).rgb * 0.76 + ground * 0.24;
 }
 
-vec3 diskLight(float radius, float angle) {
-  float orbit = angle - uTime * 0.12 / pow(max(radius, 1.0), 0.7);
-  // Use periodic angular coordinates so rotating noise has no atan seam.
-  float turbulence = noise(vec2(radius * 18.0 + cos(orbit) * 2.0, sin(orbit) * 3.0));
-  float bands = 0.60 + 0.23 * sin(radius * 72.0 + turbulence * 8.0 + sin(orbit) * 3.0);
-  bands += 0.12 * sin(radius * 137.0 - cos(orbit) * 7.0 + turbulence * 4.0);
-  float filaments = 0.6 + 0.4 * noise(vec2(radius * 37.0, cos(orbit) * 7.0 + sin(orbit) * 5.0));
-  float approaching = 0.82 - 0.30 * cos(angle);
-  float heat = exp(-(radius - 1.15) * 0.65);
-  return mix(amber, paper, heat * 0.85) * bands * filaments * approaching * heat * 1.8;
+vec2 rotate(vec2 p, float angle) {
+  float c = cos(angle), s = sin(angle);
+  return vec2(c * p.x - s * p.y, s * p.x + c * p.y);
+}
+
+vec3 artwork(vec2 uv) {
+  vec2 inside = step(vec2(0.0), uv) * step(uv, vec2(1.0));
+  return texture2D(uArtwork, clamp(uv, 0.0, 1.0)).rgb * inside.x * inside.y;
 }
 
 void main() {
-  // Match the center and size of the supplied 16:9 black hole photograph.
-  float aspect = uResolution.y / uResolution.x;
-  vec2 p = (vUV - vec2(0.51, 0.48)) * vec2(1.0, aspect) / 0.109;
+  // Map the larger field back to the unchanged photograph's 16:9 source frame.
+  vec2 artUV = uArtOrigin + vUV * uArtScale;
+  vec2 p = (artUV - vec2(0.51, 0.48)) * vec2(1.0, 0.5625) / 0.109;
   float r = length(p);
   vec2 direction = p / max(r, 0.001);
   vec2 baseUV = uSkyOrigin + vUV * uSkyScale;
   float skyMask = 1.0 - smoothstep(skyBoundary(baseUV.x) - 0.028,
     skyBoundary(baseUV.x) - 0.012, baseUV.y);
-  vec2 edge = min(vUV, 1.0 - vUV);
-  float softEdge = smoothstep(0.0, 0.06, edge.x) * smoothstep(0.0, 0.06, edge.y);
-  float influence = 1.0 - smoothstep(2.6, 4.1, r);
-  float alpha = softEdge * skyMask * influence;
+  // Circular falloff reaches zero before the square canvas edges, even off center.
+  float influence = 1.0 - smoothstep(4.8, 8.0, r);
+  float alpha = skyMask * influence;
 
-  // Schwarzschild-style radial deflection k/r, smoothly confined to this sky patch.
-  float deflection = 0.82 / max(r, 0.12) * influence;
+  // The lens equation's critical radius lies outside the shadow, in visible sky.
+  float deflection = 7.0 / max(r, 0.25) * influence;
   vec2 bent = p - direction * deflection;
-  vec2 drift = vec2(sin(uTime * 0.013), cos(uTime * 0.011) - 1.0) * 0.012 * influence;
-  vec2 displacedUV = baseUV + (bent - p) * vec2(0.109, 0.109 / aspect) * uSkyScale + drift;
+  vec2 skyUnits = vec2(0.109, 0.109 / 0.5625) / uArtScale * uSkyScale;
+  vec2 drift = vec2(sin(uTime * 0.018), cos(uTime * 0.015) - 1.0) * 0.9;
+  vec2 displacedUV = baseUV + (bent - p + drift * influence) * skyUnits;
   vec2 tangent = vec2(-direction.y, direction.x);
-  vec2 smear = tangent * vec2(0.109, 0.109 / aspect) * uSkyScale * 0.045 / max(r * r, 1.0);
-  vec3 background = sky(displacedUV) * 0.5 + sky(displacedUV + smear) * 0.25 + sky(displacedUV - smear) * 0.25;
+  // Several linear samples smear drifting stars tangentially near the critical curve.
+  float criticalDistance = (r - 2.65) / 0.32;
+  float critical = exp(-criticalDistance * criticalDistance);
+  vec2 smear = tangent * skyUnits * (0.02 + critical * 0.22);
+  vec3 background = sky(displacedUV) * 0.4;
+  background += (sky(displacedUV + smear) + sky(displacedUV - smear)) * 0.2;
+  background += (sky(displacedUV + smear * 2.0) + sky(displacedUV - smear * 2.0)) * 0.1;
+  // A faint warm Einstein arc follows actual lensed sky detail, without striped noise.
+  vec3 einstein = mix(amber, paper, 0.3) * critical * (0.012 + max(0.0, background.r - ground.r) * 0.32);
 
-  float aa = 1.5 / (uResolution.x * 0.109);
-  float shadow = smoothstep(1.0 - aa, 1.0 + aa, r);
-  vec3 color = background * shadow;
-  float photonRing = exp(-abs(r - 1.055) * 65.0);
-  color += mix(amber, paper, 0.8) * photonRing * shadow * 0.7;
-
-  // Inclined disk, with the approaching left side brighter. Front matter crosses the shadow.
-  vec2 inclined = vec2(p.x * 0.976 - p.y * 0.218, p.x * 0.218 + p.y * 0.976);
+  // Rotate texture coordinates along the inclined plane. Inner matter orbits faster.
+  vec2 inclined = rotate(p, 0.22);
   vec2 plane = vec2(inclined.x, inclined.y / 0.24);
   float diskRadius = length(plane);
-  float diskMask = smoothstep(1.12, 1.30, diskRadius) * (1.0 - smoothstep(2.9, 3.5, diskRadius));
-  float front = smoothstep(-0.025, 0.025, inclined.y);
-  color += diskLight(diskRadius, atan(plane.y, plane.x + 0.0001)) * diskMask * mix(shadow, 1.0, front);
+  float orbit = uTime * 0.16 / pow(max(diskRadius, 1.2), 1.5);
+  vec2 orbitPlane = rotate(plane, -orbit);
+  vec2 orbitPoint = rotate(vec2(orbitPlane.x, orbitPlane.y * 0.24), -0.22);
+  vec2 orbitUV = vec2(0.51, 0.48) + orbitPoint * vec2(0.109, 0.109 / 0.5625);
+  vec3 original = artwork(artUV);
+  vec3 orbitLight = artwork(orbitUV);
+  float diskMask = (1.0 - smoothstep(0.32, 0.72, abs(inclined.y)))
+    * smoothstep(1.1, 1.6, diskRadius) * (1.0 - smoothstep(3.8, 5.0, diskRadius));
+  // Preserve the photographed silhouette, lensed upper arch and crisp photon ring.
+  float photonLock = 1.0 - smoothstep(0.04, 0.16, abs(r - 0.96));
+  float moving = diskMask * (1.0 - photonLock);
+  vec3 emission = mix(original, original * 0.80 + orbitLight * 0.20, moving);
+  float shimmer = 1.0 + 0.045 * sin(uTime * 0.38 + plane.x * 0.7)
+    + 0.025 * (noise(plane * 0.55 + vec2(uTime * 0.025, 0.0)) - 0.5);
+  float approaching = 1.0 - 0.075 * plane.x / max(diskRadius, 1.0);
+  emission *= mix(1.0, shimmer * approaching, moving);
 
-  // The back of the disk is lensed into an arch over the top of the horizon.
-  float archRadius = length(vec2(p.x, p.y / 1.10));
-  float archMask = smoothstep(1.04, 1.13, archRadius) * (1.0 - smoothstep(1.30, 1.48, archRadius));
-  archMask *= 1.0 - smoothstep(-0.06, 0.10, p.y);
-  color += diskLight(1.25 + (archRadius - 1.13) * 4.0, atan(p.y, p.x + 0.0001)) * archMask * shadow;
+  float aa = 1.5 * uArtScale.x / (uResolution.x * 0.109);
+  float shadow = smoothstep(0.86 - aa, 0.86 + aa, r);
+  vec3 color = background * shadow + einstein * shadow;
+  // Screen composite the real emission over the sky; source black contributes no light.
+  color = 1.0 - (1.0 - color) * (1.0 - clamp(emission, 0.0, 1.0));
   gl_FragColor = vec4(clamp(color, 0.0, 1.0), alpha);
 }`;
 
@@ -123,7 +138,9 @@ function enhanceCover(cover) {
   const connection = navigator.connection;
   const skyline = cover.querySelector('.cover-sky-image');
   const canvas = cover.querySelector('[data-lensing]');
-  if (!skyline || !canvas) return;
+  const disk = cover.querySelector('.cover-disk');
+  const diskImage = cover.querySelector('.cover-disk-image');
+  if (!skyline || !canvas || !disk || !diskImage) return;
   const originalSkyTransform = skyline.style.transform;
 
   let visible = false;
@@ -189,14 +206,17 @@ function enhanceCover(cover) {
     initializing = true;
     try {
       // Reuse the eager LCP image; never intercept, replace or postpone its loading.
-      if (typeof skyline.decode === 'function') await skyline.decode();
-      else if (!skyline.complete) await new Promise((resolve, reject) => {
-        skyline.addEventListener('load', resolve, { once: true });
-        skyline.addEventListener('error', reject, { once: true });
-      });
+      const decode = async image => {
+        if (typeof image.decode === 'function') await image.decode();
+        else if (!image.complete) await new Promise((resolve, reject) => {
+          image.addEventListener('load', resolve, { once: true });
+          image.addEventListener('error', reject, { once: true });
+        });
+        if (!image.naturalWidth) throw new Error('Cover image unavailable');
+      };
+      await Promise.all([decode(skyline), decode(diskImage)]);
       if (!eligible() || !pageActive || !visible || document.hidden) return;
-      if (!skyline.naturalWidth) throw new Error('Skyline unavailable');
-      renderer = createRenderer(canvas, skyline);
+      renderer = createRenderer(canvas, skyline, disk, diskImage);
       // Stop the CSS sky and disk drift only once a valid renderer can replace them.
       // Capture the current sky transform so stars outside the patch cannot jump at handover.
       skyline.style.transform = getComputedStyle(skyline).transform;
@@ -235,10 +255,12 @@ function enhanceCover(cover) {
   reducedMotion.addEventListener('change', schedule);
   connection?.addEventListener?.('change', schedule);
   document.addEventListener('visibilitychange', schedule);
-  skyline.addEventListener('load', () => {
+  const refreshTexture = () => {
     // A responsive source switch needs a fresh texture, including when the shader is paused.
     if (renderer) { fallback(); schedule(); }
-  });
+  };
+  skyline.addEventListener('load', refreshTexture);
+  diskImage.addEventListener('load', refreshTexture);
   const resize = () => {
     geometryDirty = true;
     if (renderer && pageActive && !running() && eligible() && visible && !document.hidden) {
@@ -270,18 +292,19 @@ function enhanceCover(cover) {
   window.addEventListener('pageshow', () => { pageActive = true; schedule(); });
 }
 
-function createRenderer(canvas, skyline) {
+function createRenderer(canvas, skyline, disk, diskImage) {
   // A null context or any compile/link/upload error leaves both original pictures untouched.
   const gl = canvas.getContext('webgl', { alpha: true, premultipliedAlpha: false, antialias: false, depth: false, stencil: false, powerPreference: 'low-power' });
   if (!gl) throw new Error('No WebGL');
   const shaders = [];
-  let program, buffer, texture;
+  let program, buffer;
+  const textures = [];
   const dispose = () => {
     if (gl.isContextLost()) return;
     shaders.forEach(shader => gl.deleteShader(shader));
     if (program) gl.deleteProgram(program);
     if (buffer) gl.deleteBuffer(buffer);
-    if (texture) gl.deleteTexture(texture);
+    textures.forEach(texture => gl.deleteTexture(texture));
   };
   try {
     const compile = (type, source) => {
@@ -301,28 +324,52 @@ function createRenderer(canvas, skyline) {
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) throw new Error('Shader link failure');
     gl.useProgram(program);
     buffer = gl.createBuffer();
-    texture = gl.createTexture();
-    if (!buffer || !texture) throw new Error('GPU resources unavailable');
+    if (!buffer) throw new Error('GPU resources unavailable');
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]), gl.STATIC_DRAW);
     const position = gl.getAttribLocation(program, 'aPosition');
     gl.enableVertexAttribArray(position);
     gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
-    gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, skyline);
-    const uniforms = Object.fromEntries(['uSky', 'uSkyOrigin', 'uSkyScale', 'uResolution', 'uTime'].map(name => [name, gl.getUniformLocation(program, name)]));
+    const upload = (image, unit, mipmaps = false) => {
+      const texture = gl.createTexture();
+      if (!texture) throw new Error('Texture unavailable');
+      textures.push(texture);
+      gl.activeTexture(unit);
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+      let pixels = image;
+      if (mipmaps) {
+        // WebGL1 needs power-of-two dimensions for complete mipmapped textures.
+        // Resample the already loaded photo locally, without any new image request.
+        const limit = Math.min(2048, gl.getParameter(gl.MAX_TEXTURE_SIZE));
+        const powerOfTwo = value => Math.min(limit, 2 ** Math.ceil(Math.log2(value)));
+        pixels = document.createElement('canvas');
+        pixels.width = powerOfTwo(image.naturalWidth);
+        pixels.height = powerOfTwo(image.naturalHeight);
+        const context = pixels.getContext('2d');
+        if (!context) throw new Error('Artwork resampling unavailable');
+        context.drawImage(image, 0, 0, pixels.width, pixels.height);
+      }
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, mipmaps ? gl.LINEAR_MIPMAP_LINEAR : gl.LINEAR);
+      if (mipmaps) gl.generateMipmap(gl.TEXTURE_2D);
+    };
+    upload(skyline, gl.TEXTURE0);
+    upload(diskImage, gl.TEXTURE1, true);
+    const uniforms = Object.fromEntries(['uSky', 'uArtwork', 'uArtOrigin', 'uArtScale', 'uSkyOrigin', 'uSkyScale', 'uResolution', 'uTime'].map(name => [name, gl.getUniformLocation(program, name)]));
     gl.uniform1i(uniforms.uSky, 0);
+    gl.uniform1i(uniforms.uArtwork, 1);
     return {
       gl, dispose,
       resize() {
         const box = canvas.getBoundingClientRect();
         const skyBox = skyline.getBoundingClientRect();
+        const diskBox = disk.getBoundingClientRect();
+        gl.uniform2f(uniforms.uArtOrigin, (box.left - diskBox.left) / diskBox.width, (box.top - diskBox.top) / diskBox.height);
+        gl.uniform2f(uniforms.uArtScale, box.width / diskBox.width, box.height / diskBox.height);
         const dpr = Math.min(window.devicePixelRatio || 1, innerWidth < 640 ? 1.5 : 2);
         const width = Math.max(1, Math.round(box.width * dpr));
         const height = Math.max(1, Math.round(box.height * dpr));
