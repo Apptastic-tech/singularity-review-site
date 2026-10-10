@@ -1,6 +1,6 @@
 # Singularity Review
 
-AI news for people living through the singularity.
+AI news, research, and analysis.
 
 Static site built with [Eleventy](https://www.11ty.dev/) (v3). No ads, no ad feeds, no tracking scripts. Traffic comes from the Singularity Review fan pages:
 
@@ -26,7 +26,7 @@ The reading feed uses large single-column cards, a sticky header that follows sc
 
 Newsreader Variable and Inter Tight Variable are self-hosted from the installed packages into `/fonts/`. All article images are processed automatically at build time by `@11ty/eleventy-img` into cached AVIF, WebP, and JPEG variants in `_site/img/`, while original image URLs stay published for social sharing and RSS. The first hero receives a responsive preload; later images are lazy. Missing hero files cause a clear build error.
 
-Prepare a new hero with `node scripts/prepare-hero.mjs <input-image> <slug>`. Rebuild the Apple touch icon with `node scripts/prepare-brand.mjs`; pass an original background image to also recreate the default social image. Exact original image generation prompts are recorded in [scripts/image-prompts.json](scripts/image-prompts.json).
+Prepare a new hero with `node scripts/prepare-hero.mjs <input-image> <slug>`. Rebuild the photographic brand assets and social cover with `node scripts/prepare-brand.mjs`. To import the graded Kitt Peak source again, pass the directory containing `skyline-kittpeak-graded-5472.jpg`. Exact original image generation prompts are recorded in [scripts/image-prompts.json](scripts/image-prompts.json).
 
 See [docs/DESIGN.md](docs/DESIGN.md) for the visual system and [docs/UX_REFERENCE.md](docs/UX_REFERENCE.md) for the interaction reference. See [GATES.md](GATES.md) for verification outcomes. Dependencies are already installed in this working checkout.
 
@@ -50,7 +50,7 @@ src/
   articles/              one .md file per article (+ articles.11tydata.js defaults)
   images/articles/       hero and inline images
   images/brand/          wordmark, Apple touch icon, default social image
-  _data/site.js          site title, tagline, URL, social links
+  _data/site.js          site title, description, URL, social links
   _includes/             layouts, social icons, and whole-card partial
   css/style.css          all styles
   js/site.js             small deferred navigation and loading enhancements

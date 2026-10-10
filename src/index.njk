@@ -1,7 +1,7 @@
 ---
 layout: layouts/base.njk
 title: Singularity headline news
-description: "The latest AI headline news from Singularity Review, following the models, agents and decisions shaping our technological era."
+description: "AI news, research, and analysis"
 pagination:
   data: collections.headlines
   size: 10
@@ -13,20 +13,14 @@ hasCarousel: true
 eleventyExcludeFromCollections: true
 ---
 {% if pagination.pageNumber == 0 %}
-<header class="night-cover" data-cover>
-  <div class="cover-sky" aria-hidden="true">{% brandPicture "skyline-clean", "(min-width: 1440px) 100vw, 1440px", "cover-sky-image", "high" %}</div>
-  <div class="cover-disk" aria-hidden="true">{% brandPicture "blackhole-wide", "(min-width: 1385px) 360px, (min-width: 960px) 26vw, (min-width: 640px) 55vw, 90vw", "cover-disk-image" %}</div>
+<div class="night-cover" data-cover>
+  <div class="cover-sky" aria-hidden="true">{% brandPicture "skyline-kittpeak", "(max-width: 255px) 255px, 100vw", "cover-sky-image", "low" %}</div>
+  <div class="cover-disk" aria-hidden="true">{% brandPicture "blackhole-wide", "(min-width: 640px) 320px, 260px", "cover-disk-image", "low" %}</div>
   <canvas class="cover-lensing" data-lensing aria-hidden="true" width="1" height="1"></canvas>
-  <div class="cover-copy wide-width">
-    <p class="kicker">An observatory for the AI beat</p>
-    <h1>Singularity headline news</h1>
-    <p class="cover-dek">{{ site.tagline }}.</p>
-    <div class="cover-motion-slot"><button type="button" class="cover-motion" aria-pressed="false" data-motion-toggle hidden>Pause sky motion</button></div>
-  </div>
-</header>
+  <button type="button" class="cover-motion" aria-label="Pause sky animation" aria-pressed="false" data-motion-toggle hidden><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><path data-motion-glyph d="M7 5h3v14H7zm7 0h3v14h-3z" fill="currentColor"/></svg></button>
+</div>
 {% else %}
 <header class="feed-intro feed-width">
-  <p class="kicker">The latest developments in AI</p>
   <h1>Singularity headline news</h1>
   {% if pagination.pageNumber > 0 %}<p class="meta">Page {{ pagination.pageNumber + 1 }}</p>{% endif %}
 </header>
@@ -35,13 +29,14 @@ eleventyExcludeFromCollections: true
   {% if feedItems.length %}
   {% asyncEach item in feedItems %}
     {% set featured = loop.first %}
+    {% set lead = loop.first and pagination.pageNumber == 0 %}
     {% include "card.njk" %}
     {% ifAsync loop.first and pagination.pageNumber == 0 and collections.featured.length %}
       {% set carouselItems = collections.featured %}
       {% include "carousel.njk" %}
     {% endif %}
   {% endeach %}
-  {% else %}<p class="empty-state">Headline reporting will appear here. Explore <a href="/featured/">Featured author articles</a> in the meantime.</p>{% endif %}
+  {% else %}<header class="feed-intro"><h1>Latest news</h1><p class="empty-state">No headline articles are published yet. Read <a href="/featured/">Featured author articles</a>.</p></header>{% endif %}
 </section>
 {% ifAsync not feedItems.length and pagination.pageNumber == 0 and collections.featured.length %}
   {% set carouselItems = collections.featured %}

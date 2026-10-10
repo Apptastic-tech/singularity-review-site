@@ -6,7 +6,7 @@ layout: layouts/base.njk
 {%- set shareUrl = page.url | absoluteUrl(site.url) -%}
 <article class="article">
   <header class="article-header reading-width">
-    <a class="kicker category-link" href="/category/{{ category | slugify }}/">{{ category }}</a>
+    <a class="category-label category-link" href="/category/{{ category | slugify }}/">{{ category }}</a>
     <h1 class="article-title">{{ title }}</h1>
     <p class="article-dek">{{ description }}</p>
     <p class="byline meta"><span>By {% if authorUrl %}<a class="byline-author" href="{{ authorUrl }}" rel="author">{{ author }}</a>{% else %}{{ author }}{% endif %}</span><time datetime="{{ page.date | isoDate }}">{{ page.date | readableDate }}</time><span>{{ content | readingTime }} min read</span></p>
@@ -20,13 +20,12 @@ layout: layouts/base.njk
   <footer class="article-footer reading-width">
     {% include "reactions.njk" %}
     <div class="share-end">
-      <p class="kicker">Share this article</p>
+      <p class="plain-label">Share this article</p>
       {{ shareBar(shareUrl, title, "full") }}
     </div>
     {% if tags.length %}<ul class="tags" aria-label="Article topics">{% for tag in tags %}<li>{{ tag }}</li>{% endfor %}</ul>{% endif %}
     <div class="follow">
-      <p class="kicker">Stay in the loop</p>
-      <p>Follow the stories that matter.</p>
+      <p class="plain-label">Follow Singularity Review</p>
       <div class="follow-links">{{ socialLink(site.facebook, "Facebook", true) }}{{ socialLink(site.instagram, "Instagram", true) }}</div>
     </div>
   </footer>

@@ -46,14 +46,14 @@ float noise(vec2 p) {
   return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
 }
 
-// Conservative silhouette in the original skyline's UV coordinates, including a sky margin.
+// Conservative Kitt Peak silhouette in the new photograph's source UV coordinates.
+// The white dome is at x .61, y .70; the right tree starts above the mountain.
 float skyBoundary(float x) {
-  if (x >= 0.625 && x <= 0.945) {
-    float cap = (x - 0.785) / 0.16;
-    return min(0.64, 0.638 - 0.256 * sqrt(max(0.0, 1.0 - cap * cap)));
-  }
-  if (x > 0.945) return 0.64;
-  return 0.735;
+  float mountain = 0.84 - 0.08 * smoothstep(0.38, 0.46, x);
+  float domeDistance = (x - 0.61) / 0.05;
+  float dome = 0.10 * exp(-domeDistance * domeDistance);
+  float tree = 0.18 * smoothstep(0.80, 0.88, x);
+  return mountain - dome - tree;
 }
 
 vec3 sky(vec2 uv) {
@@ -78,8 +78,8 @@ void main() {
   float r = length(p);
   vec2 direction = p / max(r, 0.001);
   vec2 baseUV = uSkyOrigin + vUV * uSkyScale;
-  float skyMask = 1.0 - smoothstep(skyBoundary(baseUV.x) - 0.028,
-    skyBoundary(baseUV.x) - 0.012, baseUV.y);
+  float skyMask = 1.0 - smoothstep(skyBoundary(baseUV.x) - 0.11,
+    skyBoundary(baseUV.x) - 0.04, baseUV.y);
   // Circular falloff reaches zero before the square canvas edges, even off center.
   float influence = 1.0 - smoothstep(4.8, 8.0, r);
   float alpha = skyMask * influence;
@@ -89,7 +89,7 @@ void main() {
   vec2 bent = p - direction * deflection;
   vec2 skyUnits = vec2(0.109, 0.109 / 0.5625) / uArtScale * uSkyScale;
   vec2 drift = vec2(sin(uTime * 0.018), cos(uTime * 0.015) - 1.0) * 0.9;
-  vec2 displacedUV = baseUV + (bent - p + drift * influence) * skyUnits;
+  vec2 displacedUV = baseUV + (bent - p + drift * influence) * skyUnits * skyMask;
   vec2 tangent = vec2(-direction.y, direction.x);
   // Several linear samples smear drifting stars tangentially near the critical curve.
   float criticalDistance = (r - 2.65) / 0.32;
@@ -127,7 +127,8 @@ void main() {
   vec3 color = background * shadow + einstein * shadow;
   // Screen composite the real emission over the sky; source black contributes no light.
   color = 1.0 - (1.0 - color) * (1.0 - clamp(emission, 0.0, 1.0));
-  gl_FragColor = vec4(clamp(color, 0.0, 1.0), alpha);
+  // Premultiply explicitly so transparent mask edges cannot leak bright RGB.
+  gl_FragColor = vec4(clamp(color, 0.0, 1.0) * alpha, alpha);
 }`;
 
 const cover = document.querySelector('[data-cover]');
@@ -145,6 +146,7 @@ function enhanceCover(cover) {
 
   let visible = false;
   let failed = false;
+  let awaitingSource = false;
   let initializing = false;
   let renderer = null;
   let frame = 0;
@@ -158,7 +160,7 @@ function enhanceCover(cover) {
   let slowDraws = 0;
   let geometryDirty = true;
   let pageActive = true;
-  const eligible = () => !failed && !reducedMotion.matches && !connection?.saveData;
+  const eligible = () => !failed && !awaitingSource && !reducedMotion.matches && !connection?.saveData;
   const running = () => eligible() && pageActive && visible && !document.hidden && cover.dataset.skyMotion === 'running';
 
   const stop = () => {
@@ -175,7 +177,13 @@ function enhanceCover(cover) {
     renderer = null;
     geometryDirty = true;
   };
-  const fail = () => { failed = true; fallback(); };
+  const fail = error => {
+    // Resizing can precede the browser's larger responsive image loading.
+    // Keep the sharp photo until that source arrives, then allow enhancement again.
+    if (error?.code === 'SKY_SOURCE_PENDING') awaitingSource = true;
+    else failed = true;
+    fallback();
+  };
 
   const draw = timestamp => {
     frame = 0;
@@ -196,7 +204,7 @@ function enhanceCover(cover) {
         else slowDraws = Math.max(0, slowDraws - 1);
         if (slowDraws >= 24) interval = 1000 / 30;
         lastDraw = timestamp;
-      } catch { fail(); return; }
+      } catch (error) { fail(error); return; }
     }
     frame = requestAnimationFrame(draw);
   };
@@ -205,7 +213,7 @@ function enhanceCover(cover) {
     if (renderer || initializing || !eligible() || !pageActive || !visible || document.hidden) return;
     initializing = true;
     try {
-      // Reuse the eager LCP image; never intercept, replace or postpone its loading.
+      // Reuse the responsive sky image after paint; the lead story photo retains LCP priority.
       const decode = async image => {
         if (typeof image.decode === 'function') await image.decode();
         else if (!image.complete) await new Promise((resolve, reject) => {
@@ -226,7 +234,7 @@ function enhanceCover(cover) {
       if (renderer.gl.getError() !== renderer.gl.NO_ERROR) throw new Error('First draw failed');
       geometryDirty = false;
       if (running()) frame = requestAnimationFrame(draw);
-    } catch { fail(); }
+    } catch (error) { fail(error); }
     finally { initializing = false; }
   };
 
@@ -257,14 +265,18 @@ function enhanceCover(cover) {
   document.addEventListener('visibilitychange', schedule);
   const refreshTexture = () => {
     // A responsive source switch needs a fresh texture, including when the shader is paused.
-    if (renderer) { fallback(); schedule(); }
+    if (failed) return;
+    awaitingSource = false;
+    fallback();
+    schedule();
   };
   skyline.addEventListener('load', refreshTexture);
   diskImage.addEventListener('load', refreshTexture);
   const resize = () => {
     geometryDirty = true;
+    if (awaitingSource) { awaitingSource = false; schedule(); return; }
     if (renderer && pageActive && !running() && eligible() && visible && !document.hidden) {
-      try { renderer.resize(); renderer.draw(time); } catch { fail(); }
+      try { renderer.resize(); renderer.draw(time); } catch (error) { fail(error); }
     }
   };
   if ('ResizeObserver' in window) new ResizeObserver(resize).observe(cover);
@@ -294,11 +306,28 @@ function enhanceCover(cover) {
 
 function createRenderer(canvas, skyline, disk, diskImage) {
   // A null context or any compile/link/upload error leaves both original pictures untouched.
-  const gl = canvas.getContext('webgl', { alpha: true, premultipliedAlpha: false, antialias: false, depth: false, stencil: false, powerPreference: 'low-power' });
+  const gl = canvas.getContext('webgl', { alpha: true, premultipliedAlpha: true, antialias: false, depth: false, stencil: false, powerPreference: 'low-power' });
   if (!gl) throw new Error('No WebGL');
   const shaders = [];
   let program, buffer;
   const textures = [];
+  // Responsive images report density-corrected natural dimensions. Texture upload
+  // uses the decoded resource pixels, so recover the selected width descriptor.
+  const sourcePixels = image => {
+    const namedWidth = image.currentSrc?.split('?')[0].match(/-(\d+)\.(?:avif|webp|jpe?g)$/)?.[1];
+    let width = Number(namedWidth) || 0;
+    if (!width && image.currentSrc) {
+      const sources = [image, ...(image.closest?.('picture')?.querySelectorAll('source') || [])];
+      for (const source of sources) {
+        for (const candidate of (source.getAttribute?.('srcset') || '').split(', ')) {
+          const match = candidate.match(/^(.+)\s+(\d+)w$/);
+          if (match && new URL(match[1], document.baseURI).href === image.currentSrc) width = Number(match[2]);
+        }
+      }
+    }
+    width ||= image.naturalWidth;
+    return { width, height: Math.round(width * image.naturalHeight / image.naturalWidth) };
+  };
   const dispose = () => {
     if (gl.isContextLost()) return;
     shaders.forEach(shader => gl.deleteShader(shader));
@@ -347,8 +376,9 @@ function createRenderer(canvas, skyline, disk, diskImage) {
         const limit = Math.min(2048, gl.getParameter(gl.MAX_TEXTURE_SIZE));
         const powerOfTwo = value => Math.min(limit, 2 ** Math.ceil(Math.log2(value)));
         pixels = document.createElement('canvas');
-        pixels.width = powerOfTwo(image.naturalWidth);
-        pixels.height = powerOfTwo(image.naturalHeight);
+        const original = sourcePixels(image);
+        pixels.width = powerOfTwo(original.width);
+        pixels.height = powerOfTwo(original.height);
         const context = pixels.getContext('2d');
         if (!context) throw new Error('Artwork resampling unavailable');
         context.drawImage(image, 0, 0, pixels.width, pixels.height);
@@ -377,12 +407,19 @@ function createRenderer(canvas, skyline, disk, diskImage) {
         gl.viewport(0, 0, width, height);
         gl.uniform2f(uniforms.uResolution, width, height);
         // Reproduce object-fit: cover, object-position and the existing sky's scale transform.
-        const scale = Math.max(skyBox.width / skyline.naturalWidth, skyBox.height / skyline.naturalHeight);
-        const imageWidth = skyline.naturalWidth * scale;
-        const imageHeight = skyline.naturalHeight * scale;
+        const original = sourcePixels(skyline);
+        const scale = Math.max(skyBox.width / original.width, skyBox.height / original.height);
+        const imageWidth = original.width * scale;
+        const imageHeight = original.height * scale;
         const position = getComputedStyle(skyline).objectPosition.split(' ').map(value => parseFloat(value) / 100);
         const left = skyBox.left + (skyBox.width - imageWidth) * position[0];
         const top = skyBox.top + (skyBox.height - imageHeight) * position[1];
+        if (original.width > gl.getParameter(gl.MAX_TEXTURE_SIZE) || original.height > gl.getParameter(gl.MAX_TEXTURE_SIZE)) {
+          throw new Error('Sky texture exceeds this GPU texture limit');
+        }
+        if (scale * dpr > 1.01) {
+          throw Object.assign(new Error('Waiting for a sky source that covers this pixel density'), { code: 'SKY_SOURCE_PENDING' });
+        }
         gl.uniform2f(uniforms.uSkyOrigin, (box.left - left) / imageWidth, (box.top - top) / imageHeight);
         gl.uniform2f(uniforms.uSkyScale, box.width / imageWidth, box.height / imageHeight);
       },

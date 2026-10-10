@@ -1,7 +1,7 @@
 {% from "icons.njk" import icon, socialLink %}
 {% from "navigation.njk" import navLinks %}
 {%- set activeSection = page.url | navigationSection(author, site.defaultAuthor) -%}
-{%- set pageTitle = (title + " | " + site.title) if title else (site.title + ": " + site.tagline) -%}
+{%- set pageTitle = (title + " | " + site.title) if title else site.title -%}
 {%- set pageDescription = description or site.description -%}
 {%- set pageImage = (hero or site.defaultImage) | absoluteUrl(site.url) -%}
 {%- set pageImageAlt = heroAlt or site.defaultImageAlt -%}
@@ -52,7 +52,7 @@
   {% if hasCarousel and collections.featured.length and (not homeFeed or pagination.pageNumber == 0) %}<script src="{{ '/js/carousel.js' | asset }}" defer></script>{% endif %}
   {% if jsonld %}<script type="application/ld+json">{{ jsonld | safe }}</script>{% endif %}
 </head>
-<body style="--starfield-image: url('{{ '/images/brand/starfield.webp' | asset }}'); --starfield-sources: image-set(url('{{ '/images/brand/starfield.avif' | asset }}') type('image/avif'), url('{{ '/images/brand/starfield.webp' | asset }}') type('image/webp'))">
+<body>
   <a class="skip" href="#main">Skip to content</a>
   <header class="site-header" data-header>
     <div class="header-inner">
@@ -61,10 +61,8 @@
     </div>
     <nav class="desktop-nav" aria-label="Primary">{{ navLinks(navigation, activeSection) }}</nav>
     <nav class="mobile-menu" id="mobile-menu" aria-label="Main menu" hidden data-menu>
-      <p class="kicker menu-label">Explore Singularity Review</p>
       <div class="menu-links">{{ navLinks(navigation, activeSection) }}</div>
       <div class="menu-social">{{ socialLink(site.facebook, "Facebook", true) }}{{ socialLink(site.instagram, "Instagram", true) }}<a href="/rss.xml" class="social-link">{{ icon("RSS") }}<span>RSS</span></a></div>
-      <p class="menu-note">{{ site.tagline }}.</p>
     </nav>
   </header>
   <noscript><nav class="no-js-nav" aria-label="Primary">{{ navLinks(navigation, activeSection) }}</nav></noscript>
@@ -72,8 +70,10 @@
   <footer class="site-footer">
     <a class="footer-brand" href="/" aria-label="Singularity Review home"><img class="brand-mark" src="{{ '/images/brand/blackhole-mark-80.webp' | asset }}" width="40" height="40" alt="" loading="lazy"><span class="brand-wordmark">Singularity <em>Review</em></span></a>
     <nav class="footer-links" aria-label="Footer">{{ navLinks(navigation, activeSection) }}</nav>
-    {% if collections.categories.length %}<nav class="footer-topics" aria-label="Topics"><span class="kicker">Topics</span>{% for topic in collections.categories %}<a href="/category/{{ topic.slug }}/"{% if cat and cat.slug == topic.slug %} aria-current="page"{% endif %}>{{ topic.name }}</a>{% endfor %}</nav>{% endif %}
+    {% if collections.categories.length %}<nav class="footer-topics" aria-label="Topics"><span class="plain-label">Topics</span>{% for topic in collections.categories %}<a href="/category/{{ topic.slug }}/"{% if cat and cat.slug == topic.slug %} aria-current="page"{% endif %}>{{ topic.name }}</a>{% endfor %}</nav>{% endif %}
     <nav class="footer-social" aria-label="Social">{{ socialLink(site.facebook, "Facebook") }}{{ socialLink(site.instagram, "Instagram") }}<a class="social-link" href="/rss.xml" aria-label="RSS feed">{{ icon("RSS") }}</a></nav>
+    <p class="footer-description">{{ site.description }}</p>
+    <p class="photo-credit skyline-credit">Skyline: <a href="https://commons.wikimedia.org/wiki/File:Kitt_Peak_at_Night_(3S8A6804).jpg">Kitt Peak at Night</a> by KPNO/NOIRLab/NSF/AURA/P. Marenfeld, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Colour graded; satellite trail removed.</p>
     <p class="footer-copy">&copy; {{ site.year }} Singularity Review</p>
   </footer>
 </body>

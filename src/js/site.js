@@ -130,6 +130,7 @@
   const motionToggle = cover?.querySelector('[data-motion-toggle]');
   let coverVisible = true;
   let skyPaused = false;
+  try { skyPaused = localStorage.getItem('sr-sky-paused') === 'true'; } catch { /* Storage may be unavailable. */ }
   const updateCover = () => {
     const running = coverVisible && !document.hidden && !skyPaused && !reducedMotion.matches && !navigator.connection?.saveData;
     cover?.classList.toggle('is-in-view', running);
@@ -137,7 +138,12 @@
       cover.dataset.skyMotion = running ? 'running' : 'paused';
       cover.dispatchEvent(new CustomEvent('sky-motion-change'));
     }
-    if (motionToggle) motionToggle.hidden = reducedMotion.matches || !!navigator.connection?.saveData;
+    if (motionToggle) {
+      motionToggle.hidden = reducedMotion.matches || !!navigator.connection?.saveData;
+      motionToggle.setAttribute('aria-pressed', String(skyPaused));
+      motionToggle.setAttribute('aria-label', skyPaused ? 'Play sky animation' : 'Pause sky animation');
+      motionToggle.querySelector?.('[data-motion-glyph]')?.setAttribute('d', skyPaused ? 'M8 5v14l11-7z' : 'M7 5h3v14H7zm7 0h3v14h-3z');
+    }
   };
   if (cover) {
     updateCover();
@@ -147,8 +153,7 @@
     }).observe(cover);
     motionToggle?.addEventListener('click', () => {
       skyPaused = !skyPaused;
-      motionToggle.setAttribute('aria-pressed', String(skyPaused));
-      motionToggle.textContent = skyPaused ? 'Resume sky motion' : 'Pause sky motion';
+      try { localStorage.setItem('sr-sky-paused', String(skyPaused)); } catch { /* The current page still retains its state. */ }
       updateCover();
     });
     reducedMotion.addEventListener('change', updateCover);

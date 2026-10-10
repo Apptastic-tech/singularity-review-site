@@ -36,7 +36,28 @@ const featured = articles.filter(article => article.section === 'featured');
 const home = await html('index.html');
 const cards = cardLinks(home);
 assert.deepEqual(cards, headlines.slice(0,10).map(articleUrl));
-assert.match(home, /<h1>Singularity headline news<\/h1>/);
+if (headlines.length) {
+  const lead = headlines[0];
+  assert.match(home, /class="card card--featured card--lead"/);
+  assert.match(home, /<h1 class="card-title"/);
+  assert.ok(home.includes(lead.source.match(/^title: (.+)$/m)[1].replace(/^"|"$/g, '')), 'Lead is the actual newest news story');
+  const firstCard = home.slice(home.indexOf('<article class="card'), home.indexOf('</article>', home.indexOf('<article class="card')));
+  assert.ok(firstCard.indexOf('class="card-title"') < firstCard.indexOf('class="card-media"'), 'Lead headline precedes the photo');
+  assert.match(firstCard, /class="lead-byline meta"/);
+  assert.match(firstCard, /<time datetime=/);
+}
+assert.doesNotMatch(home, /<h1>Singularity headline news<\/h1>/);
+const retiredImage = ['skyline', 'clean'].join('-');
+const retiredCopy = ['An observatory for the AI beat', 'AI news for people living through the singularity'];
+for (const phrase of retiredCopy) assert.ok(!home.toLowerCase().includes(phrase.toLowerCase()), `No obsolete homepage copy: ${phrase}`);
+assert.doesNotMatch(home, /class="kicker"|class="cover-dek"|class="cover-copy"/);
+const motion = home.match(/<button[^>]*data-motion-toggle[^>]*>([\s\S]*?)<\/button>/);
+assert.ok(motion, 'Motion icon control exists');
+assert.match(motion[0], /aria-label="Pause sky animation"/);
+assert.match(motion[0], /aria-pressed="false"/);
+assert.match(motion[1], /<svg[^>]+aria-hidden="true"/);
+assert.equal(motion[1].replace(/<[^>]*>/g, '').trim(), '', 'Motion control has no visible text');
+assert.ok(!home.includes(retiredImage));
 verifyNavigation(home);
 if (headlines.length) assert.match(home, /loading="eager" fetchpriority="high" class="card-image"/);
 assert.equal((home.match(/loading="lazy" fetchpriority="auto" class="card-image"/g) || []).length, Math.max(0,cards.length-1));
@@ -89,17 +110,25 @@ assert.match(home, /class="night-cover" data-cover/);
 assert.match(home, /class="cover-sky-image"[^>]+width="\d+" height="\d+"/);
 const coverSky = home.match(/<img[^>]*class="cover-sky-image"[^>]*>/)?.[0];
 assert.ok(coverSky, 'Skyline image exists');
-assert.match(coverSky, /loading="eager"/); assert.match(coverSky, /fetchpriority="high"/);
+assert.match(coverSky, /loading="eager"/); assert.match(coverSky, /fetchpriority="low"/);
+assert.match(coverSky, /sizes="\(max-width: 255px\) 255px, 100vw"/);
+assert.match(home.slice(home.lastIndexOf('<source', home.indexOf(coverSky))), /3840w/);
 assert.match(home, /class="cover-disk-image"/);
 assert.match(home, /data-motion-toggle/);
 const brandFormats = new Map();
 for (const file of await fs.readdir(path.join(out, 'img/brand'))) {
   const meta = await sharp(path.join(out, 'img/brand', file)).metadata();
-  assert.ok(meta.width <= 1920 && meta.height > 0);
+  assert.ok(meta.width <= 3840 && meta.height > 0);
   const widths = brandFormats.get(meta.format) || new Set(); widths.add(meta.width); brandFormats.set(meta.format, widths);
-  assert.ok((await fs.stat(path.join(out, 'img/brand', file))).size < 260000, `Compressed brand image: ${file}`);
+  assert.ok((await fs.stat(path.join(out, 'img/brand', file))).size < 2500000, `High quality brand budget: ${file}`);
 }
-for (const format of ['heif', 'webp', 'jpeg']) assert.deepEqual([...brandFormats.get(format)].sort((a,b) => a-b), [480,800,1280,1920]);
+for (const format of ['heif', 'webp', 'jpeg']) assert.deepEqual([...brandFormats.get(format)].sort((a,b) => a-b), [480,800,1280,1920,2560,3840]);
+const skyOriginal = await sharp('src/images/brand/skyline-kittpeak.jpg').metadata();
+assert.equal(skyOriginal.width, 5472); assert.equal(skyOriginal.height, 3648);
+for (const folder of ['src/images/brand', '_site/images/brand']) {
+  const names = await fs.readdir(folder);
+  assert.ok(names.every(name => !name.includes(retiredImage) && !name.startsWith('starfield')), 'No retired photo or derivatives');
+}
 const css = await text('src/css/style.css');
 const forbiddenTreatment = /text-decoration(?:-line)?\s*:[^;}]*\bunderline\b|text-underline|border-radius\s*:\s*(?:999|[2-9]\d{2})px|backdrop-filter/i;
 assert.ok(forbiddenTreatment.test('a { text-decoration: underline; }'), 'Style absence check positive control');
@@ -133,7 +162,11 @@ for (const file of await fs.readdir(out,{recursive:true})) {
   assert.match(page, /src="\/js\/site\.js\?v=[a-f0-9]{10}"/);
   assert.match(page, /<script src="\/js\/transitions\.js\?v=[a-f0-9]{10}"><\/script>/, 'Transition listener registers before first render');
   assert.match(page, /l\.replace\(t\+l\.pathname\+l\.search\+l\.hash\)/, 'Legacy redirect preserves path, query and fragment');
-  assert.match(page, /--starfield-sources: image-set/);
+  assert.match(page, /Kitt Peak at Night/);
+  assert.match(page, /KPNO\/NOIRLab\/NSF\/AURA\/P\. Marenfeld/);
+  assert.match(page, /https:\/\/creativecommons\.org\/licenses\/by\/4\.0\//);
+  assert.ok(!page.includes(retiredImage), `No retired skyline references: ${file}`);
+  assert.doesNotMatch(page, /class="kicker"|Explore Singularity Review|From our authors|AI news for people living through the singularity|Stay in the loop|Follow the stories that matter/);
   if (!page.includes('class="hero-image"')) assert.match(page, /property="og:image" content="[^" ]+\/images\/brand\/og-default\.jpg"/);
   assert.ok(page.includes('https://www.facebook.com/profile.php?id=61595278645448'));
   assert.ok(page.includes('https://www.instagram.com/singularityreview/'));

@@ -8,10 +8,9 @@ permalink: "/category/{{ cat.slug }}/"
 eleventyExcludeFromCollections: true
 eleventyComputed:
   title: "{{ cat.name }}"
-  description: "{{ cat.name }} coverage from Singularity Review: AI news for people living through the singularity."
+  description: "{{ cat.name }} coverage from Singularity Review: AI news, research, and analysis."
 ---
 <header class="feed-intro category-intro feed-width">
-  <p class="kicker">The {{ cat.name }} section</p>
   <h1>{{ cat.name }}</h1>
   <p class="meta">{{ cat.articles.length }} {{ "story" if cat.articles.length == 1 else "stories" }}, newest first</p>
 </header>

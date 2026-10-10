@@ -151,6 +151,15 @@ for (const file of await fs.readdir('_site', { recursive: true })) {
   }
 }
 const lensing = await fs.readFile('src/js/lensing.js', 'utf8');
+const home = await fs.readFile('_site/index.html', 'utf8');
+const motionIcon = home.match(/<button[^>]*data-motion-toggle[^>]*>([\s\S]*?)<\/button>/);
+assert.ok(motionIcon, 'Homepage has a sky animation button');
+assert.match(motionIcon[0], /aria-label="Pause sky animation"/);
+assert.match(motionIcon[0], /aria-pressed="false"/);
+assert.match(motionIcon[1], /<svg[^>]*aria-hidden="true"/);
+assert.equal(motionIcon[1].replace(/<[^>]*>/g, '').trim(), '', 'Sky animation button is icon-only');
+assert.match(home, /3840\.avif 3840w/);
+assert.doesNotMatch(home, /class="kicker"|class="cover-dek"|class="cover-copy"/);
 assert.equal(await fs.readFile('_site/js/lensing.js', 'utf8'), lensing, 'Lensing module is shipped');
 for (const hook of ['prefers-reduced-motion: reduce', 'saveData', "getContext('webgl'", 'if (!gl)', 'COMPILE_STATUS', 'LINK_STATUS', 'webglcontextlost', 'sky-motion-change', 'requestIdleCallback', 'IntersectionObserver', 'document.hidden', 'skyBoundary', 'texture2D', '1000 / 30']) {
   assert.ok(lensing.includes(hook), `Lensing contract: ${hook}`);

@@ -108,7 +108,8 @@ try {
   for (const file of (await fs.readdir(path.join(temp, 'src/articles'))).filter(file => file.endsWith('.md'))) await fs.unlink(path.join(temp, 'src/articles', file));
   await fixture('only-featured', 'section: featured\n');
   rebuild();
-  assert.match(await html('index.html'), /Headline reporting will appear here/);
+  assert.match(await html('index.html'), /No headline articles are published yet/);
+  assert.match(await html('index.html'), /<h1>Latest news<\/h1>/);
   assert.equal(carouselLinks(await html('index.html')).length, 1, 'A homepage without headlines still displays featured articles');
   assert.match(await html('index.html'), /src="\/js\/carousel\.js\?v=[^"]+" defer/);
   assert.ok(!(await html('featured/index.html')).includes('data-carousel-controls'));

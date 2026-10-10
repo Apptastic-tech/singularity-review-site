@@ -2,7 +2,7 @@
   "name": "singularity-review-site",
   "version": "1.0.0",
   "private": true,
-  "description": "Singularity Review. AI news for people living through the singularity.",
+  "description": "Singularity Review. AI news, research, and analysis.",
   "type": "module",
   "scripts": {
     "build": "eleventy",

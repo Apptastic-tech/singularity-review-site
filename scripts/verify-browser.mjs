@@ -54,6 +54,16 @@ try {
   browser=await chromium.launch({headless:true, ...(process.env.BROWSER_EXECUTABLE_PATH ? {executablePath: process.env.BROWSER_EXECUTABLE_PATH} : {})});
   const page=await browser.newPage({viewport:{width:390,height:844}});
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await page.addInitScript(() => {
+    window.reworkPerformance = { cls: 0, lcp: null };
+    if (PerformanceObserver.supportedEntryTypes.includes('layout-shift')) new PerformanceObserver(list => {
+      for (const entry of list.getEntries()) if (!entry.hadRecentInput) window.reworkPerformance.cls += entry.value;
+    }).observe({ type: 'layout-shift', buffered: true });
+    if (PerformanceObserver.supportedEntryTypes.includes('largest-contentful-paint')) new PerformanceObserver(list => {
+      const entry = list.getEntries().at(-1);
+      window.reworkPerformance.lcp = entry.element?.className;
+    }).observe({ type: 'largest-contentful-paint', buffered: true });
+  });
   await page.goto(url);
   await page.evaluate(()=>document.fonts.ready);
   assert.equal(await page.locator('[data-card]').count(),10);
@@ -64,6 +74,17 @@ try {
     title:parseFloat(getComputedStyle(document.querySelector('.card-title')).fontSize)
   }));
   assert.equal(layout.overflow,false);assert.equal(layout.header,72);assert.equal(layout.card,390);assert.ok(layout.title>=38);
+  await page.waitForFunction(() => window.reworkPerformance.lcp === 'card-image');
+  assert.equal(await page.evaluate(() => window.reworkPerformance.cls), 0, 'Homepage CLS is zero');
+  for (const width of [390,1024,1440,1920]) {
+    await page.setViewportSize({width,height:width===390?844:900}); await page.goto(url);
+    await page.evaluate(() => document.fonts.ready);
+    const lead = await page.locator('.card--lead .card-media').boundingBox();
+    assert.ok(lead.y < (width===390 ? 844 : 900), `${width}: lead photo starts in first screen`);
+    await page.waitForFunction(() => window.reworkPerformance.lcp === 'card-image');
+    assert.equal(await page.evaluate(() => window.reworkPerformance.cls), 0, `${width}: zero CLS`);
+  }
+  await page.setViewportSize({width:390,height:844}); await page.goto(url);
   const masthead = await page.evaluate(() => {
     const brand = document.querySelector('.brand').getBoundingClientRect();
     const toggle = document.querySelector('[data-menu-toggle]').getBoundingClientRect();
@@ -74,6 +95,8 @@ try {
   const coverHeight = await page.locator('.night-cover').evaluate(el => el.getBoundingClientRect().height);
   await page.locator('[data-motion-toggle]').click();
   assert.equal(await page.locator('[data-motion-toggle]').getAttribute('aria-pressed'), 'true');
+  assert.equal(await page.locator('[data-motion-toggle]').getAttribute('aria-label'), 'Play sky animation');
+  assert.equal(await page.locator('[data-motion-toggle]').textContent(), '');
   assert.equal(await page.locator('.cover-disk').evaluate(el => getComputedStyle(el).animationName), 'none');
   assert.equal(await page.locator('.night-cover').evaluate(el => el.getBoundingClientRect().height), coverHeight);
   await page.locator('[data-motion-toggle]').click();
@@ -212,10 +235,10 @@ try {
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `${route} ${name}`);
       const headerGap = await page.evaluate(() => {
         const header = document.querySelector('.site-header').getBoundingClientRect();
-        const kicker = document.querySelector('main .kicker').getBoundingClientRect();
+        const heading = document.querySelector('main h1').getBoundingClientRect();
         const active = document.querySelector('.desktop-nav [aria-current]');
         return {
-          gap: kicker.top - header.bottom,
+          gap: heading.top - header.bottom,
           activeDecoration: getComputedStyle(active).textDecorationLine,
           activeWeight: Number(getComputedStyle(active).fontWeight),
           activeAfter: getComputedStyle(active, '::after').content,

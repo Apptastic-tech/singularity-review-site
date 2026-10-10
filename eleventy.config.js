@@ -95,12 +95,12 @@ export default function (eleventyConfig) {
     return `<link rel="preload" as="image" type="image/avif" href="${variants.at(-1).url}" imagesrcset="${variants.map(image => image.srcset).join(", ")}" imagesizes="${escapeXml(sizes)}" fetchpriority="high">`;
   });
   eleventyConfig.addNunjucksAsyncShortcode("brandPicture", async function (name, sizes = "100vw", classes = "", priority = "auto") {
-    if (!["skyline-clean", "blackhole-wide"].includes(name)) throw new Error(`Unknown brand image: ${name}`);
+    if (!["skyline-kittpeak", "blackhole-wide"].includes(name)) throw new Error(`Unknown brand image: ${name}`);
     if (!brandJobs.has(name)) brandJobs.set(name, Image(`src/images/brand/${name}.jpg`, {
-      widths: [480, 800, 1280, 1920], formats: ["avif", "webp", "jpeg"],
+      widths: name === "skyline-kittpeak" ? [1280, 1920, 2560, 3840] : [480, 800, 1280], formats: ["avif", "webp", "jpeg"],
       outputDir: "./_site/img/brand/", urlPath: "/img/brand/",
-      sharpAvifOptions: { quality: 48, effort: 4 }, sharpWebpOptions: { quality: 76 },
-      sharpJpegOptions: { quality: 82, progressive: true, mozjpeg: true },
+      sharpAvifOptions: { quality: 65, effort: 5 }, sharpWebpOptions: { quality: 88 },
+      sharpJpegOptions: { quality: 82, progressive: true, chromaSubsampling: "4:4:4" },
     }));
     return Image.generateHTML(await brandJobs.get(name), {
       alt: "", sizes, loading: "eager", fetchpriority: priority, decoding: "async", class: classes,

@@ -7,9 +7,7 @@ hasCarousel: true
 eleventyExcludeFromCollections: true
 ---
 <header class="feed-intro feed-width">
-  <p class="kicker">From our authors</p>
   <h1>Featured author articles</h1>
-  <p class="intro-dek">Personal perspectives, reviews and analysis from people following AI closely.</p>
 </header>
 {% ifAsync collections.featured.length %}
   {% set carouselItems = collections.featured %}

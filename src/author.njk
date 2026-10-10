@@ -8,10 +8,9 @@ permalink: "/authors/{{ person.slug }}/"
 eleventyExcludeFromCollections: true
 eleventyComputed:
   title: "{{ person.name }}"
-  description: "Articles by {{ person.name }} for Singularity Review: AI news for people living through the singularity."
+  description: "Articles by {{ person.name }} for Singularity Review: AI news, research, and analysis."
 ---
 <header class="feed-intro category-intro feed-width">
-  <p class="kicker">Author</p>
   <h1>{{ person.name }}</h1>
   <p class="meta">{{ person.articles.length }} {{ "article" if person.articles.length == 1 else "articles" }} for Singularity Review, newest first</p>
 </header>

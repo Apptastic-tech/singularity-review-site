@@ -1,7 +1,6 @@
 // Global site settings. Override the public URL with SITE_URL at build time if the domain changes.
 export default {
   title: "Singularity Review",
-  tagline: "AI news for people living through the singularity",
   description: "AI news, research, and analysis",
   url: (process.env.SITE_URL || "https://singularityreview.com").replace(/\/$/, ""),
   // Firebase default hostnames that should send readers to the canonical domain.
