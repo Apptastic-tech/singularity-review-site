@@ -7,7 +7,7 @@ import { parseDocument } from 'htmlparser2';
 import { findAll, textContent } from 'domutils';
 import { parseXml } from './xml.mjs';
 import { checkHeroControls } from './hero-contract.mjs';
-import { publishedArticles, cardLinks, carouselLinks, articleUrl, verifyNavigation } from './verification-helpers.mjs';
+import { publishedArticles, cardLinks, blockLinks, carouselLinks, articleUrl, verifyNavigation } from './verification-helpers.mjs';
 
 const root = process.cwd();
 // Keep fixture writes inside the repository for stage-only verification.
@@ -27,6 +27,9 @@ try {
   await fs.copyFile(path.join(root, 'eleventy.config.js'), path.join(temp, 'eleventy.config.js'));
   await fs.copyFile(path.join(root, 'package.json'), path.join(temp, 'package.json'));
   await fs.symlink(path.join(root, 'node_modules'), path.join(temp, 'node_modules'), 'dir');
+  const obsoletePortrait = path.join(out, 'images/experts/removed-profile.jpg');
+  await fs.mkdir(path.dirname(obsoletePortrait), { recursive: true });
+  await fs.writeFile(obsoletePortrait, 'Obsolete passthrough fixture');
   await sharp({ create: { width: 320, height: 180, channels: 3, background: '#131518' } }).jpeg().toFile(path.join(temp, 'src/images/articles/small-fixture.jpg'));
   for (let i = 0; i < 18; i++) {
     const slug = `fixture-${String(i).padStart(2, '0')}`;
@@ -49,6 +52,8 @@ try {
   await fs.writeFile(path.join(temp, 'src/_data/singularityOrgs.js'), 'export default [{name:"Example organisation", description:"Research and public education.", url:"https://example.org/organisation"}];\n');
   await fs.writeFile(path.join(temp, 'src/_data/authorProfiles.js'), 'export default [{name:"Ada Example", bio:"A biography supplied only for this isolated fixture.", sameAs:["https://example.org/author"]}];\n');
   rebuild();
+  assert.equal(await fs.access(obsoletePortrait).then(() => true, () => false), false, 'A rebuild removes obsolete expert portraits');
+  await fs.access(path.join(out, 'images/experts/gary-marcus.jpg'));
   const articles = await publishedArticles(temp);
   const headlines = articles.filter(article => article.section === 'news');
   const featured = articles.filter(article => article.section === 'featured');
@@ -81,7 +86,7 @@ try {
   assert.equal(new Set(seen).size, headlines.length);
   assert.equal(seen[0], '/articles/named-news/');
   const archive = await html('featured/index.html');
-  assert.deepEqual(cardLinks(archive), featured.map(articleUrl));
+  assert.deepEqual(blockLinks(archive), featured.map(articleUrl));
   assert.deepEqual(carouselLinks(archive), featured.map(articleUrl));
   assert.deepEqual(carouselLinks(await html('index.html')), featured.map(articleUrl));
   assert.match(archive, /data-carousel-controls/);
@@ -89,8 +94,8 @@ try {
   assert.doesNotMatch(archive, /author-avatar|authorPhoto|<img[^>]+apple-touch-icon/);
   assert.match(archive, /class="carousel-byline meta">By <a class="byline-author" href="\/authors\/ada-example\/" rel="author">Ada Example<\/a> <span aria-hidden="true">·<\/span> <time/);
   assert.doesNotMatch(archive, /class="card-byline/, 'Archive blocks have a date without a byline');
-  assert.equal((archive.match(/<time class="post-card-date"/g) || []).length, featured.length, 'Every featured block retains its date');
-  assert.equal((archive.match(/class="post-card-link"/g) || []).length, featured.length, 'Every featured article has a block link');
+  assert.equal((archive.match(/<time class="story-block-date"/g) || []).length, featured.length, 'Every featured block retains its date');
+  assert.equal((archive.match(/class="story-block-link"/g) || []).length, featured.length, 'Every featured article has a block link');
   assert.match(archive, /By Singularity Review <span aria-hidden="true">·<\/span>/);
   assert.ok(!archive.includes('/articles/draft-fixture/'));
   verifyNavigation(archive, '/featured/');
@@ -103,7 +108,7 @@ try {
   const authorPerson = authorGraph.find(node => node['@type'] === 'Person');
   assert.equal(authorPerson.description, 'A biography supplied only for this isolated fixture.');
   assert.deepEqual(authorPerson.sameAs, ['https://example.org/author']);
-  assert.deepEqual(cardLinks(await html('authors/ada-example/index.html')).sort(), ['/articles/author-auto/', '/articles/named-news/']);
+  assert.deepEqual(blockLinks(await html('authors/ada-example/index.html')).sort(), ['/articles/author-auto/', '/articles/named-news/']);
   assert.equal(await fs.access(path.join(out, 'articles/draft-fixture')).then(() => true, () => false), false);
   const small = await html('articles/fixture-00/index.html');
   const smallHero = small.match(/<img[^>]*class="hero-image"[^>]*>/)[0];
@@ -116,7 +121,7 @@ try {
   assert.equal(JSON.parse(small.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1])['@graph'].find(node => node['@type'] === 'NewsArticle').dateModified, '2026-10-10T09:00:00.000Z');
   const research = await html('category/research/index.html');
   assert.match(research, /<h1>Research<\/h1>/);
-  assert.deepEqual(cardLinks(research), articles.filter(item => item.category === 'Research').map(articleUrl));
+  assert.deepEqual(blockLinks(research), articles.filter(item => item.category === 'Research').map(articleUrl));
   const sitemap = await html('sitemap.xml');
   const rss = await html('rss.xml');
   const atom = await html('atom.xml');

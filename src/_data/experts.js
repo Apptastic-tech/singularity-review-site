@@ -126,26 +126,4 @@ export default [
       { title: "Rebooting AI (with Ernest Davis)", year: 2019, url: "https://www.penguinrandomhouse.com/books/603982/rebooting-ai-by-gary-marcus-and-ernest-davis/" },
     ],
   },
-  {
-    slug: "steven-pinker",
-    name: "Steven Pinker",
-    role: "Cognitive psychologist, Harvard University",
-    stanceType: "skeptic",
-    stance:
-      "Rejects the premise outright. Asked by IEEE Spectrum in 2008, he said: \"There is not the slightest reason to believe in a coming singularity.\"",
-    photo: "/images/experts/steven-pinker.jpg",
-    photoAlt: "Steven Pinker, with long grey curly hair, in 2023",
-    credit: {
-      author: "Christopher Michel",
-      authorUrl: "https://commons.wikimedia.org/wiki/User:Cmichel67",
-      license: "CC BY-SA 4.0",
-      licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0/",
-      sourceUrl: "https://commons.wikimedia.org/wiki/File:Steven_Pinker_in_2023.jpg",
-    },
-    works: [
-      { title: "IEEE Spectrum: Tech Luminaries Address Singularity", year: 2008, url: "https://spectrum.ieee.org/tech-luminaries-address-singularity" },
-      { title: "How the Mind Works", year: 1997, url: "https://en.wikipedia.org/wiki/How_the_Mind_Works" },
-      { title: "Enlightenment Now", year: 2018, url: "https://en.wikipedia.org/wiki/Enlightenment_Now" },
-    ],
-  },
 ];

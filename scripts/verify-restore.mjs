@@ -58,10 +58,18 @@ function checkHome(dom, preview = false) {
   assert.ok(!nodes(main).some(node => /^h[1-6]$/.test(node.name) && textContent(node) === 'Latest'));
 }
 const pages = (await fs.readdir('_site', { recursive: true })).filter(file => file.endsWith('.html'));
+for (const file of (await fs.readdir('_site',{recursive:true})).filter(file => /(?:\.html|\.xml|llms\.txt)$/.test(file))) {
+  assert.doesNotMatch(await read('_site/'+file), /Pinker/i, file + ': removed expert is absent');
+}
+assert.equal(await fs.access('_site/images/experts/steven-pinker.jpg').then(()=>true,()=>false),false,'Removed expert portrait is absent');
 for (const file of pages) {
   const html = await read('_site/' + file), dom = parseDocument(html);
   const active = file.startsWith('featured/') || file.startsWith('authors/') || (file.startsWith('articles/') && /<p class="byline meta">By <a/.test(html)) ? '/featured/' : file.startsWith('about/') ? '/about/' : file.startsWith('what-is-singularity/') ? '/what-is-singularity/' : '/';
   verifyNavigation(html, active); checkFooter(dom);
+  const headlineRoute = file === 'index.html' || file.startsWith('page/');
+  if (headlineRoute) assert.equal(classes(dom,'story-block').length,0,file+': headline-only post cards');
+  else { assert.equal(classes(dom,'post-card').length,0,file+': no headline cards'); assert.equal(classes(dom,'card-row').length,0,file+': no headline row'); }
+  if (/^(featured|authors|category|articles)\//.test(file) && (file.startsWith('articles/') ? articles.length > 1 : !file.startsWith('featured/') || featured.length)) assert.ok(classes(dom,'story-block').length > 0,file+': approved story blocks');
   if (titles.has(file) || file.startsWith('page/')) {
     const title = titles.get(file) || 'Singularity headline news: Page ' + file.split('/')[1];
     assert.equal(textContent(nodes(dom).find(node => node.name === 'title')), title + ' | Singularity Review');
@@ -118,7 +126,7 @@ for (const width of [320,390,640,768,1024,1440,1920]) {
   assert.equal(get('.site-footer')['margin-top'], width < 640 ? '48px' : '64px');
 }
 // Read-only Git comparison preserves the existing interactive hero and carousel behavior.
-for (const file of ['src/js/carousel.js','src/js/lensing.js','src/_includes/share.njk','src/_includes/reactions.njk','src/robots.njk','src/rss.njk','src/atom.njk']) {
+for (const file of ['src/js/carousel.js','src/_includes/share.njk','src/_includes/reactions.njk','src/robots.njk','src/rss.njk','src/atom.njk']) {
   const original = spawnSync('git',['show','HEAD:' + file],{encoding:'utf8'});
   assert.equal(original.status,0,original.stderr); assert.equal(await read(file),original.stdout,file + ': preserved contract');
 }

@@ -14,7 +14,8 @@ export function verifyHero(html, css) {
   for (const [width, height] of [[320,844],[390,844],[639,844],[640,900],[768,1024],[1024,768],[1440,900],[1920,1080],[2560,1440]]) {
     const layout = coverLayout(css, width, height);
     assert.ok(layout.statement.top > layout.diskBottom, width + ': statement below the complete static disk');
-    assert.ok(layout.statement.top > layout.lensingRegionBottom, width + ': statement below the full lensing influence region');
+    assert.ok(layout.gap > 0 && layout.gap <= .55 * layout.oldGap, width + ': gap is at most 55 percent of pass 1');
+    assert.ok(Math.abs((layout.oldBandHeight - layout.bandHeight) - (layout.oldGap - layout.gap)) < .001, width + ': band shrinks by the same amount as the gap');
   }
   assert.equal((html.match(/<h1\b/g) || []).length, 1, 'Homepage has one h1');
   const band = html.slice(html.indexOf('<div class="night-cover"'), html.indexOf('<section class="card-row'));

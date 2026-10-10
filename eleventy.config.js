@@ -13,7 +13,8 @@ import { pageMetadata, pageGraph, json, latestModified } from "./src/_lib/seo.js
 
 // Cache busting: {{ "/css/style.css" | asset }} -> /css/style.css?v=<content hash>
 import { createHash } from "node:crypto";
-import { readFileSync, writeFileSync, readdirSync, rmSync } from "node:fs";
+import { readFileSync, writeFileSync, readdirSync, rmSync, existsSync } from "node:fs";
+const heroPhoto = JSON.parse(readFileSync(new URL("./src/_data/heroPhoto.json", import.meta.url)));
 const assetHashes = new Map();
 const assetUrl = (url) => {
   const clean = String(url).split("?")[0];
@@ -100,6 +101,14 @@ export default function (eleventyConfig) {
   });
   eleventyConfig.on("eleventy.after", () => {
     if (!site.adsense.client && !site.adsense.preview) rmSync(path.join(outputDirectory, "js/ads.js"), { force: true });
+    // Passthrough copying does not remove deleted portraits from an older build.
+    const portraits = path.join(outputDirectory, "images/experts");
+    if (existsSync(portraits)) {
+      const current = new Set(readdirSync("src/images/experts"));
+      for (const file of readdirSync(portraits, { withFileTypes: true })) {
+        if (file.isFile() && !current.has(file.name)) rmSync(path.join(portraits, file.name));
+      }
+    }
     const entries = [...sitemapPages].sort(([a], [b]) => a.localeCompare(b)).map(([url, date]) =>
       `  <url><loc>${escapeXml(url)}</loc>${date ? `<lastmod>${date.slice(0, 10)}</lastmod>` : ""}</url>`);
     writeFileSync(path.join(outputDirectory, "sitemap.xml"), `<?xml version="1.0" encoding="utf-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.join("\n")}\n</urlset>\n`);
@@ -166,14 +175,14 @@ export default function (eleventyConfig) {
       alt: "", sizes, loading: "eager", fetchpriority: priority, decoding: "async", class: classes,
     });
     if (name !== "skyline-kittpeak") return html;
-    // Art direction keeps the dome below and left of the mobile photon ring.
+    // Art direction keeps the complete dome to the right of the mobile photon ring.
     // Lossless source extraction, then eleventy-img encodes each responsive format.
     if (!brandJobs.has("skyline-mobile")) brandJobs.set("skyline-mobile", (async () => {
       const crop = await sharp("src/images/brand/skyline-kittpeak.jpg")
-        .extract({ left: 2100, top: 500, width: 2800, height: 2800 }).png().toBuffer();
+        .extract(heroPhoto.mobileCrop).png().toBuffer();
       return Image(crop, {
         widths: [1280, 1920, 2560], formats: ["avif", "webp", "jpeg"],
-        outputDir: "./_site/img/brand/", urlPath: "/img/brand/",
+        outputDir: path.join(outputDirectory, "img/brand"), urlPath: "/img/brand/",
         sharpAvifOptions: { quality: 65, effort: 5 }, sharpWebpOptions: { quality: 88 },
         sharpJpegOptions: { quality: 82, progressive: true, chromaSubsampling: "4:4:4" },
       });

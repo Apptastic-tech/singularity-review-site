@@ -267,11 +267,11 @@ figcaption { color: var(--muted); font-size: 13px; padding: 12px 20px 0; }
 }
 
 /* The photograph fades into the page; reporting begins in normal flow below it. */
-.night-cover { --disk-width: calc(100vw - 48px); --disk-left: calc(50% - var(--disk-width) / 2); --disk-top: 16px; position: relative; isolation: isolate; overflow: hidden; height: max(640px, calc(var(--disk-width) * .7605 + 240px)); margin: 0; background: var(--ink-0); }
-.cover-atmosphere { position: absolute; inset: 0; z-index: -1; mask-image: linear-gradient(to bottom, #000 0%, #000 62%, rgb(0 0 0 / .92) 70%, rgb(0 0 0 / .65) 80%, rgb(0 0 0 / .25) 90%, transparent 100%); }
+.night-cover { --disk-width: calc(100vw - 48px); --disk-left: calc(50% - var(--disk-width) / 2); --disk-top: 16px; --hero-gap: calc(var(--disk-width) * .099 + 12px); position: relative; isolation: isolate; overflow: hidden; height: calc(max(640px, calc(var(--disk-width) * .7605 + 240px)) - var(--hero-gap)); margin: 0; background: var(--ink-0); }
+.cover-atmosphere { position: absolute; inset: 0; z-index: -1; mask-image: linear-gradient(to bottom, #000 0%, #000 82%, rgb(0 0 0 / .92) 86%, rgb(0 0 0 / .65) 88%, rgb(0 0 0 / .25) 90%, transparent 100%); }
 .cover-sky { position: absolute; inset: 0; z-index: -2; overflow: hidden; }
 .cover-sky picture, .cover-sky-image { width: 100%; height: 100%; }
-.cover-sky-image { object-fit: cover; object-position: 50% 60%; opacity: 1; }
+.cover-sky-image { object-fit: cover; object-position: 50% 100%; opacity: 1; }
 .cover-disk, .cover-lensing { position: absolute; z-index: -1; }
 .cover-disk { mix-blend-mode: screen; width: var(--disk-width); left: var(--disk-left); top: var(--disk-top); transform-origin: 50% 48%; }
 .cover-atmosphere::before { content: ""; position: absolute; z-index: -1; width: calc(var(--disk-width) * .228); aspect-ratio: 1; left: calc(var(--disk-left) + var(--disk-width) * .396); top: calc(var(--disk-top) + var(--disk-width) * 9 / 16 * .2773); border-radius: 50%; background: #000; }
@@ -281,8 +281,8 @@ figcaption { color: var(--muted); font-size: 13px; padding: 12px 20px 0; }
 .night-cover.has-lensing .cover-disk { opacity: 0; transition: opacity 800ms ease; animation: none; }
 .cover-disk picture { aspect-ratio: 16 / 9; position: relative; mask-image: radial-gradient(closest-side at 51% 48%, #000 58%, rgb(0 0 0 / .6) 80%, transparent 100%); }
 .cover-disk-image { width: 100%; height: auto; filter: saturate(.72) brightness(.78); }
-.hero-statement { position: absolute; top: calc(var(--disk-top) + var(--disk-width) * .7605 + 24px); inset-inline: 20px; margin-inline: auto; max-width: 1120px; text-align: center; isolation: isolate; }
-.hero-statement::before { content: ""; position: absolute; z-index: -1; inset: -140px -400px -220px; background: radial-gradient(closest-side, rgb(11 12 14 / .80), rgb(11 12 14 / .74) 80%, rgb(11 12 14 / .38) 94%, rgb(11 12 14 / 0)); pointer-events: none; }
+.hero-statement { position: absolute; top: calc(var(--disk-top) + var(--disk-width) * 9 / 16 + var(--hero-gap)); inset-inline: 20px; margin-inline: auto; max-width: 1120px; text-align: center; isolation: isolate; }
+.hero-statement::before { content: ""; position: absolute; z-index: -1; inset: -64px -400px -96px; background: radial-gradient(closest-side, rgb(11 12 14 / .80), rgb(11 12 14 / .74) 80%, rgb(11 12 14 / .38) 94%, rgb(11 12 14 / 0)); pointer-events: none; }
 .hero-statement h1 { font: 500 38px/1.08 var(--serif); letter-spacing: -.025em; text-wrap: balance; margin: 0; }
 .hero-description { color: #C8CDD1; font: 400 19px/1.45 var(--serif); max-width: 34em; text-wrap: balance; margin: 18px auto 0; }
 .cover-motion { position: absolute; bottom: 20px; right: 20px; display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; background: transparent; color: var(--paper); cursor: pointer; }
@@ -320,7 +320,7 @@ figcaption { color: var(--muted); font-size: 13px; padding: 12px 20px 0; }
 }
 @media (min-width: 640px) {
   .feed-width, .wide-width { width: calc(100% - 64px); }
-  .night-cover { height: 720px; --disk-width: min(75vw, 640px); --disk-top: 16px; }
+  .night-cover { height: calc(720px - var(--hero-gap)); --disk-width: min(75vw, 640px); --disk-top: 16px; }
   .hero-statement { inset-inline: 32px; }
   .hero-statement h1 { font-size: clamp(44px, 4.4vw, 64px); }
   .hero-description { font-size: 21px; }
@@ -328,7 +328,7 @@ figcaption { color: var(--muted); font-size: 13px; padding: 12px 20px 0; }
   .shelf-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
 }
 @media (min-width: 960px) {
-  .night-cover { height: clamp(720px, 70vh, 780px); }
+  .night-cover { height: calc(clamp(720px, 70vh, 780px) - var(--hero-gap)); }
 }
 @media (prefers-reduced-motion: reduce) {
   .cover-lensing { display: none; }
@@ -517,4 +517,44 @@ figcaption { color: var(--muted); font-size: 13px; padding: 12px 20px 0; }
   .newsletter-footer { position: relative; max-width: none; min-height: 80px; }
   .newsletter-footer h2 { position: absolute; top: 13px; left: 544px; margin: 0; }
   .newsletter-footer .newsletter-status { position: absolute; top: 40px; left: 544px; right: 0; height: 3em; margin: 0; }
+}
+
+/* Approved story blocks restored verbatim from fa31c2d. */
+.story-list { padding-bottom: 64px; }
+.story-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 32px 24px; }
+.story-block { position: relative; display: flex; flex-direction: column; min-width: 0; width: 100%; margin: 0; background: var(--ink-1); border-block: 1px solid var(--line); border-inline: 0; border-radius: 0; overflow: hidden; scroll-margin-block: calc(var(--header-height) + 16px); }
+.story-block-media { aspect-ratio: 3 / 2; overflow: hidden; flex-shrink: 0; }
+.story-block-media picture, .story-block-image { width: 100%; height: 100%; }
+.story-block-image { object-fit: cover; transition: transform 500ms ease; }
+.story-block-body { display: flex; flex: 1; flex-direction: column; padding: 20px; }
+.story-block-category { position: relative; z-index: 2; align-self: flex-start; display: inline-flex; align-items: center; min-height: 32px; min-width: 44px; color: var(--muted); font: 400 13px/1.5 var(--sans); text-transform: none; letter-spacing: normal; background: transparent; text-decoration: none; }
+.story-block-link { color: var(--paper); text-decoration: none; }
+.story-block-link::after { content: ""; position: absolute; inset: 0; z-index: 1; }
+.story-block-link:focus-visible { outline: none; }
+.story-block-link:focus-visible::after { outline: 2px solid var(--signal); outline-offset: -4px; }
+.story-block-category:focus-visible { outline-offset: 2px; }
+.story-block-title { font: 500 26px/1.12 var(--serif); margin: 4px 0 12px; text-wrap: pretty; transition: color 220ms ease; }
+.story-block-dek { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: var(--muted); font-size: 18px; line-height: 1.45; margin: 0 0 20px; }
+.story-block-date { margin-top: auto; color: var(--muted); font: 400 13px/1.5 var(--sans); }
+@media (hover: hover) { .story-block:hover .story-block-image { transform: scale(1.02); } .story-block:hover .story-block-title { color: var(--signal); } }
+@media (min-width: 640px) { .story-list { padding-bottom: 80px; } }
+@media (min-width: 640px) { .story-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 640px) { .story-block { border: 1px solid var(--line); border-radius: 6px; } }
+@media (min-width: 640px) { .story-block-title { font-size: 28px; } }
+@media (min-width: 960px) { .story-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (prefers-reduced-motion: reduce) { .story-block:hover .story-block-image { transform: none; } }
+
+/* Expose the observatory above the statement at narrow widths. */
+@media (max-width: 959px) {
+  .cover-sky { bottom: auto; height: calc(var(--disk-top) + var(--disk-width) * 9 / 16 + var(--hero-gap) - 4px); mask-image: linear-gradient(to bottom, #000 0%, #000 78%, transparent 100%); }
+}
+.lensing-debug { position: fixed; z-index: 1000; bottom: 8px; left: 8px; max-width: calc(100vw - 16px); padding: 4px 6px; background: rgb(11 12 14 / .9); color: #F4F1EA; font: 400 12px/1.4 monospace; pointer-events: none; overflow-wrap: anywhere; }
+
+@media (min-width: 2240px) {
+  .cover-sky { height: max(690px, 100%); }
+  .cover-sky-image { object-position: 50% 93%; }
+}
+
+@media (min-width: 960px) and (max-width: 1439px) {
+  .cover-sky { height: min(620px, calc(50vw - 16px)); mask-image: linear-gradient(to bottom, #000 0%, #000 78%, transparent 100%); }
 }

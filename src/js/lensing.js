@@ -50,8 +50,8 @@ float noise(vec2 p) {
 float skyBoundary(float x) {
   x = uSourceOrigin.x + x * uSourceScale.x;
   float mountain = 0.84 - 0.08 * smoothstep(0.38, 0.46, x);
-  float domeDistance = (x - 0.61) / 0.05;
-  float dome = 0.10 * exp(-domeDistance * domeDistance);
+  float domeDistance = (x - 0.64) / 0.064;
+  float dome = 0.18 * exp(-domeDistance * domeDistance);
   float tree = 0.18 * smoothstep(0.80, 0.88, x);
   return (mountain - dome - tree - uSourceOrigin.y) / uSourceScale.y;
 }
@@ -85,14 +85,20 @@ void main() {
   float foregroundMask = 1.0 - smoothstep(skyBoundary(baseUV.x) - 0.04,
     skyBoundary(baseUV.x) - 0.02, baseUV.y);
   // Circular falloff reaches zero before the square canvas edges, even off center.
-  float influence = 1.0 - smoothstep(2.0, 4.5, r);
+  float influence = 1.0 - smoothstep(3.8, 4.5, r);
   float alpha = foregroundMask * influence;
 
   // The lens equation's critical radius lies outside the shadow, in visible sky.
-  float deflection = 1.4 / max(r, 0.25) * influence * influence * influence;
-  vec2 bent = p - direction * deflection;
+  float breathing = 1.0 + 0.12 * sin(uTime * 0.785398);
+  float deflection = 1.4 / max(r, 0.25) * influence * influence * influence * breathing;
+  // Frame dragging: one orbit in about 20 seconds at r=1.5, fading by r=4.5.
+  // Broader outer-sky advection keeps the dim photographic stars readable in motion.
+  float dragRate = min(0.70 / max(r * r, 1.0), 0.70)
+    + 0.18 * smoothstep(1.5, 2.5, r);
+  float dragAngle = uTime * dragRate * influence;
+  vec2 bent = rotate(p - direction * deflection, dragAngle);
   vec2 skyUnits = vec2(0.109, 0.109 / 0.5625) / uArtScale * uSkyScale;
-  vec2 drift = vec2(sin(uTime * 0.018), cos(uTime * 0.015) - 1.0) * 0.04;
+  vec2 drift = vec2(sin(uTime * 0.16), cos(uTime * 0.13) - 1.0) * 0.04;
   vec2 displacedUV = baseUV + (bent - p + drift * influence) * skyUnits * skyMask;
   vec2 tangent = vec2(-direction.y, direction.x);
   // Several linear samples smear drifting stars tangentially near the critical curve.
@@ -109,7 +115,7 @@ void main() {
   vec2 inclined = rotate(p, 0.22);
   vec2 plane = vec2(inclined.x, inclined.y / 0.24);
   float diskRadius = length(plane);
-  float orbit = uTime * 0.025 / pow(max(diskRadius, 1.2), 1.5);
+  float orbit = uTime * 0.6 / pow(max(diskRadius, 1.2), 1.5);
   vec2 orbitPlane = rotate(plane, -orbit);
   vec2 orbitPoint = rotate(vec2(orbitPlane.x, orbitPlane.y * 0.24), -0.22);
   vec2 orbitUV = vec2(0.51, 0.48) + orbitPoint * vec2(0.109, 0.109 / 0.5625);
@@ -120,11 +126,14 @@ void main() {
   // Preserve the photographed silhouette, lensed upper arch and crisp photon ring.
   float photonLock = 1.0 - smoothstep(0.04, 0.16, abs(r - 1.14));
   float moving = diskMask * (1.0 - photonLock);
-  vec3 emission = mix(original, original * 0.96 + orbitLight * 0.04, moving);
-  float shimmer = 1.0 + 0.012 * sin(uTime * 0.38 + plane.x * 0.7)
-    + 0.008 * (noise(plane * 0.55 + vec2(uTime * 0.025, 0.0)) - 0.5);
+  vec3 emission = mix(original, original * 0.50 + orbitLight * 0.50, moving);
+  float flowAngle = atan(plane.y, plane.x) - orbit;
+  float shimmer = 1.0 + 0.09 * sin(flowAngle * 3.0 + diskRadius * 0.7)
+    + 0.02 * (noise(orbitPlane * 0.55) - 0.5);
   float approaching = 1.0 - 0.04 * plane.x / max(diskRadius, 1.0);
   emission *= mix(1.0, shimmer * approaching, moving);
+  // A travelling brightness pulse leaves the ring position and sharpness locked.
+  emission *= 1.0 + 0.06 * sin(atan(p.y, p.x) - uTime * 0.6) * photonLock;
 
   // Match the static artwork grade; retain the supplied Doppler asymmetry.
   float light = dot(emission, vec3(0.2126, 0.7152, 0.0722));
@@ -132,6 +141,7 @@ void main() {
 
   float aa = 1.5 * uArtScale.x / (uResolution.x * 0.109);
   float shadow = smoothstep(1.04 - aa, 1.04 + aa, r);
+  emission *= shadow;
   vec3 color = background * shadow;
   // Screen composite the real emission over the sky; source black contributes no light.
   color = 1.0 - (1.0 - color) * (1.0 - clamp(emission, 0.0, 1.0));
@@ -143,17 +153,35 @@ const cover = document.querySelector('[data-cover]');
 if (cover) enhanceCover(cover);
 
 function enhanceCover(cover) {
+  const query = globalThis.location?.search || '';
+  const force = /[?&]lensing=force\b/.test(query);
+  let debug = /[?&]lensing=debug\b/.test(query);
+  try { debug ||= localStorage.getItem('sr-lensing-debug') === '1'; } catch { /* Storage may be disabled. */ }
+  let badge = null, rendererName = 'masked', measuredFPS = 0, drawCost = 0, debugStamp = -Infinity;
+  if (debug) {
+    badge = document.createElement('div');
+    badge.className = 'lensing-debug';
+    badge.setAttribute('aria-hidden', 'true');
+    document.body.append(badge);
+  }
+  const updateBadge = (timestamp = 0, immediate = false) => {
+    if (!badge || (!immediate && timestamp - debugStamp < 250)) return;
+    debugStamp = timestamp;
+    badge.textContent = cover.dataset.lensingState + ' | ' + rendererName + ' | ' + measuredFPS.toFixed(1) + ' fps | ' + drawCost.toFixed(2) + ' ms';
+  };
+  const setState = state => { cover.dataset.lensingState = state; updateBadge(0, true); };
+  setState('pending-source');
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
   const connection = navigator.connection;
   const skyline = cover.querySelector('.cover-sky-image');
   const canvas = cover.querySelector('[data-lensing]');
   const disk = cover.querySelector('.cover-disk');
   const diskImage = cover.querySelector('.cover-disk-image');
-  if (!skyline || !canvas || !disk || !diskImage) return;
+  if (!skyline || !canvas || !disk || !diskImage) { setState('static-error'); return; }
   const originalSkyTransform = skyline.style.transform;
 
   let visible = false;
-  let failed = false;
+  let failed = false, failureState = 'static-error';
   let awaitingSource = false;
   let initializing = false;
   let renderer = null;
@@ -165,17 +193,25 @@ function enhanceCover(cover) {
   let lastDraw = 0;
   let interval = 1000 / 60;
   let slowFrames = 0;
-  let slowDraws = 0, draws = 0, heavyDraws = 0;
+  let slowDraws = 0, draws = 0, heavyDraws = 0, fpsStarted = 0, fpsDraws = 0;
   let geometryDirty = true;
   let pageActive = true;
   const eligible = () => !failed && !awaitingSource && !reducedMotion.matches && !connection?.saveData;
   const running = () => eligible() && pageActive && visible && !document.hidden && cover.dataset.skyMotion === 'running';
+
+  const refreshState = () => setState(reducedMotion.matches ? 'static-reduced-motion'
+    : connection?.saveData ? 'static-save-data'
+    : failed ? failureState : awaitingSource ? 'pending-source'
+    : !pageActive || !visible || document.hidden || cover.dataset.skyMotion !== 'running' ? 'paused'
+    : renderer ? 'running' : 'pending-source');
 
   const stop = () => {
     cancelAnimationFrame(frame);
     frame = 0;
     previous = 0;
     lastDraw = 0;
+    measuredFPS = 0; fpsStarted = 0; fpsDraws = 0;
+    refreshState();
   };
   const fallback = () => {
     stop();
@@ -195,7 +231,31 @@ function enhanceCover(cover) {
       const toggle = cover.querySelector('[data-motion-toggle]');
       if (toggle) toggle.hidden = true;
     }
+    if (error?.rendererName) rendererName = error.rendererName;
+    failureState = ({ NO_WEBGL: 'static-no-webgl', SOFTWARE_GL: 'static-software-gl', FRAME_BUDGET: 'static-frame-budget' })[error?.code] || 'static-error';
     fallback();
+    refreshState();
+  };
+
+  const recordDraw = (timestamp, cost) => {
+    drawCost = cost; draws++;
+    // Ignore five shader warm-up draws; require twelve heavy draws in the first sixty.
+    if (draws > 5 && draws <= 60 && cost > 24) heavyDraws++;
+    if (draws <= 60 && heavyDraws >= 12 && !force) {
+      fail(Object.assign(new Error('Lensing over frame budget'), { code: 'FRAME_BUDGET' }));
+      return false;
+    }
+    if (draws > 5 && cost > 12) slowDraws++;
+    else slowDraws = Math.max(0, slowDraws - 1);
+    if (slowDraws >= 24) interval = 1000 / 30;
+    if (!fpsStarted) fpsStarted = timestamp;
+    fpsDraws++;
+    if (timestamp - fpsStarted >= 1000) {
+      measuredFPS = (fpsDraws - 1) * 1000 / (timestamp - fpsStarted);
+      fpsStarted = timestamp; fpsDraws = 1;
+    }
+    updateBadge(timestamp);
+    return true;
   };
 
   const draw = timestamp => {
@@ -214,13 +274,7 @@ function enhanceCover(cover) {
         const started = performance.now();
         renderer.draw(time);
         const cost = performance.now() - started;
-        draws++;
-        if (cost > 20) heavyDraws++;
-        // A device that cannot draw cheaply in the first 40 frames gets the static artwork, not a janky page.
-        if (draws <= 40 && heavyDraws >= 8 && !/[?&]lensing=force\b/.test(globalThis.location?.search || '')) { fail(Object.assign(new Error('Lensing over frame budget'), { code: 'FRAME_BUDGET' })); return; }
-        if (cost > 12) slowDraws++;
-        else slowDraws = Math.max(0, slowDraws - 1);
-        if (slowDraws >= 24) interval = 1000 / 30;
+        if (!recordDraw(timestamp, cost)) return;
         lastDraw = timestamp;
       } catch (error) { fail(error); return; }
     }
@@ -231,7 +285,7 @@ function enhanceCover(cover) {
     if (renderer || initializing || !eligible() || !pageActive || !visible || document.hidden) return;
     initializing = true;
     try {
-      // Reuse the responsive sky image after paint; the lead story photo retains LCP priority.
+      // Reuse the responsive sky image after paint; headline photography retains LCP priority.
       const decode = async image => {
         if (typeof image.decode === 'function') await image.decode();
         else if (!image.complete) await new Promise((resolve, reject) => {
@@ -243,19 +297,25 @@ function enhanceCover(cover) {
       await Promise.all([decode(skyline), decode(diskImage)]);
       if (!eligible() || !pageActive || !visible || document.hidden) return;
       renderer = createRenderer(canvas, skyline, disk, diskImage);
+      rendererName = renderer.rendererName;
+      draws = 0; heavyDraws = 0; slowDraws = 0;
       // Capture the static sky pose only once a valid renderer can replace the artwork.
       skyline.style.transform = getComputedStyle(skyline).transform;
       cover.classList.add('has-lensing');
       renderer.resize();
+      const started = performance.now();
       renderer.draw(time);
+      if (!recordDraw(started, performance.now() - started)) return;
       if (renderer.gl.getError() !== renderer.gl.NO_ERROR) throw new Error('First draw failed');
       geometryDirty = false;
+      refreshState();
       if (running()) frame = requestAnimationFrame(draw);
     } catch (error) { fail(error); }
     finally { initializing = false; }
   };
 
   const schedule = () => {
+    refreshState();
     if (!eligible()) { fallback(); return; }
     if (!pageActive || !visible || document.hidden) { stop(); return; }
     if (renderer) {
@@ -319,18 +379,19 @@ function enhanceCover(cover) {
     idle = 0;
   });
   window.addEventListener('pageshow', () => { pageActive = true; schedule(); });
+  refreshState();
 }
 
 function createRenderer(canvas, skyline, disk, diskImage) {
   // A null context or any compile/link/upload error leaves both original pictures untouched.
   const gl = canvas.getContext('webgl', { alpha: true, premultipliedAlpha: true, antialias: false, depth: false, stencil: false, powerPreference: 'low-power' });
-  if (!gl) throw new Error('No WebGL');
+  if (!gl) throw Object.assign(new Error('No WebGL'), { code: 'NO_WEBGL' });
   // Software rasterisers (no GPU: SwiftShader, llvmpipe, Microsoft Basic Render) run the shader on the CPU
   // main thread and block input for seconds. Keep the static artwork there. ?lensing=force overrides for capture rigs.
   const debugInfo = typeof gl.getExtension === 'function' ? gl.getExtension('WEBGL_debug_renderer_info') : null;
   const rendererName = debugInfo && typeof gl.getParameter === 'function' ? String(gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) || '') : '';
   if (/swiftshader|llvmpipe|softpipe|software|basic render/i.test(rendererName) && !/[?&]lensing=force\b/.test(globalThis.location?.search || '')) {
-    const error = new Error('Software WebGL renderer'); error.code = 'SOFTWARE_GL'; throw error;
+    const error = new Error('Software WebGL renderer'); error.code = 'SOFTWARE_GL'; error.rendererName = rendererName; throw error;
   }
   const shaders = [];
   let program, buffer;
@@ -417,7 +478,7 @@ function createRenderer(canvas, skyline, disk, diskImage) {
     gl.uniform1i(uniforms.uSky, 0);
     gl.uniform1i(uniforms.uArtwork, 1);
     return {
-      gl, dispose,
+      gl, dispose, rendererName: rendererName || 'masked',
       resize() {
         const box = canvas.getBoundingClientRect();
         const skyBox = skyline.getBoundingClientRect();
@@ -433,8 +494,8 @@ function createRenderer(canvas, skyline, disk, diskImage) {
         // Reproduce object-fit: cover, object-position and the existing sky's scale transform.
         const original = sourcePixels(skyline);
         const mobileCrop = original.width / original.height < 1.1;
-        gl.uniform2f(uniforms.uSourceOrigin, mobileCrop ? 2100 / 5472 : 0, mobileCrop ? 500 / 3648 : 0);
-        gl.uniform2f(uniforms.uSourceScale, mobileCrop ? 2800 / 5472 : 1, mobileCrop ? 2800 / 3648 : 1);
+        gl.uniform2f(uniforms.uSourceOrigin, mobileCrop ? 350 / 5472 : 0, 0);
+        gl.uniform2f(uniforms.uSourceScale, mobileCrop ? 3648 / 5472 : 1, 1);
         const scale = Math.max(skyBox.width / original.width, skyBox.height / original.height);
         const imageWidth = original.width * scale;
         const imageHeight = original.height * scale;

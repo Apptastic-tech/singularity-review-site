@@ -99,18 +99,12 @@ for (let page = 2; page <= Math.ceil(headlines.length / 10); page++) {
   assert.equal(textContent(nodes(dom).find(node => node.name === 'h1')), 'Singularity headline news');
   assert.equal(byClass(dom, 'card-row').length, 0); assert.equal(byClass(dom, 'author-shelf').length, 0);
 }
-const archive = await readPage('featured/index.html');
-if (featured.length) {
-  const grid = checkGrid(archive, featured, 'h3');
-  const all = nodes(archive), title = all.find(node => node.attribs.id === 'featured-archive');
-  assert.equal(title.name, 'h2'); assert.equal(textContent(title), 'All featured articles');
-  assert.ok(all.indexOf(byClass(archive, 'author-shelf')[0]) < all.indexOf(title) && all.indexOf(title) < all.indexOf(grid));
-}
-for (const category of new Set(articles.map(item => item.category))) checkGrid(await readPage('category/' + slugify(category) + '/index.html'), articles.filter(item => item.category === category), 'h2');
-for (const author of new Set(articles.map(item => item.author).filter(author => author !== 'Singularity Review'))) checkGrid(await readPage('authors/' + slugify(author) + '/index.html'), articles.filter(item => item.author === author), 'h2');
-for (const article of articles) {
-  const dom = await readPage('articles/' + article.slug + '/index.html'), more = articles.filter(item => item.slug !== article.slug).slice(0,4);
-  if (more.length) checkRow(dom, more, 'Read next'); else assert.equal(byClass(dom, 'card-row').length, 0);
+// Featured, author, category and read-next routes use the approved story blocks.
+for (const file of (await fs.readdir('_site',{recursive:true})).filter(file=>/^(?:featured|authors|category|articles)\/.*index\.html$/.test(file))) {
+  const dom=await readPage(file);
+  assert.equal(byClass(dom,'post-card').length,0,file+': headline cards are excluded');
+  assert.equal(byClass(dom,'card-row').length,0,file+': headline rows are excluded');
+  if (!file.startsWith('featured/') || featured.length) assert.ok(byClass(dom,'story-block').length > 0 || articles.length < 2);
 }
 for (const width of [320,390,639,640,768,959,960,1440,1920]) {
   const get = selector => styleAt(rules, selector, width, 900);
@@ -142,4 +136,4 @@ if (headlines.length) {
   for (const [from,to] of [['tabindex="0" aria-label="Singularity headline news','tabindex="-1" aria-label="Singularity headline news'], ['aria-controls="headline-news-track"','aria-controls="wrong-track"'], ['class="post-card-meta"','class="missing-meta"']]) assert.throws(() => checkRow(parseDocument(fixture.replace(from,to)), headlines.slice(0,10), 'Singularity headline news', true), 'Broken row/card positive control fails');
 }
 verifyCardRowRuntime(await fs.readFile('src/js/card-row.js', 'utf8'));
-console.log('CARDS VERIFIED: exact image-first cards, inline metadata, responsive grids, homepage and read-next rows, focus, peeking, arrows, keyboard, reduced motion and Node runtime controls. Browser geometry was not run.');
+console.log('CARDS VERIFIED: exact image-first cards, inline metadata, responsive grids, headline-only rows and archives, approved story-block split, focus, peeking, arrows, keyboard, reduced motion and Node runtime controls. Browser geometry was not run.');

@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import sharp from 'sharp';
 import { sentenceTitle } from '../src/_lib/editorial.js';
 import { checkHeroControls } from './hero-contract.mjs';
-import { publishedArticles, cardLinks, carouselLinks, articleUrl, verifyNavigation } from './verification-helpers.mjs';
+import { publishedArticles, cardLinks, blockLinks, carouselLinks, articleUrl, verifyNavigation } from './verification-helpers.mjs';
 
 const root = process.cwd();
 const out = path.join(root, '_site');
@@ -69,7 +69,7 @@ assert.equal((home.match(/loading="lazy" fetchpriority="auto" class="post-card-i
 if (headlines.length) assert.match(home, /rel="preload" as="image" type="image\/avif"/);
 assert.deepEqual(carouselLinks(home), featured.map(articleUrl));
 const featuredPage = await html('featured/index.html');
-assert.deepEqual(cardLinks(featuredPage), featured.map(articleUrl));
+assert.deepEqual(blockLinks(featuredPage), featured.map(articleUrl));
 assert.deepEqual(carouselLinks(featuredPage), featured.map(articleUrl));
 verifyNavigation(featuredPage, '/featured/');
 verifyNavigation(await html('about/index.html'), '/about/');
@@ -80,7 +80,7 @@ for (const route of ['about/index.html','featured/index.html','what-is-singulari
 for (const category of new Set(articles.map(article => article.category))) {
   const slug = category.toLowerCase().replace(/[^a-z0-9]+/g,'-');
   const page = await html(`category/${slug}/index.html`);
-  assert.deepEqual(cardLinks(page), articles.filter(article => article.category === category).map(articleUrl));
+  assert.deepEqual(blockLinks(page), articles.filter(article => article.category === category).map(articleUrl));
   assert.equal((page.match(/data-card/g)||[]).length, articles.filter(article => article.category===category).length);
 }
 const totalPages = Math.max(1, Math.ceil(headlines.length/10));

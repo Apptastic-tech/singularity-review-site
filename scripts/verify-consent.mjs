@@ -55,10 +55,10 @@ for (const file of sourceFiles) assert.doesNotMatch(await read(file), cookieWrit
 const storageFiles = sourceFiles.filter(file => file.endsWith('.js'));
 const storageUsers = [];
 for (const file of storageFiles) if (/\b(?:localStorage|sessionStorage)\b/.test(await read(file))) storageUsers.push(file);
-assert.deepEqual(storageUsers.sort(), ['src/js/article.js', 'src/js/consent.js', 'src/js/newsletter.js', 'src/js/site.js']);
+assert.deepEqual(storageUsers.sort(), ['src/js/article.js', 'src/js/consent.js', 'src/js/lensing.js', 'src/js/newsletter.js', 'src/js/site.js']);
 const storageSource = (await Promise.all(storageUsers.map(read))).join('\n');
 const declaredKeys = new Set([...storageSource.matchAll(/['"`](sr-[^'"`]+)['"`]/g)].map(match => match[1]));
-assert.deepEqual([...declaredKeys].sort(), ['sr-consent', 'sr-newsletter', 'sr-newsletter-session', 'sr-react:${slug}:${k}', 'sr-sky-paused'].sort(), 'Storage inventory must be updated for any new key');
+assert.deepEqual([...declaredKeys].sort(), ['sr-consent', 'sr-newsletter', 'sr-newsletter-session', 'sr-react:${slug}:${k}', 'sr-sky-paused', 'sr-lensing-debug'].sort(), 'Storage inventory must be updated for any new key');
 assert.match(consent, /const CONSENT_VERSION = '2026-10-10'/);
 assert.match(consent, /value\.version === CONSENT_VERSION/);
 for (const text of ["'sr-consent'", 'window.srConsent', "CustomEvent('sr:consent'", 'onChange(callback)', 'dialog.showModal()', "event.key !== 'Tab'", "'cancel'"]) assert.ok(consent.includes(text));

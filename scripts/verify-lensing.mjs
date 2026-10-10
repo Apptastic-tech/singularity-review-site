@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import vm from 'node:vm';
+import { coverLayout } from './static-layout.mjs';
 
 // Deterministic lifecycle and geometry checks. No server, browser, GPU or production requests.
 // Actual driver compilation, pixels and frame rate remain the owner's rendered review.
@@ -28,7 +29,7 @@ function classes() {
 function runtime(options = {}) {
   let timestamp = 0, nextId = 0, performanceTime = 0;
   const frames = new Map(), idle = new Map(), observers = [], resizes = [];
-  const calls = { contexts: 0, draws: [], deleted: [], shaders: [], uniforms: new Map(), uploads: 0, mipmaps: 0, filters: [], resamples: [] };
+  const calls = { contexts: 0, draws: [], deleted: [], shaders: [], uniforms: new Map(), uploads: 0, mipmaps: 0, filters: [], resamples: [], badges: [] };
   const noop = () => {};
   const gl = {
     VERTEX_SHADER: 1, FRAGMENT_SHADER: 2, COMPILE_STATUS: 3, LINK_STATUS: 4, NO_ERROR: 0,
@@ -38,7 +39,8 @@ function runtime(options = {}) {
     getProgramParameter: () => !options.linkFailure, useProgram: noop,
     createBuffer: () => ({}), createTexture: () => ({}),
     MAX_TEXTURE_SIZE: 10, TEXTURE0: 11, TEXTURE1: 12, TEXTURE_MIN_FILTER: 13, LINEAR: 14, LINEAR_MIPMAP_LINEAR: 15,
-    getParameter: () => options.textureLimit || 4096,
+    getExtension: () => options.maskedRenderer ? null : { UNMASKED_RENDERER_WEBGL: 99 },
+    getParameter: key => key === 99 ? (options.rendererName || 'Apple M5') : options.textureLimit || 4096,
     generateMipmap: () => { calls.mipmaps++; if (options.mipmapFailure) throw new Error('Mipmap failed'); },
     bindBuffer: noop, bufferData: noop, getAttribLocation: () => 0, enableVertexAttribArray: noop,
     vertexAttribPointer: noop, activeTexture: noop, bindTexture: noop, texParameteri: (target, parameter, value) => calls.filters.push([parameter, value]), pixelStorei: noop,
@@ -57,7 +59,8 @@ function runtime(options = {}) {
     deleteBuffer: value => calls.deleted.push(value), deleteTexture: value => calls.deleted.push(value),
   };
   let width = options.width || 390;
-  const height = () => width < 640 ? 640 : 560;
+  const layout = () => coverLayout(css,width,844);
+  const height = () => layout().bandHeight;
   const box = () => {
     const diskWidth = width < 640 ? width - 48 : Math.min(width * .75, 640);
     const diskHeight = diskWidth * 9 / 16;
@@ -83,7 +86,7 @@ function runtime(options = {}) {
     currentSrc: options.densityCorrected ? 'https://example.org/img/sky-3840.avif' : undefined,
     style: { transform: '' },
     decode: async () => { if (options.decodeFailure) throw new Error('Decode failed'); },
-    getBoundingClientRect: () => ({ left: 0, top: 0, width, height: height() }),
+    getBoundingClientRect: () => ({ left: 0, top: 0, width, height: layout().sky.boxHeight }),
   });
   if (options.densityCorrected) {
     skyline.naturalWidth = width; skyline.naturalHeight = width;
@@ -98,19 +101,26 @@ function runtime(options = {}) {
   const reduced = events({ matches: !!options.reducedMotion });
   const connection = events({ saveData: !!options.saveData });
   const document = events({
-    createElement: () => ({ width: 0, height: 0, getContext: () => options.no2D ? null : { drawImage: (...args) => calls.resamples.push(args) } }),
+    body: { append: badge => calls.badges.push(badge) },
+    createElement: () => ({ setAttribute(name,value) { this[name]=value; }, width: 0, height: 0, getContext: () => options.no2D ? null : { drawImage: (...args) => calls.resamples.push(args) } }),
     hidden: !!options.hidden,
     querySelector: selector => selector === '[data-cover]' && !options.noCover ? cover : null,
     querySelectorAll: () => [],
   });
   const savedState = new Map(options.persistedPause ? [['sr-sky-paused', 'true']] : []);
+  if(options.debugStorage) savedState.set('sr-lensing-debug','1');
+  let measuring = false;
   const context = events({
+    location: { search: options.query || '' },
     localStorage: { getItem: key => savedState.get(key), setItem: (key, value) => savedState.set(key, value) },
     document, navigator: { connection }, innerWidth: width, innerHeight: 844, scrollY: 0,
     devicePixelRatio: options.dpr || 3,
     matchMedia: query => query.includes('reduced-motion') ? reduced : events({ matches: false }),
-    getComputedStyle: () => ({ objectPosition: '50% 60%', transform: 'none' }),
-    performance: { now: () => { performanceTime += options.drawCost || 0; return performanceTime; } },
+    getComputedStyle: () => ({ objectPosition: layout().get('.cover-sky-image')['object-position'], transform: 'none' }),
+    performance: { now: () => {
+      if(measuring) performanceTime += options.drawCosts?.[calls.draws.length-1] ?? options.drawCost ?? 0;
+      measuring = !measuring; return performanceTime;
+    } },
     requestAnimationFrame: callback => { const id = ++nextId; frames.set(id, callback); return id; },
     cancelAnimationFrame: id => frames.delete(id),
     requestIdleCallback: callback => { const id = ++nextId; idle.set(id, callback); return id; },
@@ -152,12 +162,14 @@ for (const option of ['reducedMotion', 'saveData', 'hidden']) {
   const test = runtime({ [option]: true }); await test.boot();
   assert.equal(test.calls.contexts, 0, `${option} keeps original images without a GPU context`);
   assert.ok(!test.cover.classList.contains('has-lensing'));
+  assert.equal(test.cover.dataset.lensingState,({reducedMotion:'static-reduced-motion',saveData:'static-save-data',hidden:'paused'})[option]);
 }
 for (const option of ['noWebGL', 'compileFailure', 'linkFailure', 'uploadFailure', 'artUploadFailure', 'mipmapFailure', 'decodeFailure', 'artDecodeFailure', 'no2D', 'drawFailure', 'firstDrawError']) {
   const test = runtime({ [option]: true }); await test.boot();
   assert.ok(!test.cover.classList.contains('has-lensing'), `${option} restores original art`);
   assert.equal(test.frames.size, 0, `${option} cannot leave a render loop running`);
   if (!['noWebGL', 'decodeFailure', 'artDecodeFailure'].includes(option)) assert.ok(test.calls.deleted.length, `${option} releases GPU objects`);
+  assert.equal(test.cover.dataset.lensingState,option==='noWebGL'?'static-no-webgl':'static-error');
   const contexts = test.calls.contexts;
   await test.visibility(false); await test.visibility(true); await test.boot();
   assert.equal(test.calls.contexts, contexts, `${option} does not retry a broken renderer`);
@@ -196,20 +208,24 @@ for (const paused of [false, true]) {
 const shrinking = runtime({ skyWidth: 1440, width: 1920 }); await shrinking.boot();
 await shrinking.resize(390); await shrinking.boot();
 assert.ok(shrinking.cover.classList.contains('has-lensing'), 'A smaller viewport can reuse a previously insufficient source');
+assert.equal(shrinking.cover.dataset.lensingState,'running');
 const savedPause = runtime({ withSite: true, persistedPause: true }); await savedPause.boot();
 assert.equal(savedPause.cover.dataset.skyMotion, 'paused');
 assert.equal(savedPause.toggle.attributes.get('aria-label'), 'Play sky animation');
+assert.equal(savedPause.cover.dataset.lensingState,'paused');
 assert.equal(savedPause.frames.size, 0, 'A restored pause cannot animate before interaction');
 const density = runtime({ densityCorrected: true }); await density.boot();
 assert.ok(density.cover.classList.contains('has-lensing'), 'Density-corrected responsive dimensions use the resource width');
 assert.deepEqual(density.calls.resamples[0].slice(3), [2048, 1024], 'Artwork mipmaps use original pixels instead of CSS density dimensions');
 const lazy = runtime();
+assert.equal(lazy.cover.dataset.lensingState,'paused');
 assert.equal(lazy.frames.size, 0, 'No work before hero intersection');
 await lazy.visibility(true); assert.equal(lazy.calls.contexts, 0);
 await lazy.step(); assert.equal(lazy.calls.contexts, 0, 'Wait for first paint opportunity');
 await lazy.step(); assert.equal(lazy.calls.contexts, 0, 'Wait for idle work');
 await lazy.flushIdle(); assert.ok(lazy.cover.classList.contains('has-lensing'));
 assert.equal(lazy.skyline.style.transform, 'none', 'Freeze the current sky pose without a handover jump');
+assert.equal(lazy.cover.dataset.lensingState,'running');
 assert.equal(lazy.calls.shaders.length, 2, 'Exactly one vertex and one fragment shader');
 assert.equal(lazy.calls.uploads, 2, 'Reuse the decoded skyline and fallback artwork');
 assert.equal(lazy.calls.mipmaps, 1, 'Photograph gets mipmaps');
@@ -329,8 +345,8 @@ assert.match(source, /float photonLock/);
 assert.match(source, /color = 1\.0 - \(1\.0 - color\) \* \(1\.0 - clamp\(emission/);
 assert.doesNotMatch(source, /diskLight|radius \* (72|137|18|37)\.0/, 'No high-frequency procedural ring bands');
 const smoothstep = (low, high, value) => { const x = Math.max(0, Math.min(1, (value-low)/(high-low))); return x*x*(3-2*x); };
-const boundary = x => .84 - .08*smoothstep(.38,.46,x) - .10*Math.exp(-(((x-.61)/.05)**2)) - .18*smoothstep(.80,.88,x);
-const foregroundPoints = [[.61, .70], [.60, .73], [.65, .78], [.75, .83], [.88, .70], [.94, .62], [.30, .90]];
+const boundary = x => .84 - .08*smoothstep(.38,.46,x) - .18*Math.exp(-(((x-.64)/.064)**2)) - .18*smoothstep(.80,.88,x);
+const foregroundPoints = [[.64,.603], [.62,.62], [.61, .70], [.60, .73], [.65, .78], [.75, .83], [.88, .70], [.94, .62], [.30, .90]];
 assert.ok(0.20 < boundary(0.50) - 0.028, 'Mask positive control leaves open sky available');
 for (const [x, y] of foregroundPoints) assert.ok(y >= boundary(x) - 0.04, `Dome, tree and mountain point ${x},${y} is fully excluded`);
 for (let x=.01; x<1; x+=.01) assert.ok(Math.abs(boundary(x)-boundary(x-.001)) < .004, 'Foreground mask has no step edges');
@@ -363,4 +379,51 @@ for (const width of [390, 768, 1024, 1280, 1440, 1920, 2560]) {
 console.log('LENSING VERIFIED: lazy start, failure cleanup, reduced motion, Save-Data, pause/resume, visibility, BFCache, two-texture reuse, mipmapped photograph, responsive source refresh, expanded field sizing, DPR caps, simulated 60/30fps pacing, shader contract and seven-width foreground geometry');
 
 assert.doesNotMatch(source, /pointermove|mousemove|uPointer|uCursor|spotlight/i);
-assert.match(source, /uTime \* 0\.025 \/ pow/);
+assert.match(source, /uTime \* 0\.6 \/ pow/);
+
+// Every observable fallback has its own state. Warm-up and isolated stalls never disable a GPU.
+assert.doesNotMatch(source,/console\s*\.\s*\w+\s*\(/,'No console logging in production lensing');
+assert.match(source,/float influence = 1\.0 - smoothstep\(3\.8, 4\.5, r\)/);
+assert.match(source,/float dragAngle = uTime \* dragRate \* influence/);
+assert.match(source,/0\.18 \* smoothstep\(1\.5, 2\.5, r\)/);
+assert.match(source,/1\.0 \+ 0\.12 \* sin\(uTime \* 0\.785398\)/);
+assert.match(source,/original \* 0\.50 \+ orbitLight \* 0\.50/);
+assert.match(source,/0\.09 \* sin\(flowAngle/);
+assert.match(source,/0\.06 \* sin\(atan\(p\.y, p\.x\)/);
+for(const rendererName of ['Google SwiftShader','llvmpipe','softpipe','Microsoft Basic Render Driver']) {
+ const test=runtime({rendererName});await test.boot();assert.equal(test.cover.dataset.lensingState,'static-software-gl');
+}
+for(const rendererName of ['Apple M5','ANGLE (Apple M5, Metal)','Intel Iris Xe','NVIDIA RTX 4090']) {
+ const test=runtime({rendererName});await test.boot();assert.equal(test.cover.dataset.lensingState,'running');
+}
+const masked=runtime({maskedRenderer:true});await masked.boot();assert.equal(masked.cover.dataset.lensingState,'running');
+const sourcePending=runtime({skyWidth:1280,width:1920});await sourcePending.boot();assert.equal(sourcePending.cover.dataset.lensingState,'pending-source');
+const sustained=runtime({drawCost:25});await sustained.boot();
+for(let i=0;i<15;i++)await sustained.step();
+assert.equal(sustained.cover.dataset.lensingState,'running','Five warm-up draws and eleven heavy draws remain eligible');
+await sustained.step();assert.equal(sustained.cover.dataset.lensingState,'static-frame-budget','Twelfth heavy draw triggers fallback');
+const belowThreshold=runtime({drawCost:24});await belowThreshold.boot();for(let i=0;i<90;i++)await belowThreshold.step();
+assert.equal(belowThreshold.cover.dataset.lensingState,'running','Exactly 24ms is not heavy');
+for(const drawCosts of [[...Array(5).fill(100),...Array(100).fill(0)], [100], [...Array(59).fill(0), ...Array(100).fill(100)]]) {
+ const test=runtime({drawCosts});await test.boot();for(let i=0;i<150;i++)await test.step();
+ assert.equal(test.cover.dataset.lensingState,'running','Warm-up, a single stall and late heavy draws stay active');
+}
+const forced=runtime({query:'?lensing=force',rendererName:'SwiftShader',drawCost:100});await forced.boot();for(let i=0;i<90;i++)await forced.step();
+assert.equal(forced.cover.dataset.lensingState,'running');assert.equal(forced.calls.badges.length,0,'Force does not imply debug');
+for(const options of [{},{query:'?lensing=debug'},{debugStorage:true},{query:'?lensing=debug',noWebGL:true},{debugStorage:true,maskedRenderer:true},{debugStorage:true,reducedMotion:true}]) {
+ const test=runtime(options);await test.boot();for(let i=0;i<90;i++)await test.step();
+ assert.equal(test.calls.badges.length,options.query||options.debugStorage?1:0);
+ if(test.calls.badges.length) {
+  const badge=test.calls.badges[0];assert.equal(badge.className,'lensing-debug');assert.equal(badge['aria-hidden'],'true');
+  assert.ok(badge.textContent.includes(test.cover.dataset.lensingState));assert.match(badge.textContent,/fps \| [\d.]+ ms/);
+  if(options.maskedRenderer)assert.match(badge.textContent,/masked/);
+  if(test.cover.dataset.lensingState==='running'){const fps=Number(badge.textContent.match(/([\d.]+) fps/)[1]);assert.ok(fps>55 && fps<65,'Badge exposes measured frame rate');}
+ }
+}
+const states=runtime();await states.boot();states.cover.dataset.skyMotion='paused';states.cover.emit('sky-motion-change');assert.equal(states.cover.dataset.lensingState,'paused');
+states.cover.dataset.skyMotion='running';states.cover.emit('sky-motion-change');assert.equal(states.cover.dataset.lensingState,'running');
+await states.visibility(false);assert.equal(states.cover.dataset.lensingState,'paused');await states.visibility(true);assert.equal(states.cover.dataset.lensingState,'running');
+states.document.hidden=true;states.document.emit('visibilitychange');assert.equal(states.cover.dataset.lensingState,'paused');states.document.hidden=false;states.document.emit('visibilitychange');
+states.reduced.matches=true;states.reduced.emit('change');assert.equal(states.cover.dataset.lensingState,'static-reduced-motion');
+states.reduced.matches=false;states.reduced.emit('change');await states.boot();states.connection.saveData=true;states.connection.emit('change');assert.equal(states.cover.dataset.lensingState,'static-save-data');
+console.log('LENSING STATES VERIFIED: nine runtime states, real/software renderer split, first-five warm-up, twelve heavy draws in sixty, debug flags, no console calls and continuous motion constants. Real GPU pixel targets remain owner-run.');

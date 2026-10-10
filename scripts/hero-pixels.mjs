@@ -27,13 +27,13 @@ function sample(image, x, y) {
   return mix(mix(pixel(x0, y0), pixel(x1, y0), x - x0), mix(pixel(x0, y1), pixel(x1, y1), x - x0), y - y0);
 }
 export function fadeAt(y, bandHeight) {
-  const stops = [[0, 1], [.62, 1], [.70, .92], [.80, .65], [.90, .25], [1, 0]], position = y / bandHeight;
+  const stops = [[0, 1], [.82, 1], [.86, .92], [.88, .65], [.90, .25], [1, 0]], position = y / bandHeight;
   let index = 1; while (index < stops.length - 1 && position > stops[index][0]) index++;
   const [a, av] = stops[index - 1], [b, bv] = stops[index];
   return clamp(av + (bv - av) * (position - a) / (b - a));
 }
 export async function statementBoxes(layout, width, height) {
-  assert.ok(layout.statement.top > Math.max(layout.diskBottom, layout.lensingRegionBottom), 'Statement clears static disk and lensing region');
+  assert.ok(layout.statement.top > layout.diskBottom && layout.gap <= .55 * layout.oldGap, 'Statement clears the disk with the halved gap');
   const output = path.resolve('.audit/hero-statement/static');
   await fs.mkdir(output + '/font-cache', { recursive: true });
   await fs.writeFile(output + '/fonts.conf', `<?xml version="1.0"?><!DOCTYPE fontconfig SYSTEM "urn:fontconfig:fonts.dtd"><fontconfig><dir>${path.resolve('_site/fonts')}</dir><cachedir>${output}/font-cache</cachedir></fontconfig>`);
@@ -84,16 +84,13 @@ export function statementScrim(layout, boxes, width, height) {
 }
 export async function surfaces(layout, width, skyUrl, artUrl) {
   const skyImage = await decode(skyUrl), artImage = await decode(artUrl), bandHeight = layout.bandHeight;
-  const scale = Math.max(width / skyImage.info.width, bandHeight / skyImage.info.height);
-  const skyWidth = skyImage.info.width * scale, skyHeight = skyImage.info.height * scale;
-  const skyLeft = (width - skyWidth) * .5, skyTop = (bandHeight - skyHeight) * .6;
-  const mobile = skyImage.info.width / skyImage.info.height < 1.1;
-  const sourceOrigin = mobile ? [2100 / 5472, 500 / 3648] : [0, 0], sourceScale = mobile ? [2800 / 5472, 2800 / 3648] : [1, 1];
+  const { left: skyLeft, top: skyTop, width: skyWidth, height: skyHeight, crop } = layout.sky;
+  const sourceOrigin = [crop.left / 5472, crop.top / 3648], sourceScale = [crop.width / 5472, crop.height / 3648];
   const disk = layout.disk, radius = disk.width * .109;
   const center = [disk.left + disk.width * .51, disk.top + disk.height * .48];
   const boundary = x => {
     x = sourceOrigin[0] + x * sourceScale[0];
-    const value = .84 - .08 * smooth(.38, .46, x) - .10 * Math.exp(-(((x - .61) / .05) ** 2)) - .18 * smooth(.80, .88, x);
+    const value = .84 - .08 * smooth(.38, .46, x) - .18 * Math.exp(-(((x - .64) / .064) ** 2)) - .18 * smooth(.80, .88, x);
     return (value - sourceOrigin[1]) / sourceScale[1];
   };
   const skyPixel = (u, v, bent = false) => sample(skyImage, u, bent ? Math.min(v, boundary(u) - .032) : v);
@@ -108,19 +105,20 @@ export async function surfaces(layout, width, skyUrl, artUrl) {
   };
   const photograph = (x, y, time = null) => {
     const u = (x - skyLeft) / skyWidth, v = (y - skyTop) / skyHeight;
-    const originalSky = skyPixel(u, v);
+    const originalSky = mix(ink, skyPixel(u, v), width < 1440 ? 1 - clamp((y / layout.sky.boxHeight - .78) / .22) : 1);
     const artUV = [(x - disk.left) / disk.width, (y - disk.top) / disk.height];
     const p = [(x - center[0]) / radius, (y - center[1]) / radius], r = Math.hypot(...p);
     if (time == null) {
       const shadow = r < .114 / .109 ? [0, 0, 0] : originalSky;
       return screen(shadow, artPixel(...artUV, false));
     }
-    const influence = 1 - smooth(2, 4.5, r), foreground = 1 - smooth(boundary(u) - .04, boundary(u) - .02, v), alpha = foreground * influence;
+    const influence = 1 - smooth(3.8, 4.5, r), foreground = 1 - smooth(boundary(u) - .04, boundary(u) - .02, v), alpha = foreground * influence;
     if (!alpha) return originalSky;
     const skyMask = 1 - smooth(boundary(u) - .11, boundary(u) - .04, v);
-    const direction = p.map(x => x / Math.max(r, .001)), deflection = 1.4 / Math.max(r, .25) * influence ** 3;
-    const drift = [Math.sin(time * .018) * .04, (Math.cos(time * .015) - 1) * .04], units = [radius / skyWidth, radius / skyHeight];
-    const displaced = [u, v].map((x, i) => x + (-direction[i] * deflection + drift[i] * influence) * units[i] * skyMask);
+    const direction = p.map(x => x / Math.max(r, .001)), deflection = 1.4 / Math.max(r, .25) * influence ** 3 * (1 + .12 * Math.sin(time * .785398));
+    const drift = [Math.sin(time * .16) * .04, (Math.cos(time * .13) - 1) * .04], units = [radius / skyWidth, radius / skyHeight];
+    const bent = rotate(p.map((value, i) => value - direction[i] * deflection), time * (Math.min(.70 / Math.max(r*r, 1), .70) + .18 * smooth(1.5,2.5,r)) * influence);
+    const displaced = [u, v].map((x, i) => x + (bent[i] - p[i] + drift[i] * influence) * units[i] * skyMask);
     const critical = Math.exp(-(((r - 1.18) / .12) ** 2)), tangent = [-direction[1], direction[0]];
     const smear = tangent.map((x, i) => x * units[i] * (.01 + critical * .035));
     let background = skyPixel(...displaced, true).map(x => x * .4);
@@ -130,15 +128,19 @@ export async function surfaces(layout, width, skyUrl, artUrl) {
     }
     background = mix(originalSky, background, skyMask);
     const inclined = rotate(p, .22), plane = [inclined[0], inclined[1] / .24], diskRadius = Math.hypot(...plane);
-    const orbitPlane = rotate(plane, -time * .025 / Math.max(diskRadius, 1.2) ** 1.5), orbitPoint = rotate([orbitPlane[0], orbitPlane[1] * .24], -.22);
+    const orbitPlane = rotate(plane, -time * .6 / Math.max(diskRadius, 1.2) ** 1.5), orbitPoint = rotate([orbitPlane[0], orbitPlane[1] * .24], -.22);
     const original = artPixel(...artUV, true), movingPixel = artPixel(.51 + orbitPoint[0] * .109, .48 + orbitPoint[1] * .109 / .5625, true);
     const diskMask = (1 - smooth(.32, .72, Math.abs(inclined[1]))) * smooth(1.1, 1.6, diskRadius) * (1 - smooth(3.8, 5, diskRadius));
     const moving = diskMask * smooth(.04, .16, Math.abs(r - 1.14));
     // Bounded positive shimmer uses the shader's maximum noise contribution.
-    const shimmer = (1 + .012 * Math.sin(time * .38 + plane[0] * .7) + .004) * (1 - .04 * plane[0] / Math.max(diskRadius, 1));
-    const emission = mix(original, original.map((x, i) => x * .96 + movingPixel[i] * .04), moving).map(x => Math.max(0, Math.min(255, x * (1 - moving + moving * shimmer))));
+    const orbit = time * .6 / Math.max(diskRadius, 1.2) ** 1.5;
+    const flowAngle = Math.atan2(plane[1], plane[0]) - orbit;
+    const shimmer = (1 + .09 * Math.sin(flowAngle * 3 + diskRadius * .7) + .01) * (1 - .04 * plane[0] / Math.max(diskRadius, 1));
+    const photonLock = 1 - smooth(.04, .16, Math.abs(r - 1.14));
+    const pulse = 1 + .06 * Math.sin(Math.atan2(p[1], p[0]) - time * .6) * photonLock;
+    const emission = mix(original, original.map((x, i) => x * .50 + movingPixel[i] * .50), moving).map(x => Math.max(0, Math.min(255, x * (1 - moving + moving * shimmer) * pulse)));
     const aa = 1.5 / (Math.min(width < 640 ? 1.5 : 2, 2) * radius), shadow = smooth(1.04 - aa, 1.04 + aa, r);
-    return mix(originalSky, screen(background.map(x => x * shadow), emission), alpha);
+    return mix(originalSky, screen(background.map(x => x * shadow), emission.map(x => x * shadow)), alpha);
   };
   return { photograph, background: (x, y, time) => mix(ink, photograph(x, y, time), fadeAt(y, bandHeight)) };
 }

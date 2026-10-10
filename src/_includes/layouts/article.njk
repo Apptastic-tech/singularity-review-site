@@ -48,12 +48,8 @@ layout: layouts/base.njk
   </footer>
 </article>
 {% set more = collections.articles | exclude(page.url) | limit(4) %}
-{% ifAsync more.length %}
-{% set rowItems = more %}
-{% set rowTitle = "Read next" %}
-{% set rowId = "read-next" %}
-{% set rowTarget = "" %}
-{% set cardEager = false %}
-{% include "card-row.njk" %}
-{% endif %}
+{% if more.length %}<section class="read-next feed-width" aria-labelledby="next-heading">
+  <h2 class="section-title" id="next-heading">Read next</h2>
+  <div class="story-grid" data-feed>{% set storyHeading = "h3" %}{% asyncEach item in more %}{% include "story-block.njk" %}{% endeach %}</div>
+</section>{% endif %}
 <script src="{{ '/js/article.js' | asset }}" defer></script>

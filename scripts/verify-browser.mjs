@@ -77,8 +77,20 @@ try {
     const disk=await page.locator('.cover-disk').boundingBox();
     assert.ok(disk.x>=24&&disk.x+disk.width<=width-24,`${width}: complete black hole in frame`);
     const statement=await page.locator('.hero-statement').boundingBox();
-    const regionBottom=disk.y+disk.height*.48+disk.width*.109*4.5;
-    assert.ok(statement.y>disk.y+disk.height && statement.y>regionBottom, width+': statement below disk and lensing region');
+    const gap=statement.y-disk.y-disk.height,oldGap=disk.width*.198+24;
+    assert.ok(gap>0 && gap<=oldGap*.55,width+': gap halved and statement clears disk');
+    const domeLayout=await page.evaluate(()=>{
+      const image=document.querySelector('.cover-sky-image'),box=image.getBoundingClientRect();
+      const crop=image.naturalWidth/image.naturalHeight<1.1?{left:350,top:0,width:3648,height:3648}:{left:0,top:0,width:5472,height:3648};
+      const scale=Math.max(box.width/crop.width,box.height/crop.height),position=getComputedStyle(image).objectPosition.split(' ').map(v=>parseFloat(v)/100);
+      const left=box.left+(box.width-crop.width*scale)*position[0],top=box.top+(box.height-crop.height*scale)*position[1];
+      const dome={left:left+(.586*5472-crop.left)*scale,right:left+(.698*5472-crop.left)*scale,top:top+(.600*3648-crop.top)*scale,bottom:top+(.796*3648-crop.top)*scale};
+      const band=document.querySelector('.night-cover').getBoundingClientRect();
+      const intersects=[...document.querySelectorAll('.hero-statement h1,.hero-description')].some(element=>{const r=element.getBoundingClientRect();return dome.left<r.right && dome.right>r.left && dome.top<r.bottom && dome.bottom>r.top;});
+      return {dome,band:{top:band.top,bottom:band.bottom},intersects};
+    });
+    assert.ok(domeLayout.dome.left>=0 && domeLayout.dome.right<=width && domeLayout.dome.top>=domeLayout.band.top && domeLayout.dome.bottom<=domeLayout.band.bottom,width+': dome within band');
+    assert.equal(domeLayout.intersects,false,width+': dome outside H1 and subline');
     assert.equal(await page.locator('.hero-statement h1').textContent(),'The singularity is already here.');
     assert.equal(await page.locator('.hero-description').textContent(),"So many AI breakthroughs land every day that it's hard to keep up. We help you focus on what matters and leave out the noise.");
     assert.equal(await page.locator('.hero-statement p').count(),1);

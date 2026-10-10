@@ -1,5 +1,8 @@
 // A deliberately limited CSS oracle for reserved layout, never a browser substitute.
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+export const heroPhoto = JSON.parse(readFileSync(new URL('../src/_data/heroPhoto.json', import.meta.url)));
+export const intersects = (a, b) => a.left < b.left + b.width && a.left + a.width > b.left && a.top < b.top + b.height && a.top + a.height > b.top;
 
 export function cssRules(css, media = '') {
   const rules = [];
@@ -78,5 +81,16 @@ export function coverLayout(css, width, height) {
   // Include the full circular shader influence, a stricter bound than its shadow/ring.
   const diskBottom = disk.top + disk.height;
   const lensingRegionBottom = disk.top + disk.height * .48 + disk.width * .109 * 4.5;
-  return { rules, get, bandHeight, disk, diskBottom, lensingRegionBottom, statement, mastheadHeight, rowHeadingY };
+  const oldGap = diskWidth * .198 + 24;
+  const gap = statement.top - diskBottom;
+  const oldBandHeight = width < 640 ? Math.max(640, diskWidth * .7605 + 240) : width < 960 ? 720 : Math.max(720, Math.min(780, height * .7));
+  const skyStyle = get('.cover-sky');
+  const skyBoxHeight = skyStyle.height ? length(skyStyle.height, width, height, bandHeight, variables) : bandHeight;
+  const crop = width < 640 ? heroPhoto.mobileCrop : { left: 0, top: 0, ...heroPhoto.source };
+  const skyScale = Math.max(width / crop.width, skyBoxHeight / crop.height);
+  const skyWidth = crop.width * skyScale, skyHeight = crop.height * skyScale;
+  const position = get('.cover-sky-image')['object-position'].split(' ').map(value => parseFloat(value) / 100);
+  const sky = { left: (width - skyWidth) * position[0], top: (skyBoxHeight - skyHeight) * position[1], width: skyWidth, height: skyHeight, boxHeight: skyBoxHeight, crop };
+  const dome = { left: sky.left + (heroPhoto.dome.left * heroPhoto.source.width - crop.left) * skyScale, top: sky.top + (heroPhoto.dome.top * heroPhoto.source.height - crop.top) * skyScale, width: (heroPhoto.dome.right - heroPhoto.dome.left) * heroPhoto.source.width * skyScale, height: (heroPhoto.dome.bottom - heroPhoto.dome.top) * heroPhoto.source.height * skyScale };
+  return { rules, get, bandHeight, oldBandHeight, gap, oldGap, sky, dome, disk, diskBottom, lensingRegionBottom, statement, mastheadHeight, rowHeadingY };
 }

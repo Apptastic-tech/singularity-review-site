@@ -18,6 +18,7 @@ export async function publishedArticles(root) {
   return result.sort((a, b) => b.date - a.date);
 }
 
+export const blockLinks = html => [...html.matchAll(/class="story-block-link" href="([^"]+)"/g)].map(match => match[1]);
 export const cardLinks = html => [...html.matchAll(/class="post-card-link" href="([^"]+)"/g)].map(match => match[1]);
 export const carouselLinks = html => [...html.matchAll(/class="carousel-story" href="([^"]+)"/g)].map(match => match[1]);
 export const articleUrl = article => `/articles/${article.slug}/`;

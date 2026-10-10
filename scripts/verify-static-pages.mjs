@@ -34,8 +34,9 @@ for (const file of (await fs.readdir('_site', { recursive: true })).filter(x => 
   assert.equal(headings.length, 1, `${file}: one main h1`);
   const identity = file === 'index.html' ? 'home' : file.startsWith('articles/') ? 'article' : file.startsWith('featured/') ? 'featured' : file.startsWith('what-is-singularity/') ? 'explainer' : file.startsWith('about/') ? 'about' : file.startsWith('authors/') ? 'author' : file.startsWith('category/') ? 'category' : 'other';
   archetypes.add(identity);
-  for (const block of nodes.filter(node => hasClass(node, 'post-card'))) {
-    const body = block.children.find(node => hasClass(node, 'post-card-body')), media = block.children.find(node => hasClass(node, 'post-card-media'));
+  for (const block of nodes.filter(node => hasClass(node, 'post-card') || hasClass(node, 'story-block'))) {
+    const prefix=hasClass(block,'story-block')?'story-block':'post-card';
+    const body = block.children.find(node => hasClass(node, prefix+'-body')), media = block.children.find(node => hasClass(node, prefix+'-media'));
     assert.ok(body && media, `${file}: block media and text are separate siblings`);
     assert.ok(block.children.indexOf(media) < block.children.indexOf(body), `${file}: block text follows the image`);
     assert.ok(!ancestor(body, node => node.name === 'picture' || hasClass(node, 'post-card-media')), `${file}: block text is outside imagery`);
@@ -70,11 +71,13 @@ for (const file of (await fs.readdir('_site', { recursive: true })).filter(x => 
       assert.ok(layout.rowHeadingY < (width < 640 ? 900 : height + 80));
       assert.ok(!get('.card-row').transform, 'The row remains in normal flow');
       assert.equal(get('.post-card-media')['aspect-ratio'], '16 / 9');
+      assert.ok(layout.gap > 0 && layout.gap <= .55*layout.oldGap);
+      report.gap=layout.gap; report.oldGap=layout.oldGap; report.statementTop=layout.statement.top; report.dome=layout.dome;
       report.bandHeight = layout.bandHeight; report.rowHeadingDocumentY = layout.rowHeadingY;
     }
     viewportReports.push(report);
   }
-  pages.push({ file, archetype: identity, mainHeading: textContent(headings[0]).trim(), storyCount: nodes.filter(node => hasClass(node, 'post-card')).length, viewports: viewportReports });
+  pages.push({ file, archetype: identity, mainHeading: textContent(headings[0]).trim(), storyCount: nodes.filter(node => hasClass(node, 'post-card') || hasClass(node, 'story-block')).length, viewports: viewportReports });
 }
 for (const archetype of ['home','article','featured','explainer','about','author','category']) assert.ok(archetypes.has(archetype), `Requested ${archetype} page exists`);
 // Inspect every matching reading-surface rule, including responsive overrides.

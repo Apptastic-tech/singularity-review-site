@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createRequire } from 'node:module';
-// Owner-run only. The historical filename now verifies post cards and rows.
+// Owner-run only. Verify headline post cards and rows, plus the approved story blocks.
 // Run: node scripts/verify-blocks-browser.mjs http://localhost:8770
 const require = createRequire(path.join(process.env.BROWSER_RUNTIME_ROOT || '/Users/araratovsepian/Agent-RSOC-Platform/Agent-RSOC-Platform/investor-deck', 'package.json'));
 const { chromium } = require('playwright');
@@ -32,10 +32,19 @@ try {
       const layout = await page.evaluate(() => {
         const rect = element => { const r=element.getBoundingClientRect(); return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height}; };
         const cards=[...document.querySelectorAll('.post-card')].map(card => ({box:rect(card),media:rect(card.querySelector('.post-card-media')),meta:rect(card.querySelector('.post-card-meta')),title:rect(card.querySelector('.post-card-title')),excerpt:rect(card.querySelector('.post-card-excerpt')),category:rect(card.querySelector('.post-card-category')),date:rect(card.querySelector('time')),radius:getComputedStyle(card).borderRadius,headline:getComputedStyle(card.querySelector('.post-card-title')).fontWeight}));
-        const grid=document.querySelector('.post-grid');
-        return {cards,grid:grid ? {box:rect(grid),columns:getComputedStyle(grid).gridTemplateColumns.split(' ').length,gap:getComputedStyle(grid).gap} : null,overflow:document.documentElement.scrollWidth>innerWidth};
+        const stories=[...document.querySelectorAll('.story-block')].map(card=>({box:rect(card),media:rect(card.querySelector('.story-block-media')),category:rect(card.querySelector('.story-block-category')),title:rect(card.querySelector('.story-block-title')),excerpt:rect(card.querySelector('.story-block-dek')),date:rect(card.querySelector('time')),radius:getComputedStyle(card).borderRadius,headline:getComputedStyle(card.querySelector('.story-block-title')).fontWeight,font:getComputedStyle(card.querySelector('.story-block-title')).fontFamily,transform:getComputedStyle(card.querySelector('.story-block-category')).textTransform}));
+        const grid=document.querySelector('.post-grid,.story-grid');
+        return {cards,stories,grid:grid ? {box:rect(grid),columns:getComputedStyle(grid).gridTemplateColumns.split(' ').length,gap:getComputedStyle(grid).gap} : null,overflow:document.documentElement.scrollWidth>innerWidth};
       });
       assert.equal(layout.overflow,false,route+' '+width+': no page overflow');
+      const headlineRoute=route==='/' || route.startsWith('/page/');
+      if(headlineRoute)assert.equal(layout.stories.length,0,'Headline routes use post cards');
+      else {assert.equal(layout.cards.length,0,'Featured, author, category and read-next use story blocks');assert.equal(await page.locator('.card-row').count(),0);}
+      for(const story of layout.stories) {
+        assert.ok(Math.abs(story.media.width/story.media.height-3/2)<.01);
+        assert.equal(story.radius,width<640?'0px':'6px');assert.equal(story.headline,'500');assert.match(story.font,/Newsreader/);assert.equal(story.transform,'none');
+        assert.ok(story.category.top>=story.media.bottom && story.title.top>=story.category.bottom-.5 && story.excerpt.top>=story.title.bottom-.5 && story.date.top>=story.excerpt.bottom-.5);
+      }
       if (layout.grid) { assert.equal(layout.grid.columns,columns); assert.equal(layout.grid.gap,'32px 24px'); assert.ok(layout.grid.box.width<=1248 && layout.grid.box.left>=19); }
       for (const card of layout.cards) {
         assert.ok(Math.abs(card.media.width/card.media.height-16/9)<.01);
@@ -45,8 +54,9 @@ try {
         for (const text of [card.meta,card.title,card.excerpt]) assert.ok(text.left>=card.box.left && text.right<=card.box.right+.5);
       }
       if (layout.grid) {
-        for (let i=0;i<layout.cards.length;i+=columns) {
-          const row=layout.cards.slice(i,i+columns);
+        const items=layout.cards.length?layout.cards:layout.stories;
+        for (let i=0;i<items.length;i+=columns) {
+          const row=items.slice(i,i+columns);
           for (const card of row) { assert.ok(Math.abs(card.box.top-row[0].box.top)<1); assert.ok(Math.abs(card.box.bottom-row[0].box.bottom)<1); }
         }
       }
@@ -97,7 +107,7 @@ try {
         assert.equal(await page.evaluate(()=>getComputedStyle(document.activeElement,'::after').outlineStyle),'solid','Keyboard focus ring is visible');
       }
       assert.equal(await page.evaluate(()=>window.rowCLS),0,route+' '+width+': CLS zero');
-      reports.push({route,width,cards:layout.cards.length,columns:layout.grid?.columns||null});
+      reports.push({route,width,cards:layout.cards.length,stories:layout.stories.length,columns:layout.grid?.columns||null});
     }
     assert.deepEqual(errors,[]); await context.close();
   }
