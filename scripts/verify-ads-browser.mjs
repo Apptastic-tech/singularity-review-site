@@ -36,7 +36,7 @@ try {
     await home.scrollIntoViewIfNeeded(); await page.waitForTimeout(1000);
     assert.equal(await page.evaluate(() => window.adCLS), 0, width + ': homepage CLS zero');
     assert.equal(google.length, 0, 'Preview requests nothing after reject');
-    const article = await page.locator('.post-card-link').getAttribute('href');
+    const article = await page.locator('.post-card-link').first().getAttribute('href');
     await page.goto(new URL(article, base).href); await page.evaluate(() => document.fonts.ready);
     const slots = page.locator('.article-body [data-ad-slot]'); assert.ok(await slots.count() > 0);
     const before = await slots.locator('.ad-slot-reserved').evaluateAll(nodes => nodes.map(node => node.getBoundingClientRect().height));
