@@ -6,6 +6,7 @@ import sharp from 'sharp';
 import { parseDocument } from 'htmlparser2';
 import { findAll, textContent } from 'domutils';
 import { parseXml } from './xml.mjs';
+import { checkHeroControls } from './hero-contract.mjs';
 import { publishedArticles, cardLinks, carouselLinks, articleUrl, verifyNavigation } from './verification-helpers.mjs';
 
 const root = process.cwd();
@@ -56,6 +57,7 @@ try {
   const pageTitles = new Set(), pageDescriptions = new Set();
   for (let page = 1; page <= totalPages; page++) {
     const content = await html(page === 1 ? 'index.html' : `page/${page}/index.html`);
+    if (page === 1) checkHeroControls(content, await fs.readFile(path.join(temp, 'src/css/style.css'), 'utf8'));
     const dom = parseDocument(content), nodes = findAll(node => node.type === 'tag', dom.children);
     const title = textContent(nodes.find(node => node.name === 'title'));
     const description = nodes.find(node => node.name === 'meta' && node.attribs.name === 'description').attribs.content;
@@ -145,7 +147,7 @@ try {
   await fixture('only-featured', 'section: featured\n');
   rebuild();
   assert.match(await html('index.html'), /No headline articles are published yet/);
-  assert.match(await html('index.html'), /<h1>Hard to keep up with everything happening in the technological singularity\?<\/h1>/);
+  assert.match(await html('index.html'), /<h1>The singularity is already here\.<\/h1>/);
   assert.equal(carouselLinks(await html('index.html')).length, 1, 'A homepage without headlines still displays featured articles');
   assert.match(await html('index.html'), /src="\/js\/carousel\.js\?v=[^"]+" defer/);
   assert.ok(!(await html('featured/index.html')).includes('data-carousel-controls'));

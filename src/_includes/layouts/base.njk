@@ -15,6 +15,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   {% if site.legacyHosts and site.legacyHosts.length %}<script>(function(l,h,t){if(h.indexOf(l.hostname)>-1&&l.hostname!==t.replace(/^https?:\/\//,"")){l.replace(t+l.pathname+l.search+l.hash)}})(location,{{ site.legacyHosts | dump | safe }},{{ site.url | dump | safe }})</script>{% endif %}
   <title>{{ pageTitle }}</title>
+  {% if site.adsense.verificationMeta or site.adsense.client %}<meta name="google-adsense-account" content="{{ site.adsense.verificationMeta or site.adsense.client }}">{% else %}<!-- AdSense verification meta placeholder: set site.adsense.verificationMeta or client after approval. -->{% endif %}
   <meta name="description" content="{{ pageDescription }}">
   <link rel="canonical" href="{{ canonical }}">
   <link rel="alternate" hreflang="en" href="{{ canonical }}">
@@ -58,6 +59,7 @@
   <script src="{{ '/js/site.js' | asset }}" defer></script>
   <script src="{{ '/js/consent.js' | asset }}" defer></script>
   <script src="{{ '/js/newsletter.js' | asset }}" defer></script>
+  {% if site.adsense.client or site.adsense.preview %}<script src="{{ '/js/ads.js' | asset }}" data-ad-client="{{ site.adsense.client }}" data-ad-preview="{{ 'true' if site.adsense.preview else 'false' }}" defer></script>{% endif %}
   {% if homeFeed and pagination.pageNumber == 0 %}<script type="module" src="{{ '/js/lensing.js' | asset }}"></script>{% endif %}
   {% if hasCarousel and collections.featured.length and (not homeFeed or pagination.pageNumber == 0) %}<script src="{{ '/js/carousel.js' | asset }}" defer></script>{% endif %}
   <script type="application/ld+json">{% if jsonld %}{{ jsonld | safe }}{% else %}{% seoGraph %}{% endif %}</script>
@@ -101,8 +103,8 @@
         {{ newsletterForm("footer") }}
       </section>
       <div class="footer-bottom">
-        <p class="footer-copy">&copy; {{ site.year }} Singularity Review <span aria-hidden="true">·</span> <a href="/about/">About</a></p>
-        <nav class="footer-legal" aria-label="Legal"><a href="/privacy/">Privacy</a><a href="/cookies/">Cookies</a><a href="/editorial-standards/">Editorial standards</a><button class="privacy-link" type="button" data-consent-open hidden>Cookie settings</button></nav>
+        <p class="footer-copy">&copy; {{ site.year }} Singularity Review</p>
+        <nav class="footer-legal" aria-label="Legal" aria-labelledby="footer-legal-heading"><h2 class="footer-heading footer-legal-title" id="footer-legal-heading">Legal</h2><a href="/about/">About</a><a href="/contact/">Contact</a><a href="/editorial-standards/">Editorial standards</a><a href="/privacy/">Privacy</a><a href="/cookies/">Cookies</a><a href="/terms/">Terms</a><button class="privacy-link" type="button" data-consent-open hidden>Cookie settings</button></nav>
         <p class="photo-credit skyline-credit">Skyline: <a href="https://commons.wikimedia.org/wiki/File:Kitt_Peak_at_Night_(3S8A6804).jpg">Kitt Peak at Night</a>, KPNO/NOIRLab/NSF/AURA/P. Marenfeld, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Colour graded; satellite trail removed.</p>
       </div>
     </div>

@@ -1,4 +1,5 @@
 // Decoded-pixel reconstruction. This models CSS and GLSL; it does not execute a GPU.
+import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import sharp from 'sharp';
@@ -32,6 +33,7 @@ export function fadeAt(y, bandHeight) {
   return clamp(av + (bv - av) * (position - a) / (b - a));
 }
 export async function statementBoxes(layout, width, height) {
+  assert.ok(layout.statement.top > Math.max(layout.diskBottom, layout.lensingRegionBottom), 'Statement clears static disk and lensing region');
   const output = path.resolve('.audit/hero-statement/static');
   await fs.mkdir(output + '/font-cache', { recursive: true });
   await fs.writeFile(output + '/fonts.conf', `<?xml version="1.0"?><!DOCTYPE fontconfig SYSTEM "urn:fontconfig:fonts.dtd"><fontconfig><dir>${path.resolve('_site/fonts')}</dir><cachedir>${output}/font-cache</cachedir></fontconfig>`);
@@ -39,14 +41,15 @@ export async function statementBoxes(layout, width, height) {
   process.env.FONTCONFIG_FILE = output + '/fonts.conf';
   const result = [];
   let top = layout.statement.top;
-  for (const [i, selector] of ['.hero-statement h1', '.hero-response', '.hero-description'].entries()) {
+  for (const [i, selector] of ['.hero-statement h1', '.hero-description'].entries()) {
     const style = layout.get(selector), font = fontAt(style, width, height);
     if (i) top += length(style.margin.split(' ')[0], width, height);
-    const family = i === 2 ? 'Inter Tight' : 'Newsreader';
-    const fontFile = path.resolve(`_site/fonts/${i === 2 ? 'inter-tight' : 'newsreader'}-latin-wght-${font.italic ? 'italic' : 'normal'}.woff2`);
+    const family = style.font.includes('--sans') ? 'Inter Tight' : 'Newsreader';
+    const fontFile = path.resolve(`_site/fonts/${family === 'Inter Tight' ? 'inter-tight' : 'newsreader'}-latin-wght-${font.italic ? 'italic' : 'normal'}.woff2`);
     const tracking = (parseFloat(style['letter-spacing']) || 0) * font.fontSize;
+    const boxWidth = style['max-width']?.endsWith('em') ? Math.min(layout.statement.width, parseFloat(style['max-width']) * font.fontSize) : layout.statement.width;
     const text = `<span letter_spacing="${Math.round(tracking * 1024)}">${heroLines[i]}</span>`;
-    const { data, info } = await sharp({ text: { text, font: `${family} ${font.italic ? 'Italic' : font.weight === 500 ? 'Medium' : ''} ${font.fontSize}`, fontfile: fontFile, width: Math.floor(layout.statement.width), dpi: 72, rgba: true, wrap: 'word' } }).raw().toBuffer({ resolveWithObject: true });
+    const { data, info } = await sharp({ text: { text, font: `${family} ${font.italic ? 'Italic' : font.weight === 500 ? 'Medium' : ''} ${font.fontSize}`, fontfile: fontFile, width: Math.floor(boxWidth), dpi: 72, rgba: true, wrap: 'word' } }).raw().toBuffer({ resolveWithObject: true });
     let count = 0, inside = false;
     for (let y = 0; y < info.height; y++) {
       let visible = false;
@@ -56,10 +59,28 @@ export async function statementBoxes(layout, width, height) {
     }
     // Pango counts are an independent font metric model, not browser text-wrap: balance.
     const lineCount = Math.max(1, count), boxHeight = lineCount * font.lineHeight;
-    result.push({ text: heroLines[i], ...font, modelLineCount: lineCount, left: layout.statement.left, top, width: layout.statement.width, height: boxHeight, bottom: top + boxHeight });
+    result.push({ text: heroLines[i], ...font, modelLineCount: lineCount, left: layout.statement.left + (layout.statement.width - boxWidth) / 2, top, width: boxWidth, height: boxHeight, bottom: top + boxHeight });
     top += boxHeight;
   }
   return result;
+}
+// Evaluate the actual edgeless CSS scrim, rather than treating its plateau as a rectangle.
+export function statementScrim(layout, boxes, width, height) {
+  const style = layout.get('.hero-statement::before');
+  const values = style.inset.split(/\s+/).map(value => length(value, width, height));
+  const [top, right, bottom, left] = [values[0], values[1], values[2] ?? values[0], values[3] ?? values[1]];
+  const rx = (layout.statement.width - left - right) / 2;
+  const ry = (boxes.at(-1).bottom - layout.statement.top - top - bottom) / 2;
+  const center = [layout.statement.left + left + rx, layout.statement.top + top + ry];
+  const colors = [...style.background.matchAll(/rgb\(11 12 14 \/ ([.\d]+)\)(?: (\d+)%)?/g)];
+  const stops = colors.map(([, opacity, percent], i) => [percent ? +percent / 100 : i === colors.length - 1 ? 1 : 0, +opacity]);
+  assert.equal(stops.length, 4);
+  return (x, y) => {
+    const position = Math.hypot((x - center[0]) / rx, (y - center[1]) / ry);
+    let index = 1; while (index < stops.length - 1 && position > stops[index][0]) index++;
+    const [a, av] = stops[index - 1], [b, bv] = stops[index];
+    return clamp(av + (bv - av) * clamp((position - a) / (b - a)));
+  };
 }
 export async function surfaces(layout, width, skyUrl, artUrl) {
   const skyImage = await decode(skyUrl), artImage = await decode(artUrl), bandHeight = layout.bandHeight;

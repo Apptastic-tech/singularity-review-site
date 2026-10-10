@@ -20,9 +20,8 @@ eleventyExcludeFromCollections: true
   <canvas class="cover-lensing" data-lensing aria-hidden="true" width="1" height="1"></canvas>
   </div>
   <header class="hero-statement">
-    <h1>Hard to keep up with everything happening in the technological singularity?</h1>
-    <p class="hero-response">We make it easier for you.</p>
-    <p class="hero-description">AI news, research, and analysis.</p>
+    <h1>The singularity is already here.</h1>
+    <p class="hero-description">So many AI breakthroughs land every day that it's hard to keep up. We help you focus on what matters and leave out the noise.</p>
   </header>
   <button type="button" class="cover-motion" aria-label="Pause sky animation" aria-pressed="false" data-motion-toggle hidden><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><path data-motion-glyph d="M7 5h3v14H7zm7 0h3v14h-3z" fill="currentColor"/></svg></button>
 </div>
@@ -51,7 +50,7 @@ eleventyExcludeFromCollections: true
         <div class="story-grid" data-feed>
           {% set storyHeading = "h3" %}
           {% asyncEach item in feedItems %}
-            {% ifAsync not loop.first %}{% include "story-block.njk" %}{% endif %}
+            {% ifAsync not loop.first %}{% include "story-block.njk" %}{% if loop.index == 4 %}{% set name = "homeGrid" %}{% include "ad-slot.njk" %}{% endif %}{% endif %}
           {% endeach %}
         </div>
       </section>

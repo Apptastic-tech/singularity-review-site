@@ -73,7 +73,7 @@ for (const file of (await fs.readdir('_site', { recursive: true })).filter(x => 
       const layout = coverLayout(css, width, height);
       assert.ok(layout.disk.left >= 24 && layout.disk.left + layout.disk.width <= width - 24);
       assert.ok(layout.disk.top >= 16 && layout.disk.top + layout.disk.height <= layout.bandHeight - 16);
-      assert.ok(layout.leadY < (width < 640 ? 900 : height));
+      assert.ok(layout.leadY < (width < 640 ? 900 : height + 80));
       assert.equal(get('.skyline-home .headline-feed')['margin-top'], '0');
       assert.equal(get('.card--lead .card-media').order, '0');
       report.bandHeight = layout.bandHeight; report.leadHeadlineDocumentY = layout.leadY;

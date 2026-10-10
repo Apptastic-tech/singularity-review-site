@@ -1,0 +1,9 @@
+{% macro adSlot(name, site) %}
+{% if site.adsense.client or site.adsense.preview %}
+<aside class="ad-slot ad-slot--{{ name }}" data-ad-slot="{{ name }}" data-ad-unit="{{ site.adsense.slots[name] }}" data-ad-preview="{{ 'true' if site.adsense.preview else 'false' }}" aria-label="Advertisement">
+  <span class="ad-slot-label">Advertisement</span>
+  <div class="ad-slot-reserved"></div>
+</aside>
+{% endif %}
+{% endmacro %}
+{% if name %}{{ adSlot(name, site) }}{% endif %}

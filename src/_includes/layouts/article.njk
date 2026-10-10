@@ -1,6 +1,7 @@
 ---
 layout: layouts/base.njk
 ---
+{% from "ad-slot.njk" import adSlot %}
 {% from "icons.njk" import socialLink %}
 {% from "share.njk" import shareBar with context %}
 {% from "byline.njk" import byline %}
@@ -23,7 +24,7 @@ layout: layouts/base.njk
     {% picture hero, heroAlt, "(min-width: 1440px) 1440px, 100vw", "eager", "high", "hero-image", title %}
     {% if heroCaption %}<figcaption>{{ heroCaption }}</figcaption>{% endif %}
   </figure>
-  <div class="prose reading-width article-body">{{ content | safe }}</div>
+  <div class="prose reading-width article-body">{{ content | articleAds(site.adsense, adSlot("articleA", site), adSlot("articleB", site)) | safe }}</div>
   <footer class="article-footer reading-width">
     {% include "reactions.njk" %}
     <div class="share-end">

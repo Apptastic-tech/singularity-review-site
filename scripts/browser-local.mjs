@@ -5,7 +5,12 @@ import { createRequire } from 'node:module';
 // Serve generated files through Playwright interception. No socket or external request.
 export const localOrigin = 'http://singularity.local';
 export async function localBrowser() {
-  const runtime = process.env.BROWSER_RUNTIME_ROOT || '/tmp/pw-singularity';
+  let runtime = process.env.BROWSER_RUNTIME_ROOT;
+  if (!runtime) {
+    const temporaryRequire = createRequire('/tmp/pw-singularity/package.json');
+    try { temporaryRequire.resolve('playwright'); runtime = '/tmp/pw-singularity'; }
+    catch { runtime = '/Users/araratovsepian/Agent-RSOC-Platform/Agent-RSOC-Platform/investor-deck'; }
+  }
   const require = createRequire(path.join(runtime, 'package.json'));
   const { chromium } = require('playwright');
   const executablePath = process.env.BROWSER_EXECUTABLE_PATH || '/Users/araratovsepian/Library/Caches/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-mac-arm64/chrome-headless-shell';

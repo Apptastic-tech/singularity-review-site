@@ -1,13 +1,13 @@
 # Legal placeholders
 
-Stage draft, version 2026-10-10. Every bracketed legal placeholder used in the policies or implementation documents is listed below. No company identity, provider choice, database location, retention rule or transfer arrangement has been invented.
+Stage draft, last updated 11 October 2026. Every bracketed legal placeholder used in the policies or implementation documents is listed below. No company identity, provider choice, database location, retention rule or transfer arrangement has been invented.
 
 | Placeholder | Used in | What must be confirmed |
 | --- | --- | --- |
-| [Company legal name] | Privacy policy; Cookie policy; Editorial standards | Controller's full legal name |
-| [Registered address] | Privacy policy; Cookie policy | Controller's registered address |
-| [Contact email] | Both policies; Editorial standards | Address for privacy, consent withdrawal, rights and correction requests |
-| [Country of establishment] | Both policies; Editorial standards | Controller's country of establishment |
+| [Company legal name] | About; Contact; Terms; Privacy policy; Cookie policy; Editorial standards | Controller's full legal name |
+| [Registered address] | Contact; Terms; Privacy policy; Cookie policy | Controller's registered address |
+| [Contact email] | About; Contact; Terms; both policies; Editorial standards | Address for privacy, consent withdrawal, rights and correction requests |
+| [Country of establishment] | About; Contact; Terms; both policies; Editorial standards | Controller's country of establishment |
 | [Data protection officer, if any] | Privacy policy | Whether a DPO exists and their contact details |
 | [Supervisory authority] | Privacy policy | Competent supervisory authority |
 | [Firestore database location to confirm] | Privacy policy; Newsletter architecture | Actual region of the existing database |
@@ -20,5 +20,8 @@ Stage draft, version 2026-10-10. Every bracketed legal placeholder used in the p
 | [Hosting and security log retention period to confirm] | Privacy policy | Actual Google logging configuration and retention |
 | [Disclosure of AI tool use, to be confirmed by the editor] | Editorial standards | Confirmed disclosure of AI tools used in production |
 | [Ownership and funding, to be confirmed] | Editorial standards | Confirmed ownership, funding and independence details |
+| [Founder and editor name] | About | Confirmed name and founder/editor role, current data establishes authorship only |
+| [Governing law and jurisdiction] | Terms | Applicable law and jurisdiction subject to mandatory reader rights |
+| [AdSense ad unit ID] | Site configuration; ad slot markup; AdSense documentation | Numeric unit IDs created in AdSense for articleA, articleB and homeGrid |
 
 The proposals in the policies are visibly marked as proposed. These pages need controller review and replacement of these placeholders before a final public legal release. This work prepares stage files only.

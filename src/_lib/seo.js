@@ -41,6 +41,7 @@ export function pageMetadata(data) {
     type = 'CollectionPage';
     updated = latestModified(data.collections?.featured);
   } else if (['/about/', '/editorial-standards/'].includes(page.url)) type = 'AboutPage';
+  if (page.url === '/contact/') type = 'ContactPage';
   return { title, description, type, updated, canonical: absolute(page.url, site) };
 }
 

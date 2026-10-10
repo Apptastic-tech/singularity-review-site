@@ -7,6 +7,17 @@ export default {
   legacyHosts: ["singularity-review.web.app", "singularity-review.firebaseapp.com"],
   language: "en",
   updated: "2026-10-10T17:45:21.964Z",
+  adsense: {
+    // Empty client disables every ad slot and the loader in the default build.
+    client: "",
+    verificationMeta: "",
+    preview: process.env.ADSENSE_PREVIEW === "1",
+    slots: {
+      articleA: "[AdSense ad unit ID]",
+      articleB: "[AdSense ad unit ID]",
+      homeGrid: "[AdSense ad unit ID]",
+    },
+  },
   defaultAuthor: "Singularity Review",
   defaultImage: "/images/brand/og-default.jpg",
   defaultImageAlt: "Singularity Review beside a lensed black hole above an observatory and mountain skyline at night",

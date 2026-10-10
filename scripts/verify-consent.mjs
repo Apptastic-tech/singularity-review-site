@@ -17,6 +17,7 @@ const hasClass = (node, name) => (node.attribs?.class || '').split(/\s+/).includ
 const sentence = 'Send me the Singularity Review newsletter. Unsubscribe anytime.';
 const fields = ['email', 'consentAt', 'consentTextVersion', 'consentText', 'sourcePage', 'source', 'status'].sort();
 const allowedScripts = new Set(['transitions', 'site', 'lensing', 'carousel', 'article', 'consent', 'newsletter'].map(name => `/js/${name}.js`));
+if (site.adsense.client || site.adsense.preview) allowedScripts.add('/js/ads.js');
 const redirect = `(function(l,h,t){if(h.indexOf(l.hostname)>-1&&l.hostname!==t.replace(/^https?:\\/\\//,"")){l.replace(t+l.pathname+l.search+l.hash)}})(location,${JSON.stringify(site.legacyHosts)},${JSON.stringify(site.url)})`;
 function checkScripts(html) {
   for (const script of nodes(parseDocument(html)).filter(node => node.name === 'script')) {
@@ -29,6 +30,11 @@ function checkScripts(html) {
     }
     if (attrs.src) {
       assert.ok(allowedScripts.has(attrs.src.split('?')[0]), `Unknown executable script: ${attrs.src}`);
+      if (attrs.src.startsWith('/js/ads.js')) {
+        assert.equal(attrs['data-consent'], undefined, 'Ads use an explicit any-decision gate');
+        assert.equal(attrs['data-ad-client'], site.adsense.client);
+        assert.equal(attrs['data-ad-preview'], String(site.adsense.preview));
+      }
       assert.match(attrs.src, /\?v=[a-f0-9]{10}$/);
     } else assert.equal(textContent(script), redirect, 'Only the existing exact host redirect may execute inline');
   }
@@ -126,16 +132,16 @@ for (const [page, headings] of Object.entries(requiredHeadings)) {
   const html = await read(`_site/${page}/index.html`), dom = parseDocument(html);
   const actual = nodes(dom).filter(node => /^h[12]$/.test(node.name)).map(node => textContent(node));
   headings.forEach(heading => assert.ok(actual.includes(heading), heading));
-  assert.ok(html.includes('Last updated 10 October 2026. Version 2026-10-10.'));
+  assert.ok(html.includes('Last updated 11 October 2026'));
   assert.ok((await read('_site/sitemap.xml')).includes(`/${page}/</loc>`));
 }
 const placeholderDoc = await read('docs/LEGAL-PLACEHOLDERS.md');
 const listed = new Set([...placeholderDoc.matchAll(/\| (\[[^\]\n]+\]) \|/g)].map(match => match[1]));
-const legalFiles = ['src/privacy.md', 'src/cookies.md', 'src/editorial-standards.md', 'docs/CONSENT.md', 'docs/NEWSLETTER.md', 'docs/PRIVACY-AUDIT.md'];
+const legalFiles = ['src/about.md', 'src/contact.md', 'src/terms.md', 'src/privacy.md', 'src/cookies.md', 'src/editorial-standards.md', 'docs/ADSENSE.md', 'docs/CONSENT.md', 'docs/NEWSLETTER.md', 'docs/PRIVACY-AUDIT.md'];
 const corpus = (await Promise.all(legalFiles.map(read))).join('\n');
 const placeholders = new Set([...corpus.matchAll(/(?<!!)\[([^\]\n]+)\](?!\()/g)].map(match => match[0]));
 assert.deepEqual([...listed].sort(), [...placeholders].sort(), 'Every legal placeholder is listed, with no stale entries');
-const legalOutput = await read('_site/privacy/index.html') + await read('_site/cookies/index.html') + await read('_site/editorial-standards/index.html');
+const legalOutput = await read('_site/about/index.html') + await read('_site/contact/index.html') + await read('_site/terms/index.html') + await read('src/_data/site.js') + await read('_site/privacy/index.html') + await read('_site/cookies/index.html') + await read('_site/editorial-standards/index.html');
 for (const placeholder of listed) assert.ok(legalOutput.includes(placeholder), `Visible legal placeholder: ${placeholder}`);
 for (const method of ['hasOnly', 'hasAll']) {
   const array = rules.match(new RegExp(`${method}\\(\\[([^\\]]+)\\]\\)`))?.[1];

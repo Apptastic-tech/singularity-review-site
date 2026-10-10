@@ -2,7 +2,7 @@
 layout: layouts/base.njk
 title: Privacy policy
 description: How Singularity Review handles newsletter signups, reactions and site preferences.
-updated: "2026-10-10T17:45:21.964Z"
+updated: "2026-10-11T00:00:00Z"
 permalink: /privacy/
 eleventyExcludeFromCollections: true
 ---
@@ -10,7 +10,7 @@ eleventyExcludeFromCollections: true
 
 # Privacy policy
 
-<p class="legal-version">Last updated 10 October 2026. Version 2026-10-10.</p>
+<p class="legal-version">Last updated 11 October 2026</p>
 
 ## Who we are
 
@@ -26,11 +26,29 @@ Google Firebase Hosting serves this site and may process IP addresses and reques
 
 We set no cookies and use no analytics, advertising, pixels or third-party scripts today. Fonts are served from this site's /fonts directory.
 
+## Advertising
+
+We plan to use Google AdSense. Ads are not active yet and will only load after you make a cookie choice. Google and third-party vendors use cookies and similar technologies to serve ads based on prior visits to this and other websites. Google's use of advertising cookies enables it and its partners to serve ads based on those visits.
+
+When advertising is enabled, granting Marketing allows personalised ads and the corresponding advertising storage and data signals. Rejecting Marketing leaves those signals denied and requests non-personalised ads after your decision. A cookie choice is required before any Google advertising script loads. Analytics is a separate choice. You can change either choice in Cookie settings in the footer.
+
+You can opt out of personalised advertising through [Google Ads Settings](https://adssettings.google.com) and the choices available at [aboutads.info](https://www.aboutads.info). Read [How Google uses information from sites that use its services](https://policies.google.com/technologies/ads) for Google's advertising practices and its [cookie information](https://policies.google.com/technologies/cookies) for examples of cookie purposes and durations.
+
+For visitors in the EEA, UK and Switzerland, Google requires a Google-certified consent management platform integrated with the IAB TCF. Our own banner is not a certified CMP. Before serving ads in those regions, we must enable AdSense Privacy & messaging and defer our banner's overlapping choices to it, or adopt another certified CMP. The local banner alone is not sufficient for that launch.
+
+### Planned advertising storage
+
+| Technology | Purpose | Status | Provider |
+| --- | --- | --- | --- |
+| Advertising cookies and similar technologies | Ad delivery, measurement and personalisation according to choices | Planned, set by Google only after consent when ads are enabled | Google and its advertising partners |
+
+Exact cookies depend on Google's configuration and reader choices. No AdSense cookies are set by our inactive ad scaffolding. Denied marketing does not grant advertising storage; the loader requests non-personalised ads with denied Consent Mode signals.
+
 ## Purposes and legal basis
 
 We use your newsletter signup only to arrange a confirmation and, after confirmation, send the newsletter. The legal basis is your consent under Article 6(1)(a) of the GDPR. The required checkbox is separate from cookie settings. Rejecting optional cookie categories does not prevent a signup you request. No confirmation email or newsletter is sent by this site yet; the email workflow still needs to be connected.
 
-Hosting, security and providing the reactions feature rely on legitimate interests under Article 6(1)(f): operating a reliable publication, protecting it from abuse and letting readers react to articles. You can object to this processing. Necessary device storage supports features and choices you request. Analytics and marketing settings currently control empty categories and do not activate any tools.
+Hosting, security and providing the reactions feature rely on legitimate interests under Article 6(1)(f): operating a reliable publication, protecting it from abuse and letting readers react to articles. You can object to this processing. Necessary device storage supports features and choices you request. Analytics has no tools today. Marketing will control personalised advertising when planned ads are enabled; no ads are active yet.
 
 ## Processors and international transfers
 

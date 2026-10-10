@@ -1,6 +1,6 @@
 ---
 layout: layouts/base.njk
-updated: "2026-10-10T17:45:21.964Z"
+updated: "2026-10-11T00:00:00Z"
 title: Cookie policy
 description: Cookies, device storage and choices on Singularity Review.
 seoDescription: "Singularity Review's cookie policy explains device storage, animation and reaction preferences, newsletter prompts and how to change your choices."
@@ -11,7 +11,7 @@ eleventyExcludeFromCollections: true
 
 # Cookie policy
 
-<p class="legal-version">Last updated 10 October 2026. Version 2026-10-10.</p>
+<p class="legal-version">Last updated 11 October 2026</p>
 
 ## Cookies today
 
@@ -25,9 +25,18 @@ We set no cookies today. We use local storage and session storage, which are bro
 | `sr-react:<slug>:<key>` (local storage) | Remembers your reaction for an article | Necessary / functional | Until you remove the reaction or clear storage | Singularity Review |
 | `sr-consent` (local storage) | Records your cookie choices, version and decision time | Necessary / functional | Until cleared or replaced; a new version asks again | Singularity Review |
 | `sr-newsletter` (local storage) | Remembers dismissal or a submitted subscription on this device | Functional, reader choice | Dismissal suppresses for 30 days; submitted subscription suppresses until cleared. The record remains until cleared or replaced | Singularity Review |
+| Planned Google AdSense cookies and similar technologies | Advertising, measurement and personalisation according to choices | Advertising / Marketing | Planned, set by Google only after consent when ads are enabled; durations depend on Google's configuration | Google and advertising partners |
 | `sr-newsletter-session` (session storage) | Counts visible time across pages and remembers whether and when this tab has seen the prompt | Functional, prompt presentation | This tab's browsing session; browser session restore may preserve it | Singularity Review |
 
-Necessary storage is always available for these requested features. Analytics and marketing are off by default. There are no tools in those categories today, so accepting them has no effect until tools are added. Optional tools will have to respect your stored choices and the consent version.
+Necessary storage is always available for these requested features. Analytics and marketing are off by default. No ads or analytics tools are active today. Marketing will map to personalised ads when advertising is enabled. Optional tools will have to respect your stored choices and the consent version.
+
+## Advertising category
+
+Google AdSense is planned and not active yet. The Marketing toggle will grant or deny personalised advertising and Google's ad storage, ad user data and ad personalisation consent signals. Analytics remains a separate choice. Before any decision, no Google advertising script loads. After a decision, enabled ads may request non-personalised advertising when Marketing is rejected, with ad storage and personalisation signals still denied. Rejecting Marketing does not grant permission to set advertising cookies.
+
+Google and third-party vendors use cookies and similar technologies to serve ads based on earlier visits to this and other sites. Google's advertising cookies allow it and its partners to serve ads based on those visits. See [Google's advertising information](https://policies.google.com/technologies/ads), its [cookie information](https://policies.google.com/technologies/cookies), [Google Ads Settings](https://adssettings.google.com) and [aboutads.info](https://www.aboutads.info) for more information and personalised-ad choices.
+
+A Google-certified CMP integrated with the IAB TCF is required before serving ads to visitors in the EEA, UK and Switzerland. This site's banner is not certified. AdSense Privacy & messaging or another certified CMP must provide that regional consent flow, with duplicate local choices deferred or hidden.
 
 ## How to change your choice
 

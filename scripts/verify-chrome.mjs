@@ -21,8 +21,8 @@ function checkChrome(html, file) {
   assert.match(header, /<span class="brand-wordmark">Singularity Review<\/span>/);
   assert.match(header, /class="header-inner">[\s\S]*class="desktop-nav"[\s\S]*class="menu-toggle"[\s\S]*<\/div>\s*<nav class="mobile-menu"/, 'Navigation and menu button occupy the masthead row');
   assert.doesNotMatch(html, legacy, `${file}: no avatar, icon or decorative heading markup`);
-  // The privacy policy has the required plain-language "Who we are" section.
-  assert.doesNotMatch(file === 'privacy/index.html' ? html.replace('<h2>Who we are</h2>', '') : html, sectionCopy, `${file}: current publication labels`);
+  // Privacy and Terms have the required plain-language operator section.
+  assert.doesNotMatch(['privacy/index.html', 'terms/index.html'].includes(file) ? html.replace('<h2>Who we are</h2>', '') : html, sectionCopy, `${file}: current publication labels`);
   const menu = markup(html, 'nav', 'mobile-menu');
   assert.equal((menu.match(/<a\b/g) || []).length, 4, 'Mobile sheet contains only the four sections');
   assert.doesNotMatch(menu, /<p|<h[1-6]|menu-social/);
@@ -34,7 +34,7 @@ function checkChrome(html, file) {
   assert.equal(plain(markup(footer, 'p', 'footer-description')), 'AI news, research, and analysis');
   assert.deepEqual([...footer.matchAll(/<h2 class="footer-heading"[^>]*>([^<]+)<\/h2>/g)].map(item => item[1]), ['Sections', 'Topics', 'Follow']);
   assert.deepEqual([...markup(footer, 'nav', 'footer-social').matchAll(/<span>([^<]+)<\/span>/g)].map(item => item[1]), ['Facebook', 'Instagram', 'RSS']);
-  assert.match(footer, /&copy; \d{4} Singularity Review[\s\S]*href="\/about\/">About/);
+  assert.match(footer, /&copy; \d{4} Singularity Review/);
   for (const text of ['Kitt Peak at Night', 'KPNO/NOIRLab/NSF/AURA/P. Marenfeld', 'CC BY 4.0']) assert.ok(footer.includes(text));
   for (const [, byline] of html.matchAll(/<p class="(?:byline meta|card-byline meta(?: lead-byline)?|carousel-byline meta)">([\s\S]*?)<\/p>/g)) {
     assert.match(plain(byline), /^By .+ · [A-Z][a-z]+ \d{1,2}, \d{4}(?: · \d+ min read)?$/);

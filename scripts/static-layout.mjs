@@ -66,15 +66,18 @@ export function fontAt(style, width, height) {
 export function coverLayout(css, width, height) {
   const rules = cssRules(css), get = selector => styleAt(rules, selector, width, height);
   const cover = get('.night-cover'), variables = { ...get(':root'), ...cover };
-  const bandHeight = length(cover.height, width, height);
+  const bandHeight = length(cover.height, width, height, width, variables);
   const diskWidth = length(variables['--disk-width'], width, height, width, variables);
   const disk = { left: length(variables['--disk-left'], width, height, width, variables), top: length(variables['--disk-top'], width, height), width: diskWidth, height: diskWidth * 9 / 16 };
   const hero = get('.hero-statement'), inset = length(hero['inset-inline'], width, height);
   const statementWidth = Math.min(width - inset * 2, length(hero['max-width'], width, height));
-  const statement = { left: (width - statementWidth) / 2, top: length(hero.top, width, height), width: statementWidth };
+  const statement = { left: (width - statementWidth) / 2, top: length(hero.top, width, height, bandHeight, variables), width: statementWidth };
   const body = get('.card--lead .card-body'), paddingTop = length(body.padding.split(' ')[0], width, height);
   const category = get('.category-link');
   const mastheadHeight = length(get('.header-inner').height, width, height);
   const leadY = mastheadHeight + bandHeight + paddingTop + length(category['min-height'], width, height);
-  return { rules, get, bandHeight, disk, statement, mastheadHeight, leadY };
+  // Include the full circular shader influence, a stricter bound than its shadow/ring.
+  const diskBottom = disk.top + disk.height;
+  const lensingRegionBottom = disk.top + disk.height * .48 + disk.width * .109 * 4.5;
+  return { rules, get, bandHeight, disk, diskBottom, lensingRegionBottom, statement, mastheadHeight, leadY };
 }

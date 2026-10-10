@@ -96,7 +96,7 @@ for (const file of files) {
   assert.equal(website.publisher['@id'], orgId); assert.equal(website.inLanguage, 'en');
   const page = graph.find(item => item['@id'] === canonical + '#webpage');
   required(page, ['url', 'name', 'description', 'isPartOf', 'breadcrumb', 'inLanguage'], `${file}: WebPage`);
-  const type = route.startsWith('/authors/') ? 'ProfilePage' : ['/about/', '/editorial-standards/'].includes(route) ? 'AboutPage' : route === '/' || route === '/featured/' || route.startsWith('/category/') || pagination ? 'CollectionPage' : 'WebPage';
+  const type = route === '/contact/' ? 'ContactPage' : route.startsWith('/authors/') ? 'ProfilePage' : ['/about/', '/editorial-standards/'].includes(route) ? 'AboutPage' : route === '/' || route === '/featured/' || route.startsWith('/category/') || pagination ? 'CollectionPage' : 'WebPage';
   assert.equal(page['@type'], type);
   assert.equal(page.url, canonical); assert.equal(page.description, description); assert.equal(page.name, title);
   assert.equal(page.isPartOf['@id'], websiteId); assert.equal(page.inLanguage, 'en');
@@ -254,7 +254,7 @@ for (const url of urls) {
   const lastmod = children.find(node => node.name === 'lastmod'), expected = indexable.get(location);
   assert.equal(lastmod ? plain(lastmod) : undefined, expected?.slice(0, 10), 'Sitemap lastmod is derived from page data');
 }
-for (const route of ['/privacy/', '/cookies/', '/editorial-standards/']) assert.ok(sitemapUrls.includes(site.url + route));
+for (const route of ['/about/', '/contact/', '/terms/', '/privacy/', '/cookies/', '/editorial-standards/']) assert.ok(sitemapUrls.includes(site.url + route));
 const robots = await read('robots.txt');
 const groups = robots.trim().split(/\n\s*\n/);
 for (const name of ['*', 'GPTBot', 'OAI-SearchBot', 'ChatGPT-User', 'ClaudeBot', 'Claude-User', 'Claude-SearchBot', 'PerplexityBot', 'Perplexity-User', 'Google-Extended', 'Applebot-Extended', 'CCBot']) {
@@ -304,7 +304,7 @@ const llms = await read('llms.txt');
 assert.ok(llms.startsWith('# Singularity Review\n')); assert.match(llms, /\n> [^\n]+\n/);
 for (const heading of ['Articles', 'Explainer', 'About', 'Feeds', 'Policies']) assert.ok(llms.includes(`## ${heading}\n`));
 for (const article of articles) assert.ok(llms.includes(`[${article.title}](${site.url}${articleUrl(article)}): ${article.seoDescription || article.description}`), 'llms.txt includes current article title, URL and summary');
-for (const route of ['/rss.xml', '/atom.xml', '/sitemap.xml', '/privacy/', '/cookies/', '/editorial-standards/']) assert.ok(llms.includes(site.url + route));
+for (const route of ['/rss.xml', '/atom.xml', '/sitemap.xml', '/about/', '/contact/', '/terms/', '/privacy/', '/cookies/', '/editorial-standards/']) assert.ok(llms.includes(site.url + route));
 const audit = JSON.parse(await fs.readFile('docs/sources/sources-to-date.json', 'utf8'));
 const missing = JSON.parse(await fs.readFile('docs/sources/sources-missing.json', 'utf8'));
 const researched = JSON.parse(await fs.readFile('docs/sources/sources-research.json', 'utf8'));

@@ -1,6 +1,8 @@
 // Eleventy configuration for Singularity Review.
 // Content lives in src/articles (one markdown file per article).
 
+import site from "./src/_data/site.js";
+import { insertArticleAds } from "./src/_lib/ads.js";
 import Image from "@11ty/eleventy-img";
 import { createRequire } from "node:module";
 import path from "node:path";
@@ -11,7 +13,7 @@ import { pageMetadata, pageGraph, json, latestModified } from "./src/_lib/seo.js
 
 // Cache busting: {{ "/css/style.css" | asset }} -> /css/style.css?v=<content hash>
 import { createHash } from "node:crypto";
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync, readdirSync, rmSync } from "node:fs";
 const assetHashes = new Map();
 const assetUrl = (url) => {
   const clean = String(url).split("?")[0];
@@ -28,6 +30,7 @@ const assetUrl = (url) => {
 };
 
 
+let outputDirectory = "_site";
 const imageJobs = new Map();
 const cardSizes = "(min-width: 1312px) 1248px, (min-width: 640px) calc(100vw - 64px), 100vw";
 const brandJobs = new Map();
@@ -48,7 +51,7 @@ async function heroImages(src, article = src) {
     imageJobs.set(input, Image(input, {
       widths: [480, 800, 1280],
       formats: ["avif", "webp", "jpeg"],
-      outputDir: "./_site/img/",
+      outputDir: path.join(outputDirectory, "img"),
       urlPath: "/img/",
       sharpOptions: { animated: false },
       sharpAvifOptions: { quality: 50, effort: 4 },
@@ -77,7 +80,7 @@ const escapeXml = (s) =>
 
 export default function (eleventyConfig) {
   const sitemapPages = new Map();
-  eleventyConfig.on("eleventy.before", () => sitemapPages.clear());
+  eleventyConfig.on("eleventy.before", ({ directories }) => { outputDirectory = directories.output; sitemapPages.clear(); });
   eleventyConfig.addFilter("seoMetadata", pageMetadata);
   eleventyConfig.addFilter("latestModified", latestModified);
   eleventyConfig.addNunjucksAsyncShortcode("seoGraph", async function () {
@@ -96,10 +99,12 @@ export default function (eleventyConfig) {
     return content;
   });
   eleventyConfig.on("eleventy.after", () => {
+    if (!site.adsense.client && !site.adsense.preview) rmSync(path.join(outputDirectory, "js/ads.js"), { force: true });
     const entries = [...sitemapPages].sort(([a], [b]) => a.localeCompare(b)).map(([url, date]) =>
       `  <url><loc>${escapeXml(url)}</loc>${date ? `<lastmod>${date.slice(0, 10)}</lastmod>` : ""}</url>`);
-    writeFileSync("_site/sitemap.xml", `<?xml version="1.0" encoding="utf-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.join("\n")}\n</urlset>\n`);
+    writeFileSync(path.join(outputDirectory, "sitemap.xml"), `<?xml version="1.0" encoding="utf-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.join("\n")}\n</urlset>\n`);
   });
+  eleventyConfig.addFilter("articleAds", insertArticleAds);
   eleventyConfig.addFilter("asset", assetUrl);
   eleventyConfig.addFilter("sentenceTitle", sentenceTitle);
   eleventyConfig.on("eleventy.before", () => assetHashes.clear());
@@ -131,7 +136,9 @@ export default function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy({ "src/css": "css" });
   eleventyConfig.addPassthroughCopy({ "src/favicon.svg": "favicon.svg" });
   eleventyConfig.addPassthroughCopy({ "src/favicon-32.png": "favicon-32.png", "src/favicon-48.png": "favicon-48.png" });
-  eleventyConfig.addPassthroughCopy({ "src/js": "js" });
+  eleventyConfig.addPassthroughCopy(Object.fromEntries(readdirSync("src/js")
+    .filter(file => file.endsWith(".js") && (file !== "ads.js" || site.adsense.client || site.adsense.preview))
+    .map(file => ["src/js/" + file, "js/" + file])));
   eleventyConfig.addPassthroughCopy({
     "node_modules/@fontsource-variable/newsreader/files/newsreader-latin-wght-normal.woff2": "fonts/newsreader-latin-wght-normal.woff2",
     "node_modules/@fontsource-variable/newsreader/files/newsreader-latin-wght-italic.woff2": "fonts/newsreader-latin-wght-italic.woff2",
@@ -151,7 +158,7 @@ export default function (eleventyConfig) {
     if (!["skyline-kittpeak", "blackhole-wide"].includes(name)) throw new Error(`Unknown brand image: ${name}`);
     if (!brandJobs.has(name)) brandJobs.set(name, Image(`src/images/brand/${name}.jpg`, {
       widths: name === "skyline-kittpeak" ? [1440, 1920, 2880, 3840] : [480, 800, 1280], formats: ["avif", "webp", "jpeg"],
-      outputDir: "./_site/img/brand/", urlPath: "/img/brand/",
+      outputDir: path.join(outputDirectory, "img/brand"), urlPath: "/img/brand/",
       sharpAvifOptions: { quality: 65, effort: 5 }, sharpWebpOptions: { quality: 88 },
       sharpJpegOptions: { quality: 82, progressive: true, chromaSubsampling: "4:4:4" },
     }));

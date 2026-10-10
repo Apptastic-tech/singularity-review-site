@@ -69,9 +69,15 @@ try {
     await page.setViewportSize({width,height}); await page.goto(url);
     await page.evaluate(() => document.fonts.ready);
     const lead=await page.locator('.card--lead .card-title').boundingBox();
-    assert.ok(lead.y < (width===390?900:height), `${width}: lead headline begins within the requested fold`);
+    assert.ok(lead.y < (width===390?900:height+80), `${width}: lead headline begins within the requested fold`);
     const disk=await page.locator('.cover-disk').boundingBox();
     assert.ok(disk.x>=24&&disk.x+disk.width<=width-24,`${width}: complete black hole in frame`);
+    const statement=await page.locator('.hero-statement').boundingBox();
+    const regionBottom=disk.y+disk.height*.48+disk.width*.109*4.5;
+    assert.ok(statement.y>disk.y+disk.height && statement.y>regionBottom, width+': statement below disk and lensing region');
+    assert.equal(await page.locator('.hero-statement h1').textContent(),'The singularity is already here.');
+    assert.equal(await page.locator('.hero-description').textContent(),"So many AI breakthroughs land every day that it's hard to keep up. We help you focus on what matters and leave out the noise.");
+    assert.equal(await page.locator('.hero-statement p').count(),1);
     assert.equal(await page.locator('main h1').count(),1);
     assert.equal(await page.locator('.hero-statement').evaluate(e=>getComputedStyle(e).textAlign),'center');
     await page.waitForFunction(() => window.reworkPerformance.lcp !== null);

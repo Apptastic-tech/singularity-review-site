@@ -1,6 +1,6 @@
 {% from "newsletter.njk" import newsletterForm %}
 <section class="consent-banner" data-consent-banner role="region" aria-label="Cookie consent" hidden>
-  <p>We use device storage for your choices and reactions. We set no cookies and use no analytics or marketing tools. <a href="/cookies/">Cookie policy</a></p>
+  <p>{% if site.adsense.client and not site.adsense.preview %}We use device storage for your choices and reactions. Google advertising loads only after your cookie choice. Marketing controls personalised ads.{% else %}We use device storage for your choices and reactions. We set no cookies and use no analytics or marketing tools.{% endif %} <a href="/cookies/">Cookie policy</a></p>
   <div class="consent-actions">
     <button class="privacy-button consent-choice" type="button" data-consent-choice="accept">Accept all</button>
     <button class="privacy-button consent-choice" type="button" data-consent-choice="reject">Reject all</button>
@@ -10,14 +10,14 @@
 <dialog class="consent-dialog" data-consent-dialog aria-labelledby="consent-heading" aria-describedby="consent-explanation">
   <button class="privacy-close" type="button" data-consent-close aria-label="Close cookie settings"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button>
   <h2 id="consent-heading" tabindex="-1">Cookie settings</h2>
-  <p id="consent-explanation">Necessary storage supports features you request. Analytics and marketing categories are empty today. Turning them on has no effect until tools are added.</p>
+  <p id="consent-explanation">Necessary storage supports features you request. Analytics is a separate choice. Marketing controls personalised advertising when ads are enabled.{% if not site.adsense.client or site.adsense.preview %} Ads are not active yet.{% endif %}</p>
   <form data-consent-form>
     <label class="consent-category"><input type="checkbox" name="necessary" checked disabled aria-describedby="consent-necessary"><span>Necessary</span></label>
     <p id="consent-necessary">Always on. Remembers your choices, sky animation setting and reactions, and supports hosting and security.</p>
     <label class="consent-category"><input type="checkbox" name="analytics"><span>Analytics</span></label>
     <p>Off by default. No analytics tools are used today.</p>
     <label class="consent-category"><input type="checkbox" name="marketing"><span>Marketing</span></label>
-    <p>Off by default. No marketing tools are used today.</p>
+    <p>Off by default. Granting Marketing permits personalised ads when advertising is enabled. Rejecting keeps advertising storage and personalisation denied.{% if not site.adsense.client or site.adsense.preview %} No ads are active today.{% endif %}</p>
     <div class="consent-save"><button class="privacy-button" type="submit">Save choices</button></div>
     <div class="consent-actions consent-dialog-actions">
       <button class="privacy-button consent-choice" type="button" data-consent-choice="accept">Accept all</button>
