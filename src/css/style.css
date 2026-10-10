@@ -175,3 +175,28 @@ figcaption { color: var(--muted); font-size: 13px; padding: 12px 20px 0; }
   font-weight: 600;
   margin-top: -0.25em;
 }
+
+/* Share bar */
+.share-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.share-bar--compact { margin-top: 18px; }
+.share-btn, .share-pill { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: 44px; min-height: 44px; border: 1px solid var(--line); background: var(--ink-1); color: var(--paper); border-radius: 999px; font: 600 14px/1 var(--sans); text-decoration: none; cursor: pointer; transition: border-color .15s, color .15s, background .15s; }
+.share-pill { padding: 0 16px; }
+.share-pill[hidden] { display: none; }
+.share-btn:hover, .share-pill:hover, .share-btn:focus-visible, .share-pill:focus-visible { border-color: var(--signal); color: var(--signal); }
+.share-btn:focus-visible, .share-pill:focus-visible, .reaction:focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; }
+.share-end { border-top: 1px solid var(--line); padding-block: 24px; }
+.share-end .kicker { margin: 0 0 14px; }
+
+/* Reactions */
+.reactions { padding-block: 8px 28px; }
+.reactions[hidden] { display: none; }
+.reactions .kicker { margin: 0 0 14px; font-size: 13px; }
+.reaction-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.reaction { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-width: 50px; min-height: 48px; padding: 0 11px; border: 1px solid var(--line); background: var(--ink-1); color: var(--muted); border-radius: 999px; font: 600 15px/1 var(--sans); cursor: pointer; transition: border-color .15s, background .15s, transform .1s; }
+.reaction:hover { border-color: var(--signal); }
+.reaction:active { transform: scale(.96); }
+.reaction-emoji { font-size: 21px; line-height: 1; }
+.reaction--like svg { color: var(--muted); }
+.reaction[aria-pressed="true"] { border-color: var(--signal); background: var(--signal-ink); color: var(--paper); }
+.reaction--like[aria-pressed="true"] svg { color: var(--ember); }
+.reaction-count:empty { display: none; }

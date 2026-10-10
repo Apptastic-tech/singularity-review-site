@@ -2,12 +2,15 @@
 layout: layouts/base.njk
 ---
 {% from "icons.njk" import socialLink %}
+{% from "share.njk" import shareBar with context %}
+{%- set shareUrl = page.url | absoluteUrl(site.url) -%}
 <article class="article">
   <header class="article-header reading-width">
     <a class="kicker category-link" href="/category/{{ category | slugify }}/">{{ category }}</a>
     <h1 class="article-title">{{ title }}</h1>
     <p class="article-dek">{{ description }}</p>
     <p class="byline meta"><span>By {% if authorUrl %}<a class="byline-author" href="{{ authorUrl }}" rel="author">{{ author }}</a>{% else %}{{ author }}{% endif %}</span><time datetime="{{ page.date | isoDate }}">{{ page.date | readableDate }}</time><span>{{ content | readingTime }} min read</span></p>
+    {{ shareBar(shareUrl, title, "compact") }}
   </header>
   <figure class="article-hero">
     {% picture hero, heroAlt, "(min-width: 1152px) 1120px, 100vw", "eager", "high", "hero-image", title %}
@@ -15,6 +18,11 @@ layout: layouts/base.njk
   </figure>
   <div class="prose reading-width">{{ content | safe }}</div>
   <footer class="article-footer reading-width">
+    {% include "reactions.njk" %}
+    <div class="share-end">
+      <p class="kicker">Share this article</p>
+      {{ shareBar(shareUrl, title, "full") }}
+    </div>
     {% if tags.length %}<ul class="tags" aria-label="Article topics">{% for tag in tags %}<li>{{ tag }}</li>{% endfor %}</ul>{% endif %}
     <div class="follow">
       <p class="kicker">Stay in the loop</p>
@@ -28,3 +36,4 @@ layout: layouts/base.njk
   <h2 class="section-title" id="next-heading">Read next</h2>
   <div class="feed">{% asyncEach item in more %}{% set featured = false %}{% include "card.njk" %}{% endeach %}</div>
 </section>{% endif %}
+<script src="{{ '/js/article.js' | asset }}" defer></script>
