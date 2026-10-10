@@ -28,6 +28,7 @@ export default {
         publisher: {
           "@type": "Organization",
           name: data.site.title,
+          description: data.site.description,
           logo: { "@type": "ImageObject", url: `${data.site.url}/images/brand/apple-touch-icon.png` },
         },
         mainEntityOfPage: `${data.site.url}${data.page.url || ""}`,

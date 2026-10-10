@@ -169,3 +169,9 @@ figcaption { color: var(--muted); font-size: 13px; padding: 12px 20px 0; }
   html:has([data-feed]) { scroll-snap-type: none; }
   .card-link:hover .card-image { transform: none; }
 }
+
+.about-tagline {
+  color: var(--signal, #F2A93B);
+  font-weight: 600;
+  margin-top: -0.25em;
+}

@@ -7,7 +7,7 @@ eleventyExcludeFromCollections: true
   <channel>
     <title>{{ site.title }}</title>
     <link>{{ site.url }}/</link>
-    <description>{{ site.tagline | xmlEscape }}</description>
+    <description>{{ site.description | xmlEscape }}</description>
     <language>en-us</language>
     <atom:link href="{{ site.url }}/rss.xml" rel="self" type="application/rss+xml"/>
     {%- if collections.articles.length %}

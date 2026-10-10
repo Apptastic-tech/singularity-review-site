@@ -2,8 +2,7 @@
 export default {
   title: "Singularity Review",
   tagline: "AI news for people living through the singularity",
-  description:
-    "Catching every AI headline is impossible. Singularity Review cuts to what matters, every day, in clear narrative prose.",
+  description: "AI news, research, and analysis",
   url: (process.env.SITE_URL || "https://singularity-review.web.app").replace(/\/$/, ""),
   language: "en",
   defaultAuthor: "Singularity Review",

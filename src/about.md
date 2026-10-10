@@ -11,6 +11,8 @@ eleventyExcludeFromCollections: true
 
 # AI news for people living through the singularity
 
+<p class="about-tagline">AI news, research, and analysis.</p>
+
 Living through the singularity makes catching every AI headline impossible. Singularity Review cuts through the noise and reports on what actually matters. Clear prose, editorial judgment, AI news for people who need signal over volume.
 
 ## What we do
