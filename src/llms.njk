@@ -1,0 +1,34 @@
+---
+permalink: /llms.txt
+eleventyExcludeFromCollections: true
+---
+# {{ site.title }}
+
+> AI news, research, and analysis covering models, agents, policy and the technological singularity.
+
+Singularity Review publishes reporting, reviews, personal opinions and analysis about AI developments and the technological singularity. Opinion is labelled on the relevant page.
+
+## Articles
+{% for item in collections.articles %}
+- [{{ item.data.title | safe }}]({{ item.url | absoluteUrl(site.url) }}): {{ (item.data.seoDescription or item.data.description) | safe }}
+{% endfor %}
+## Explainer
+
+- [What is the singularity?]({{ site.url }}/what-is-singularity/): The definition and history of the idea, open questions, a labelled editorial opinion and frequently asked questions.
+
+## About
+
+- [About]({{ site.url }}/about/): The publication's coverage and sections.
+- [Editorial standards]({{ site.url }}/editorial-standards/): Sources, corrections, opinion and pending disclosures about production, ownership and funding.
+
+## Feeds
+
+- [RSS]({{ site.url }}/rss.xml): Recent articles with full content.
+- [Atom]({{ site.url }}/atom.xml): Recent articles with summaries and author details.
+- [Sitemap]({{ site.url }}/sitemap.xml): Indexable pages and known modification dates.
+
+## Policies
+
+- [Privacy policy]({{ site.url }}/privacy/): Newsletter data, reactions, site preferences and pending legal details.
+- [Cookie policy]({{ site.url }}/cookies/): Cookies, device storage and reader choices.
+- [Editorial standards]({{ site.url }}/editorial-standards/): Sourcing, corrections and disclosure policies.

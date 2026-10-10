@@ -9,16 +9,21 @@ layout: layouts/base.njk
 <article class="article">
   <header class="article-header reading-width">
     <a class="category-label category-link" href="/category/{{ category | slugify }}/">{{ category }}</a>
+    {% if opinion %}<p class="plain-label">Opinion</p>{% endif %}
     <h1 class="article-title">{{ title | sentenceTitle }}</h1>
     <p class="article-dek">{{ description }}</p>
     <p class="byline meta">{{ byline(author, authorUrl, page.date, content | readingTime) }}</p>
     {{ shareBar(shareUrl, title, "compact") }}
   </header>
+  {% if takeaways.length %}<section class="article-takeaways reading-width" aria-labelledby="takeaways-heading">
+    <h2 id="takeaways-heading">Key takeaways</h2>
+    <ul>{% for takeaway in takeaways %}<li>{{ takeaway }}</li>{% endfor %}</ul>
+  </section>{% endif %}
   <figure class="article-hero" data-article-hero>
     {% picture hero, heroAlt, "(min-width: 1440px) 1440px, 100vw", "eager", "high", "hero-image", title %}
     {% if heroCaption %}<figcaption>{{ heroCaption }}</figcaption>{% endif %}
   </figure>
-  <div class="prose reading-width">{{ content | safe }}</div>
+  <div class="prose reading-width article-body">{{ content | safe }}</div>
   <footer class="article-footer reading-width">
     {% include "reactions.njk" %}
     <div class="share-end">
@@ -30,9 +35,13 @@ layout: layouts/base.njk
       <p class="plain-label">Follow Singularity Review</p>
       <div class="follow-links">{{ socialLink(site.facebook, "Facebook", true) }}{{ socialLink(site.instagram, "Instagram", true) }}</div>
     </div>
+    {% if sources.length %}<section class="article-sources" aria-labelledby="sources-heading">
+      <h2 id="sources-heading">Sources</h2>
+      <ol>{% for source in sources %}<li><a href="{{ source.url }}" rel="noopener">{% if source.publisher %}{{ source.publisher }}, {% endif %}{{ source.title }}</a>{% if source.date %}, <time datetime="{{ source.date }}">{{ source.date }}</time>{% endif %}</li>{% endfor %}</ol>
+    </section>{% endif %}
     <section class="newsletter-inline newsletter-article" aria-labelledby="newsletter-article-end-heading">
       <h2 id="newsletter-article-end-heading">Get the newsletter</h2>
-      <p class="newsletter-description">The week's most important AI news, explained simply.</p>
+      <p class="newsletter-description">The week's AI news, research and analysis.</p>
       {{ newsletterForm("article-end") }}
     </section>
   </footer>
@@ -40,6 +49,6 @@ layout: layouts/base.njk
 {% set more = collections.articles | exclude(page.url) | limit(4) %}
 {% if more.length %}<section class="read-next feed-width" aria-labelledby="next-heading">
   <h2 class="section-title" id="next-heading">Read next</h2>
-  <div class="feed">{% asyncEach item in more %}{% set featured = false %}{% include "card.njk" %}{% endeach %}</div>
+  <div class="story-grid" data-feed>{% set storyHeading = "h3" %}{% asyncEach item in more %}{% include "story-block.njk" %}{% endeach %}</div>
 </section>{% endif %}
 <script src="{{ '/js/article.js' | asset }}" defer></script>

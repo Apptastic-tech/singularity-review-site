@@ -130,6 +130,23 @@ for (const author of new Set(articles.map(item => item.author).filter(author => 
   assert.equal(byClass(dom, 'card').length, 0);
 }
 
+for (const article of articles) {
+  const dom = await readPage(`articles/${article.slug}/index.html`);
+  const more = articles.filter(item => item.slug !== article.slug).slice(0, 4);
+  const grid = checkGrid(dom, more, 'h3', `Read next: ${article.slug}`);
+  const section = grid.parent;
+  assert.ok(hasClass(section, 'read-next') && hasClass(section, 'feed-width'));
+  assert.equal(section.attribs['aria-labelledby'], 'next-heading');
+  assert.equal(plainHeading(section), 'Read next');
+  assert.equal(byClass(dom, 'card').length, 0, 'Read next uses story blocks');
+}
+
+function plainHeading(section) {
+  const heading = section.children.find(node => node.name === 'h2');
+  assert.equal(heading?.attribs.id, 'next-heading');
+  return textContent(heading);
+}
+
 for (const width of [390, 639, 640, 768, 959, 960, 1440]) {
   const get = selector => styleAt(rules, selector, width, 900);
   const grid = get('.story-grid'), block = get('.story-block'), category = get('.story-block-category');

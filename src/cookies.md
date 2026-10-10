@@ -1,7 +1,9 @@
 ---
 layout: layouts/base.njk
+updated: "2026-10-10T17:45:21.964Z"
 title: Cookie policy
 description: Cookies, device storage and choices on Singularity Review.
+seoDescription: "Singularity Review's cookie policy explains device storage, animation and reaction preferences, newsletter prompts and how to change your choices."
 permalink: /cookies/
 eleventyExcludeFromCollections: true
 ---

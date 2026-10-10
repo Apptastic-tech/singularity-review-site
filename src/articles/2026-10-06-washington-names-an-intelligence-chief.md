@@ -7,6 +7,29 @@ hero: /images/articles/washington-names-an-intelligence-chief.jpg
 heroAlt: "Three anonymous officials seen from behind approach the White House colonnade, with one carrying a plain briefing folder."
 author: Singularity Review
 tags: ["White House", "Super Intelligence Force", "AI policy", "National security"]
+seoDescription: Jay Clayton will chair the Super Intelligence Force. He says the group has 120 days to assess advanced AI risks and recommend a federal role.
+takeaways:
+  - Jay Clayton will chair the Super Intelligence Force, which reports to the president and the White House chief of staff.
+  - Clayton told The Wall Street Journal that the group has 120 days to assess AI risks and opportunities and define the government's role.
+  - The group is asked to review AI incidents and improve the federal response using existing government powers.
+sources:
+  - title: New AI czar unveils goals, members of White House task force
+    publisher: The Wall Street Journal
+    url: https://www.wsj.com/tech/ai/new-ai-task-force-to-report-on-risks-of-technology-after-public-and-industry-concerns-b6308bef
+    date: "2026-10-03"
+  - title: Trump taps Director of National Intelligence Jay Clayton as AI czar
+    publisher: CNBC
+    url: https://www.cnbc.com/2026/10/03/trump-jay-clayton-ai-czar.html
+    date: "2026-10-03"
+  - title: Trump names national intelligence director Jay Clayton to lead new 'Super Intelligence Force' on AI
+    publisher: Fortune
+    url: https://fortune.com/2026/10/04/trump-national-intelligence-director-jay-clayton-super-intelligence-force-ai-agency/
+    date: "2026-10-04"
+  - title: Spy chief Jay Clayton takes on White House's AI portfolio
+    publisher: Nextgov/FCW
+    url: https://www.nextgov.com/people/2026/10/spy-chief-jay-clayton-takes-white-houses-ai-portfolio/416413/
+    date: "2026-10-05"
+updated: "2026-10-10T17:45:21.964Z"
 ---
 On October 4, President Donald Trump appointed Director of National Intelligence Jay Clayton to chair the Super Intelligence Force, a new AI task force. It reports to Trump and White House Chief of Staff Susie Wiles. Its membership places national security at the centre of the administration's approach to advanced AI, alongside consumer protection.
 

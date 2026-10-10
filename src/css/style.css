@@ -142,6 +142,13 @@ figcaption { color: var(--muted); font-size: 13px; padding: 12px 20px 0; }
 .social-link--text { gap: 10px; padding: 10px 12px; font-size: 15px; color: var(--paper); }
 .section-title { font: 500 26px/1.2 var(--serif); margin: 0 20px 24px; }
 .read-next { padding-top: 36px; }
+.article-takeaways { padding-block: 0 32px; font: 400 18px/1.6 var(--serif); }
+.article-takeaways h2, .article-sources h2 { font: 500 26px/1.2 var(--serif); margin: 0 0 16px; }
+.article-takeaways ul, .article-sources ol { margin: 0; padding-left: 1.25em; }
+.article-takeaways li, .article-sources li { margin-bottom: .6em; }
+.article-sources { margin-block: 32px; font: 400 16px/1.6 var(--serif); overflow-wrap: anywhere; }
+.article-sources a { color: var(--paper); }
+.article-sources a:hover { color: var(--signal); }
 .about { padding-block: 40px 64px; }
 .about h1, .not-found h1 { font: 500 26px/1.2 var(--serif); margin: 0 0 24px; }
 .about li a { display: inline-flex; align-items: center; min-height: 48px; padding-block: 8px; }

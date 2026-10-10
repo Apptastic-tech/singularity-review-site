@@ -131,11 +131,11 @@ for (const [page, headings] of Object.entries(requiredHeadings)) {
 }
 const placeholderDoc = await read('docs/LEGAL-PLACEHOLDERS.md');
 const listed = new Set([...placeholderDoc.matchAll(/\| (\[[^\]\n]+\]) \|/g)].map(match => match[1]));
-const legalFiles = ['src/privacy.md', 'src/cookies.md', 'docs/CONSENT.md', 'docs/NEWSLETTER.md', 'docs/PRIVACY-AUDIT.md'];
+const legalFiles = ['src/privacy.md', 'src/cookies.md', 'src/editorial-standards.md', 'docs/CONSENT.md', 'docs/NEWSLETTER.md', 'docs/PRIVACY-AUDIT.md'];
 const corpus = (await Promise.all(legalFiles.map(read))).join('\n');
 const placeholders = new Set([...corpus.matchAll(/(?<!!)\[([^\]\n]+)\](?!\()/g)].map(match => match[0]));
 assert.deepEqual([...listed].sort(), [...placeholders].sort(), 'Every legal placeholder is listed, with no stale entries');
-const legalOutput = await read('_site/privacy/index.html') + await read('_site/cookies/index.html');
+const legalOutput = await read('_site/privacy/index.html') + await read('_site/cookies/index.html') + await read('_site/editorial-standards/index.html');
 for (const placeholder of listed) assert.ok(legalOutput.includes(placeholder), `Visible legal placeholder: ${placeholder}`);
 for (const method of ['hasOnly', 'hasAll']) {
   const array = rules.match(new RegExp(`${method}\\(\\[([^\\]]+)\\]\\)`))?.[1];

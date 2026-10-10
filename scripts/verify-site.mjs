@@ -19,11 +19,13 @@ for (const { source, slug, author } of articles) {
   assert.match(page, /class="hero-image"[^>]*width="\d+" height="\d+"/);
   assert.match(page, /<h1 class="article-title">/);
   assert.match(page, /Read next/);
-  const jsonld = JSON.parse(page.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
-  assert.equal(jsonld['@type'], 'NewsArticle');
-  assert.equal(new URL(jsonld.mainEntityOfPage).pathname, `/articles/${slug}/`);
-  assert.equal(new URL(jsonld.image[0]).pathname, `/images/articles/${slug}.jpg`);
-  assert.match(jsonld.publisher.logo.url, /apple-touch-icon\.png$/);
+  const graph = JSON.parse(page.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1])['@graph'];
+  const jsonld = graph.find(node => node['@type'] === 'NewsArticle');
+  assert.equal(new URL(jsonld.mainEntityOfPage['@id']).pathname, `/articles/${slug}/`);
+  const image = await sharp(path.join(out, new URL(jsonld.image[0]).pathname)).metadata();
+  assert.equal(image.width, 1280);
+  const publisher = graph.find(node => node['@id'] === jsonld.publisher['@id']);
+  assert.match(publisher.logo.url, /social-avatar\.png$/);
   assert.match(page, new RegExp(`property="og:image" content="[^"]*/images/articles/${slug}\\.jpg"`));
   assert.match(page, /rel="preload" as="image" type="image\/avif"/);
   const hero = await sharp(`src/images/articles/${slug}.jpg`).metadata();
@@ -72,7 +74,7 @@ verifyNavigation(featuredPage, '/featured/');
 verifyNavigation(await html('about/index.html'), '/about/');
 const explainer = await html('what-is-singularity/index.html');
 verifyNavigation(explainer, '/what-is-singularity/');
-assert.equal(JSON.parse(explainer.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1])['@type'], 'WebPage');
+assert.ok(JSON.parse(explainer.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1])['@graph'].some(node => node['@type'] === 'WebPage'));
 for (const route of ['about/index.html','featured/index.html','what-is-singularity/index.html','404.html','rss.xml','sitemap.xml','robots.txt']) await fs.access(path.join(out,route));
 for (const category of new Set(articles.map(article => article.category))) {
   const slug = category.toLowerCase().replace(/[^a-z0-9]+/g,'-');

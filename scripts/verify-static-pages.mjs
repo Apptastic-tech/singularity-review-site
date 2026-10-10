@@ -57,7 +57,7 @@ for (const file of (await fs.readdir('_site', { recursive: true })).filter(x => 
   const viewportReports = [];
   for (const [width, height] of matrix) {
     const get = selector => styleAt(rules, selector, width, height);
-    for (const selector of ['.card', '.card-body', '.card--lead .card-body', '.carousel-story', '.expert-card']) unboxed(get(selector));
+    for (const selector of ['.card', '.card-body', '.card--lead .card-body', '.carousel-story', '.expert-card', '.article-takeaways', '.article-sources']) unboxed(get(selector));
     const widthStyle = get('.feed-width');
     const gridWidth = Math.min(length(widthStyle.width, width, height), length(widthStyle['max-width'], width, height));
     assert.ok(gridWidth <= width && gridWidth > 0, `${file} ${width}: page grid fits`);

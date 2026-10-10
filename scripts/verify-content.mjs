@@ -3,6 +3,9 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import assert from 'node:assert/strict';
 import sharp from 'sharp';
+import { parseDocument } from 'htmlparser2';
+import { findAll, textContent } from 'domutils';
+import { parseXml } from './xml.mjs';
 import { publishedArticles, cardLinks, carouselLinks, articleUrl, verifyNavigation } from './verification-helpers.mjs';
 
 const root = process.cwd();
@@ -43,14 +46,23 @@ try {
   }));
   await fs.writeFile(path.join(temp, 'src/_data/experts.js'), `export default ${JSON.stringify(experts)};\n`);
   await fs.writeFile(path.join(temp, 'src/_data/singularityOrgs.js'), 'export default [{name:"Example organisation", description:"Research and public education.", url:"https://example.org/organisation"}];\n');
+  await fs.writeFile(path.join(temp, 'src/_data/authorProfiles.js'), 'export default [{name:"Ada Example", bio:"A biography supplied only for this isolated fixture.", sameAs:["https://example.org/author"]}];\n');
   rebuild();
   const articles = await publishedArticles(temp);
   const headlines = articles.filter(article => article.section === 'news');
   const featured = articles.filter(article => article.section === 'featured');
   const totalPages = Math.ceil(headlines.length/10);
   const seen = [];
+  const pageTitles = new Set(), pageDescriptions = new Set();
   for (let page = 1; page <= totalPages; page++) {
     const content = await html(page === 1 ? 'index.html' : `page/${page}/index.html`);
+    const dom = parseDocument(content), nodes = findAll(node => node.type === 'tag', dom.children);
+    const title = textContent(nodes.find(node => node.name === 'title'));
+    const description = nodes.find(node => node.name === 'meta' && node.attribs.name === 'description').attribs.content;
+    assert.ok(!pageTitles.has(title) && !pageDescriptions.has(description), 'Pagination metadata is unique');
+    pageTitles.add(title); pageDescriptions.add(description);
+    assert.ok(description.length >= 70 && description.length <= 160);
+    if (page > 1) { assert.ok(title.includes(`Page ${page}`)); assert.ok(description.includes(`Page ${page}`)); }
     assert.deepEqual(cardLinks(content), headlines.slice((page-1)*10, page*10).map(articleUrl));
     assert.equal((content.match(/class="story-block"/g) || []).length, Math.min(10, headlines.length - (page-1)*10) - (page === 1 ? 1 : 0), 'Only page 1 separates its lead from the grid');
     assert.equal((content.match(/class="story-grid" data-feed/g) || []).length, 1, 'Each pagination page exposes the grid for loading');
@@ -83,6 +95,12 @@ try {
   verifyNavigation(await html('articles/house-featured/index.html'), '/');
   verifyNavigation(await html('articles/named-news/index.html'), '/featured/');
   verifyNavigation(await html('authors/ada-example/index.html'), '/featured/');
+  const authorPage = await html('authors/ada-example/index.html');
+  assert.match(authorPage, /class="author-bio">A biography supplied only for this isolated fixture\.<\/p>/);
+  const authorGraph = JSON.parse(authorPage.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1])['@graph'];
+  const authorPerson = authorGraph.find(node => node['@type'] === 'Person');
+  assert.equal(authorPerson.description, 'A biography supplied only for this isolated fixture.');
+  assert.deepEqual(authorPerson.sameAs, ['https://example.org/author']);
   assert.deepEqual(cardLinks(await html('authors/ada-example/index.html')).sort(), ['/articles/author-auto/', '/articles/named-news/']);
   assert.equal(await fs.access(path.join(out, 'articles/draft-fixture')).then(() => true, () => false), false);
   const small = await html('articles/fixture-00/index.html');
@@ -93,11 +111,17 @@ try {
   const inline = small.match(/<img src="\/images\/articles\/small-fixture\.jpg"[^>]*>/)?.[0];
   assert.ok(inline, 'Markdown inline image is preserved');
   assert.match(inline, /width="320" height="180" loading="lazy" decoding="async"/, 'Inline image geometry is reserved without editing Markdown');
-  assert.equal(JSON.parse(small.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]).dateModified, '2026-10-10T09:00:00.000Z');
+  assert.equal(JSON.parse(small.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1])['@graph'].find(node => node['@type'] === 'NewsArticle').dateModified, '2026-10-10T09:00:00.000Z');
   const research = await html('category/research/index.html');
   assert.match(research, /href="\/category\/research\/" aria-current="page"/);
   const sitemap = await html('sitemap.xml');
   const rss = await html('rss.xml');
+  const atom = await html('atom.xml');
+  const atomNodes = findAll(node => node.type === 'tag', parseXml(atom).children);
+  assert.equal(atomNodes.filter(node => node.name === 'entry').length, Math.min(50, articles.length));
+  const llms = await html('llms.txt');
+  for (const item of articles) assert.ok(llms.includes(articleUrl(item)), 'Future articles reach llms.txt');
+  assert.ok(!llms.includes('/articles/draft-fixture/') && !atom.includes('/articles/draft-fixture/'));
   for (const item of articles) { assert.ok(sitemap.includes(articleUrl(item))); assert.ok(rss.includes(articleUrl(item))); }
   for (let page = 2; page <= totalPages; page++) assert.ok(sitemap.includes(`/page/${page}/`));
   for (const route of ['/featured/', '/what-is-singularity/']) assert.ok(sitemap.includes(route));
@@ -129,6 +153,9 @@ try {
   rebuild();
   assert.equal(cardLinks(await html('index.html')).length, 0);
   assert.equal(carouselLinks(await html('index.html')).length, 0);
+  parseXml(await html('rss.xml'), 'Empty RSS');
+  const emptyAtom = parseXml(await html('atom.xml'), 'Empty Atom');
+  assert.equal(findAll(node => node.name === 'entry', emptyAtom.children).length, 0);
 
   await fixture('only-news');
   rebuild();

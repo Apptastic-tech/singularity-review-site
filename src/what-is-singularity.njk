@@ -2,6 +2,7 @@
 layout: layouts/base.njk
 title: Explainer
 description: "What the technological singularity means, where the idea came from and why Singularity Review believes AI has begun to accelerate its own development."
+updated: "2026-10-10T17:45:21.964Z"
 permalink: /what-is-singularity/
 eleventyExcludeFromCollections: true
 ---
@@ -37,6 +38,14 @@ eleventyExcludeFromCollections: true
     <p>Can systems reliably carry out long research projects and improve their own designs? How much will progress depend on human judgement, new data, energy, chips and physical experiments? Could improvements arrive gradually, or reinforce one another quickly?</p>
     <p>There are political questions as well: who controls powerful systems, who benefits from their use and how their behaviour can be evaluated and governed. No agreed test tells us when the singularity begins. The value of the idea lies in examining these possibilities carefully, without mistaking a compelling scenario for an observed fact.</p>
   </div>
+
+  <section class="explainer-section reading-width prose" id="frequently-asked-questions" aria-labelledby="faq-heading">
+    <h2 id="faq-heading">Frequently asked questions</h2>
+    {% for item in singularityFaq %}<div class="faq-item">
+      <h3>{{ item.question }}</h3>
+      <p>{{ item.answer }}</p>
+    </div>{% endfor %}
+  </section>
 
   <section class="explainer-section wide-width" aria-labelledby="experts-heading">
     <h2 id="experts-heading">The people behind the idea</h2>

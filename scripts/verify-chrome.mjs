@@ -63,7 +63,8 @@ assert.match(home, /id="carousel-heading">Featured<\/h2>/);
 assert.deepEqual([...markup(home, 'nav', 'footer-topics').matchAll(/<a[^>]*>([^<]+)<\/a>/g)].map(item => item[1]), ['Agents', 'Models', 'Policy']);
 for (const [file, title, heading] of [['index.html','News',null], ['featured/index.html','Featured','Featured'], ['about/index.html','About','About'], ['what-is-singularity/index.html','Explainer','What is the singularity?']]) {
   const html = await fs.readFile('_site/' + file, 'utf8');
-  assert.match(html, new RegExp(`<title>${title} \\| Singularity Review</title>`));
+  if (file === 'index.html') assert.match(html, /<title>Singularity Review: AI news, research, and analysis<\/title>/);
+  else assert.match(html, new RegExp(`<title>${title} \\| Singularity Review</title>`));
   if (heading) assert.ok(html.includes(`<h1>${heading}</h1>`));
 }
 for (const article of await publishedArticles(process.cwd())) {

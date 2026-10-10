@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 export const heroLines = [
   'Hard to keep up with everything happening in the technological singularity?',
   'We make it easier for you.',
-  'AI news, research, and analysis made simple.',
+  'AI news, research, and analysis.',
 ];
 export const plain = value => value.replace(/<[^>]*>/g, '').replace(/&amp;/g, '&').replace(/&#39;|&apos;/g, "'").replace(/&quot;/g, '"').replace(/\s+/g, ' ').trim();
 export function verifyHero(html, css) {

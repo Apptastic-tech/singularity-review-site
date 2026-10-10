@@ -2,6 +2,7 @@
 layout: layouts/base.njk
 title: Privacy policy
 description: How Singularity Review handles newsletter signups, reactions and site preferences.
+updated: "2026-10-10T17:45:21.964Z"
 permalink: /privacy/
 eleventyExcludeFromCollections: true
 ---

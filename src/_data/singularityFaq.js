@@ -1,0 +1,9 @@
+// These answers summarise factual material already present in the explainer.
+export default [
+  { question: 'What is the technological singularity?', answer: 'The technological singularity is a hypothetical turning point when technological change becomes so rapid or profound that familiar ways of predicting the future break down. It is a family of ideas, rather than a single agreed scientific theory.' },
+  { question: 'Is there an agreed date for the singularity?', answer: 'No. Neither the speed nor the inevitability of such a transition is established, and there is no agreed test for deciding when a singularity has begun.' },
+  { question: 'What does an AI feedback loop mean?', answer: 'In one influential version of the idea, an AI system helps design a more capable system. That system can then accelerate the next round of research. Other versions focus on human augmentation or the broader acceleration of technology.' },
+  { question: 'Where did the term singularity come from?', answer: 'In a 1958 recollection of John von Neumann, Stanislaw Ulam described a conversation about accelerating technology and an approaching singularity in human history. This early use concerned technological change broadly, rather than a detailed prediction about today\'s AI.' },
+  { question: 'What did I. J. Good propose?', answer: 'In 1965, I. J. Good argued that a machine better than humans at intellectual work could also design better machines. Repeating that process could create an intelligence explosion. He also raised the problem of keeping such a machine under human control.' },
+  { question: 'Does success on mathematical problems demonstrate independent AI development?', answer: 'No. Gemini Deep Think\'s gold-medal-standard performance at the 2025 International Mathematical Olympiad shows performance on demanding mathematical tasks. It does not demonstrate independent AI development.' },
+];

@@ -7,10 +7,11 @@ import path from "node:path";
 import { access } from "node:fs/promises";
 import { sentenceTitle } from "./src/_lib/editorial.js";
 import { articleSection } from "./src/_lib/sections.js";
+import { pageMetadata, pageGraph, json, latestModified } from "./src/_lib/seo.js";
 
 // Cache busting: {{ "/css/style.css" | asset }} -> /css/style.css?v=<content hash>
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 const assetHashes = new Map();
 const assetUrl = (url) => {
   const clean = String(url).split("?")[0];
@@ -75,6 +76,30 @@ const escapeXml = (s) =>
     .replace(/'/g, "&apos;");
 
 export default function (eleventyConfig) {
+  const sitemapPages = new Map();
+  eleventyConfig.on("eleventy.before", () => sitemapPages.clear());
+  eleventyConfig.addFilter("seoMetadata", pageMetadata);
+  eleventyConfig.addFilter("latestModified", latestModified);
+  eleventyConfig.addNunjucksAsyncShortcode("seoGraph", async function () {
+    const data = this.ctx;
+    const images = data.hero ? await heroImages(data.hero, data.title) : undefined;
+    const image = images?.jpeg.find(item => item.width >= 1200)?.url || data.hero;
+    return json(pageGraph(data, image));
+  });
+  // Collect current rendered pages, including pages excluded from article collections.
+  // Dates come only from explicit updates or the articles included on a page.
+  eleventyConfig.addTransform("collectSitemapPages", (content, outputPath) => {
+    if (typeof outputPath !== "string" || !outputPath.endsWith(".html") || /<meta name="robots" content="noindex/.test(content)) return content;
+    const graph = JSON.parse(content.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1])["@graph"];
+    const page = graph.find(item => item["@id"].endsWith("#webpage"));
+    sitemapPages.set(page.url, page.dateModified);
+    return content;
+  });
+  eleventyConfig.on("eleventy.after", () => {
+    const entries = [...sitemapPages].sort(([a], [b]) => a.localeCompare(b)).map(([url, date]) =>
+      `  <url><loc>${escapeXml(url)}</loc>${date ? `<lastmod>${date.slice(0, 10)}</lastmod>` : ""}</url>`);
+    writeFileSync("_site/sitemap.xml", `<?xml version="1.0" encoding="utf-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.join("\n")}\n</urlset>\n`);
+  });
   eleventyConfig.addFilter("asset", assetUrl);
   eleventyConfig.addFilter("sentenceTitle", sentenceTitle);
   eleventyConfig.on("eleventy.before", () => assetHashes.clear());
@@ -189,7 +214,10 @@ export default function (eleventyConfig) {
       const name = item.data.author;
       if (!name || name === item.data.site?.defaultAuthor) continue;
       const slug = slugify(name);
-      if (!map.has(slug)) map.set(slug, { name, slug, articles: [] });
+      if (!map.has(slug)) {
+        const profile = item.data.authorProfiles?.find(profile => profile.slug === slug || profile.name === name) || {};
+        map.set(slug, { ...profile, name, slug, articles: [] });
+      }
       map.get(slug).articles.push(item);
     }
     return [...map.values()].sort((a, b) => a.name.localeCompare(b.name));

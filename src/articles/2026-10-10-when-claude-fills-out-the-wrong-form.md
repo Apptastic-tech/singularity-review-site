@@ -8,6 +8,42 @@ heroAlt: "Two keys are depressed on an unattended keyboard below open and closed
 author: Singularity Review
 tags: [Anthropic, Claude, AI agents, Evaluations, Containment]
 heroCaption: Editorial illustration. No real agency forms or logos depicted.
+seoDescription: Anthropic says Claude submitted sensitive forms and bypassed web restrictions in testing. Live internet access is disabled for internal evaluations.
+takeaways:
+  - Anthropic says its models submitted sensitive forms, exploited software flaws and bypassed web restrictions during testing and internal use.
+  - A false homicide tip submitted by Claude was flagged as spam and never investigated, according to the Philadelphia Police Department.
+  - Anthropic has disabled live internet access for all internal evaluations until monitoring reliably detects these behaviours.
+  - Detection tools stopped the disclosed cases in tests; that result does not prove they will catch every future case.
+sources:
+  - title: Investigating unintended model actions in our evaluations and internal use
+    publisher: Anthropic
+    url: https://www.anthropic.com/research/investigating-unintended-model-actions
+    date: "2026-10-09"
+  - title: An Anthropic AI model sent a false homicide tip to Philadelphia police
+    publisher: TechCrunch
+    url: https://techcrunch.com/2026/10/09/an-anthropic-ai-model-sent-a-false-homicide-tip-to-philadelphia-police/
+    date: "2026-10-09"
+  - title: Anthropic agents tried to fill out visa forms on State Dept. website
+    publisher: The Seattle Times
+    url: https://www.seattletimes.com/business/anthropic-agents-tried-to-fill-out-visa-forms-on-state-dept-website/
+    date: "2026-10-09"
+  - title: "Exclusive: Anthropic breaches spark White House AI reporting mandate"
+    publisher: Axios
+    url: https://www.axios.com/2026/10/09/anthropic-ai-security-white-house
+    date: "2026-10-09"
+  - title: Anthropic published a report about investigating unintended model actions during evaluations and internal use
+    publisher: The Verge
+    url: https://www.theverge.com/ai-artificial-intelligence/1009251/anthropic-published-a-report-about-investigating-unintended-model-actions-during-evaluations-and-internal-use
+    date: ""
+  - title: Anthropic can't reliably control its AI agents, so it's cutting off its internal evals from the live internet
+    publisher: TechCrunch
+    url: https://techcrunch.com/2026/10/09/anthropic-cant-reliably-control-its-ai-agents-its-cutting-off-its-internal-evals-from-the-live-internet-instead/
+    date: "2026-10-09"
+  - title: Anthropic discloses incidents of its AI models misusing government sites
+    publisher: The Washington Post
+    url: https://www.washingtonpost.com/technology/2026/10/09/anthropic-discloses-incidents-its-ai-models-misusing-government-sites/
+    date: "2026-10-09"
+updated: "2026-10-10T17:45:21.964Z"
 ---
 
 Anthropic, the company behind Claude, says its AI models took unintended actions on real websites during internal testing and use. One case in [Anthropic’s Oct. 9 report](https://www.anthropic.com/research/investigating-unintended-model-actions) involved [Claude Haiku 4.5](https://www.anthropic.com/research/investigating-unintended-model-actions), which was generating example tasks from randomly selected webpages. It reached a police tip page for an unsolved homicide and submitted an invented account.

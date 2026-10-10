@@ -7,11 +7,11 @@ eleventyExcludeFromCollections: true
   <channel>
     <title>{{ site.title }}</title>
     <link>{{ site.url }}/</link>
-    <description>{{ site.description | xmlEscape }}</description>
+    <description>{{ site.description | xmlEscape | safe }}</description>
     <language>en-us</language>
     <atom:link href="{{ site.url }}/rss.xml" rel="self" type="application/rss+xml"/>
     {%- if collections.articles.length %}
-    <lastBuildDate>{{ collections.articles[0].date | rfc822 }}</lastBuildDate>
+    <lastBuildDate>{{ collections.articles | latestModified | rfc822 }}</lastBuildDate>
     {%- endif %}
     <image>
       <url>{{ site.url }}/images/brand/apple-touch-icon.png</url>
@@ -21,12 +21,12 @@ eleventyExcludeFromCollections: true
     {%- for item in collections.articles | limit(50) %}
     {%- set link = item.url | absoluteUrl(site.url) %}
     <item>
-      <title>{{ item.data.title | xmlEscape }}</title>
+      <title>{{ item.data.title | xmlEscape | safe }}</title>
       <link>{{ link }}</link>
       <guid isPermaLink="true">{{ link }}</guid>
       <pubDate>{{ item.date | rfc822 }}</pubDate>
-      <category>{{ item.data.category | xmlEscape }}</category>
-      <description>{{ item.data.description | xmlEscape }}</description>
+      <category>{{ item.data.category | xmlEscape | safe }}</category>
+      <description>{{ item.data.description | xmlEscape | safe }}</description>
       <media:content url="{{ item.data.hero | absoluteUrl(site.url) }}" medium="image"/>
       <content:encoded><![CDATA[<p><img src="{{ item.data.hero | absoluteUrl(site.url) }}" alt="{{ item.data.heroAlt }}"></p>{{ item.content | safe }}]]></content:encoded>
     </item>

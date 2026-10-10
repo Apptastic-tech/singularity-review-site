@@ -4,10 +4,10 @@ Stage draft, version 2026-10-10. Every bracketed legal placeholder used in the p
 
 | Placeholder | Used in | What must be confirmed |
 | --- | --- | --- |
-| [Company legal name] | Privacy policy; Cookie policy | Controller's full legal name |
+| [Company legal name] | Privacy policy; Cookie policy; Editorial standards | Controller's full legal name |
 | [Registered address] | Privacy policy; Cookie policy | Controller's registered address |
-| [Contact email] | Both policies | Address for privacy, consent withdrawal and rights requests |
-| [Country of establishment] | Both policies | Controller's country of establishment |
+| [Contact email] | Both policies; Editorial standards | Address for privacy, consent withdrawal, rights and correction requests |
+| [Country of establishment] | Both policies; Editorial standards | Controller's country of establishment |
 | [Data protection officer, if any] | Privacy policy | Whether a DPO exists and their contact details |
 | [Supervisory authority] | Privacy policy | Competent supervisory authority |
 | [Firestore database location to confirm] | Privacy policy; Newsletter architecture | Actual region of the existing database |
@@ -18,5 +18,7 @@ Stage draft, version 2026-10-10. Every bracketed legal placeholder used in the p
 | [retention period for unconfirmed signups, proposed 30 days] | Privacy policy; Newsletter architecture | Proposed 30-day deletion must be approved and implemented |
 | [Retention period for reaction counts] | Privacy policy | Approved aggregate count retention |
 | [Hosting and security log retention period to confirm] | Privacy policy | Actual Google logging configuration and retention |
+| [Disclosure of AI tool use, to be confirmed by the editor] | Editorial standards | Confirmed disclosure of AI tools used in production |
+| [Ownership and funding, to be confirmed] | Editorial standards | Confirmed ownership, funding and independence details |
 
 The proposals in the policies are visibly marked as proposed. These pages need controller review and replacement of these placeholders before a final public legal release. This work prepares stage files only.
