@@ -14,6 +14,7 @@ eleventyComputed:
   <h1>{{ cat.name | sentenceTitle }}</h1>
   <p class="meta">{{ cat.articles.length }} {{ "story" if cat.articles.length == 1 else "stories" }}, newest first. News and analysis on this topic from Singularity Review.</p>
 </header>
-<section class="feed feed-width" aria-label="{{ cat.name }} articles" data-feed>
-  {% asyncEach item in cat.articles %}{% set featured = loop.first %}{% include "card.njk" %}{% endeach %}
+<section class="story-grid story-list feed-width" aria-label="{{ cat.name }} articles" data-feed>
+  {% set storyHeading = "h2" %}
+  {% asyncEach item in cat.articles %}{% include "story-block.njk" %}{% endeach %}
 </section>

@@ -1,0 +1,13 @@
+<article class="story-block" data-card data-reveal>
+  <div class="story-block-media">
+    {% picture item.data.hero, item.data.heroAlt, "(min-width: 1312px) 400px, (min-width: 960px) calc((100vw - 128px) / 3), (min-width: 640px) calc((100vw - 96px) / 2), 100vw", "lazy", "auto", "story-block-image", item.data.title %}
+  </div>
+  <div class="story-block-body">
+    <a class="story-block-category" href="/category/{{ item.data.category | slugify }}/">{{ item.data.category }}</a>
+    <a class="story-block-link" href="{{ item.url }}" data-story-link>
+      <{{ storyHeading or "h2" }} class="story-block-title">{{ item.data.title | sentenceTitle }}</{{ storyHeading or "h2" }}>
+    </a>
+    <p class="story-block-dek">{{ item.data.description }}</p>
+    <time class="story-block-date" datetime="{{ item.date | isoDate }}">{{ item.date | readableDate }}</time>
+  </div>
+</article>

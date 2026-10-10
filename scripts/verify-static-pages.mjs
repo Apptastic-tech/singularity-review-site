@@ -41,6 +41,13 @@ for (const file of (await fs.readdir('_site', { recursive: true })).filter(x => 
     assert.ok(!ancestor(body, node => node.name === 'picture' || hasClass(node, 'card-media')), `${file}: body is outside imagery`);
     if (hasClass(card, 'card--lead')) assert.ok(card.children.indexOf(body) < card.children.indexOf(media), 'Lead title and byline precede its photograph');
   }
+  for (const block of nodes.filter(node => hasClass(node, 'story-block'))) {
+    const body = block.children.find(node => hasClass(node, 'story-block-body')), media = block.children.find(node => hasClass(node, 'story-block-media'));
+    assert.ok(body && media, `${file}: block media and text are separate siblings`);
+    assert.ok(block.children.indexOf(media) < block.children.indexOf(body), `${file}: block text follows the image`);
+    assert.ok(!ancestor(body, node => node.name === 'picture' || hasClass(node, 'story-block-media')), `${file}: block text is outside imagery`);
+    assert.equal(elements(body).filter(node => /^h[23]$/.test(node.name)).length, 1, `${file}: one block headline`);
+  }
   for (const heading of nodes.filter(node => /^h[123]$/.test(node.name))) assert.ok(!ancestor(heading, node => node.name === 'picture' || hasClass(node, 'card-media')), `${file}: heading is outside media`);
   for (const image of nodes.filter(node => node.name === 'img')) {
     assert.ok(+image.attribs.width > 0 && +image.attribs.height > 0, `${file}: intrinsic image geometry reserved`);
@@ -73,7 +80,7 @@ for (const file of (await fs.readdir('_site', { recursive: true })).filter(x => 
     }
     viewportReports.push(report);
   }
-  pages.push({ file, archetype: identity, mainHeading: textContent(headings[0]).trim(), storyCount: nodes.filter(node => hasClass(node, 'card')).length, viewports: viewportReports });
+  pages.push({ file, archetype: identity, mainHeading: textContent(headings[0]).trim(), storyCount: nodes.filter(node => hasClass(node, 'card') || hasClass(node, 'story-block')).length, viewports: viewportReports });
 }
 for (const archetype of ['home','article','featured','explainer','about','author','category']) assert.ok(archetypes.has(archetype), `Requested ${archetype} page exists`);
 // Inspect every matching reading-surface rule, including responsive overrides.

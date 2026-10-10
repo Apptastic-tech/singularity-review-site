@@ -62,7 +62,7 @@ assert.equal(motion[1].replace(/<[^>]*>/g, '').trim(), '', 'Motion control has n
 assert.ok(!home.includes(retiredImage));
 verifyNavigation(home);
 if (headlines.length) assert.match(home, /loading="eager" fetchpriority="high" class="card-image"/);
-assert.equal((home.match(/loading="lazy" fetchpriority="auto" class="card-image"/g) || []).length, Math.max(0,cards.length-1));
+assert.equal((home.match(/loading="lazy" fetchpriority="auto" class="story-block-image"/g) || []).length, Math.max(0,cards.length-1));
 if (headlines.length) assert.match(home, /rel="preload" as="image" type="image\/avif"/);
 assert.deepEqual(carouselLinks(home), featured.map(articleUrl));
 const featuredPage = await html('featured/index.html');

@@ -51,6 +51,10 @@ try {
   for (let page = 1; page <= totalPages; page++) {
     const content = await html(page === 1 ? 'index.html' : `page/${page}/index.html`);
     assert.deepEqual(cardLinks(content), headlines.slice((page-1)*10, page*10).map(articleUrl));
+    assert.equal((content.match(/class="story-block"/g) || []).length, Math.min(10, headlines.length - (page-1)*10) - (page === 1 ? 1 : 0), 'Only page 1 separates its lead from the grid');
+    assert.equal((content.match(/class="story-grid" data-feed/g) || []).length, 1, 'Each pagination page exposes the grid for loading');
+    assert.equal((content.match(/<h3 class="story-block-title"/g) || []).length, page === 1 ? 9 : 0, 'Home blocks sit under Latest; subsequent pages use h2');
+    if (page > 1) assert.doesNotMatch(content, /card--lead|id="latest-heading"|data-carousel-track/);
     seen.push(...cardLinks(content));
     verifyNavigation(content);
     assert.match(content, new RegExp(`rel="canonical" href="[^" ]+${page === 1 ? '/' : `/page/${page}/`}"`));
@@ -69,7 +73,9 @@ try {
   assert.match(archive, /aria-label="1 of \d+"/);
   assert.doesNotMatch(archive, /author-avatar|authorPhoto|<img[^>]+apple-touch-icon/);
   assert.match(archive, /class="carousel-byline meta">By <a class="byline-author" href="\/authors\/ada-example\/" rel="author">Ada Example<\/a> <span aria-hidden="true">·<\/span> <time/);
-  assert.match(archive, /class="card-byline meta">By <a class="byline-author" href="\/authors\/ada-example\/"/);
+  assert.doesNotMatch(archive, /class="card-byline/, 'Archive blocks have a date without a byline');
+  assert.equal((archive.match(/<time class="story-block-date"/g) || []).length, featured.length, 'Every featured block retains its date');
+  assert.equal((archive.match(/class="story-block-link"/g) || []).length, featured.length, 'Every featured article has a block link');
   assert.match(archive, /By Singularity Review <span aria-hidden="true">·<\/span>/);
   assert.ok(!archive.includes('/articles/draft-fixture/'));
   verifyNavigation(archive, '/featured/');
@@ -122,6 +128,16 @@ try {
   rebuild();
   assert.equal(cardLinks(await html('index.html')).length, 0);
   assert.equal(carouselLinks(await html('index.html')).length, 0);
+
+  await fixture('only-news');
+  rebuild();
+  const single = await html('index.html');
+  assert.equal(cardLinks(single).length, 1, 'One headline retains the lead');
+  assert.equal((single.match(/class="story-block"/g) || []).length, 0, 'The lead is not duplicated into the grid');
+  assert.match(single, /id="latest-heading">Latest<\/h2>/);
+  assert.match(single, /class="story-grid" data-feed/);
+  assert.doesNotMatch(single, /data-load-more/);
+  await fs.unlink(path.join(temp, 'src/articles/2026-10-09-only-news.md'));
 
   await fixture('invalid-section', 'section: opinion\n');
   let result = build();

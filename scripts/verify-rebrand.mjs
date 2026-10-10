@@ -131,6 +131,20 @@ transitionListeners.get('pagereveal')({ viewTransition: { finished: transitionFi
 assert.equal(images[2].style.viewTransitionName, 'article-photo', 'Incoming article hero is shared');
 resolveTransition(); await transitionFinished;
 assert.equal(images[2].style.viewTransitionName, 'none');
+articleHero = null;
+const blockLink = {
+  getAttribute: () => '/articles/block/',
+  querySelector: () => null,
+  closest: () => ({ querySelector: () => images[0] }),
+};
+storyLinks.push(blockLink);
+transitionDocument.activeElement = { closest: () => blockLink };
+transitionFinished = new Promise(resolve => { resolveTransition = resolve; });
+swap({ viewTransition: { finished: transitionFinished }, activation: { entry: { url: 'https://example.org/articles/block/' } } });
+assert.equal(images[0].style.viewTransitionName, 'article-photo', 'Stretched block links share the sibling photograph');
+assert.equal(images.filter(image => image.style.viewTransitionName === 'article-photo').length, 1);
+resolveTransition(); await transitionFinished;
+assert.equal(images[0].style.viewTransitionName, 'none', 'Block photograph name clears after its snapshot');
 transitionPreference.matches = true;
 let skipped = 0;
 swap({ viewTransition: { skipTransition: () => skipped++ } });

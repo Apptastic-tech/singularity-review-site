@@ -160,7 +160,7 @@
     document.addEventListener('visibilitychange', updateCover);
   }
 
-  const feed = document.querySelector('[data-feed]');
+  const feed = document.querySelector('.story-grid[data-feed]');
   const link = document.querySelector('[data-load-more]');
   const sentinel = document.querySelector('[data-sentinel]');
   const status = document.querySelector('[data-load-status]');
@@ -183,12 +183,22 @@
       const response = await fetch(next.href, { credentials: 'same-origin' });
       if (!response.ok) throw new Error('Page unavailable');
       const doc = new DOMParser().parseFromString(await response.text(), 'text/html');
-      const cards = [...doc.querySelectorAll('[data-feed] > [data-card]')];
+      const cards = [...doc.querySelectorAll('.story-grid[data-feed] > .story-block[data-card]')];
       if (!cards.length) throw new Error('No articles found');
-      const existing = new Set([...feed.querySelectorAll('.card-link')].map(card => card.getAttribute('href')));
+      const existing = new Set([...feed.querySelectorAll('.story-block-link')].map(card => card.getAttribute('href')));
       const appended = [];
       cards.forEach(card => {
-        if (existing.has(card.querySelector('.card-link').getAttribute('href'))) return;
+        const href = card.querySelector('.story-block-link').getAttribute('href');
+        if (existing.has(href)) return;
+        existing.add(href);
+        const heading = card.querySelector('.story-block-title');
+        const headingTag = feed.closest('[aria-labelledby]') ? 'h3' : 'h2';
+        if (heading.tagName.toLowerCase() !== headingTag) {
+          const replacement = document.createElement(headingTag);
+          replacement.className = heading.className;
+          replacement.textContent = heading.textContent;
+          heading.replaceWith(replacement);
+        }
         const image = card.querySelector('img');
         if (image) { image.loading = 'lazy'; image.setAttribute('fetchpriority', 'auto'); }
         feed.append(card);
@@ -196,7 +206,7 @@
         appended.push(card);
       });
       status.textContent = `${appended.length} more stories loaded.`;
-      if (fromClick && appended.length) appended[0].querySelector('a').focus({ preventScroll: true });
+      if (fromClick && appended.length) appended[0].querySelector('.story-block-link').focus({ preventScroll: true });
       const nextLink = doc.querySelector('[data-load-more]');
       if (nextLink) {
         link.href = new URL(nextLink.getAttribute('href'), next.href).href;

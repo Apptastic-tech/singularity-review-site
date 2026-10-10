@@ -12,8 +12,11 @@ eleventyExcludeFromCollections: true
 {% ifAsync collections.featured.length %}
   {% set carouselItems = collections.featured %}
   {% include "carousel.njk" %}
-  <section class="feed feed-width" aria-labelledby="featured-archive">
+  <section class="story-list feed-width" aria-labelledby="featured-archive">
     <h2 class="archive-title" id="featured-archive">All featured articles</h2>
-    {% asyncEach item in collections.featured %}{% set featured = false %}{% include "card.njk" %}{% endeach %}
+    <div class="story-grid" data-feed>
+      {% set storyHeading = "h3" %}
+      {% asyncEach item in collections.featured %}{% include "story-block.njk" %}{% endeach %}
+    </div>
   </section>
 {% else %}<p class="empty-state reading-width">Our authors' next articles will appear here. Read the latest <a href="/">News</a>.</p>{% endif %}

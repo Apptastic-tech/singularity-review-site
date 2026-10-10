@@ -6,11 +6,14 @@
     document.querySelectorAll('[data-story-link] img, [data-article-hero] img').forEach(image => {
       image.style.viewTransitionName = 'none';
     });
+    document.querySelectorAll('.story-block-image').forEach(image => {
+      image.style.viewTransitionName = 'none';
+    });
     const hero = document.querySelector('[data-article-hero] img');
     const links = [...document.querySelectorAll('[data-story-link]')];
     const focused = document.activeElement?.closest('[data-story-link]');
     const link = focused?.getAttribute('href') === route ? focused : links.find(link => link.getAttribute('href') === route);
-    const image = hero || link?.querySelector('img');
+    const image = hero || link?.querySelector('img') || link?.closest('.story-block')?.querySelector('img');
     if (image) image.style.viewTransitionName = 'article-photo';
     return image;
   };

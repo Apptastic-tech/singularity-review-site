@@ -32,17 +32,35 @@ eleventyExcludeFromCollections: true
   {% if pagination.pageNumber > 0 %}<p class="meta">Page {{ pagination.pageNumber + 1 }}</p>{% endif %}
 </header>
 {% endif %}
-<section class="feed headline-feed feed-width" aria-label="News" data-feed>
+<section class="feed headline-feed feed-width" aria-label="News">
   {% if feedItems.length %}
-  {% asyncEach item in feedItems %}
-    {% set featured = loop.first %}
-    {% set lead = loop.first and pagination.pageNumber == 0 %}
-    {% include "card.njk" %}
-    {% ifAsync loop.first and pagination.pageNumber == 0 and collections.featured.length %}
-      {% set carouselItems = collections.featured %}
-      {% include "carousel.njk" %}
+    {% ifAsync pagination.pageNumber == 0 %}
+      {% asyncEach item in feedItems %}
+        {% ifAsync loop.first %}
+          {% set featured = true %}
+          {% set lead = true %}
+          {% include "card.njk" %}
+        {% endif %}
+      {% endeach %}
+      {% ifAsync collections.featured.length %}
+        {% set carouselItems = collections.featured %}
+        {% include "carousel.njk" %}
+      {% endif %}
+      <section class="story-section" aria-labelledby="latest-heading">
+        <h2 class="archive-title" id="latest-heading">Latest</h2>
+        <div class="story-grid" data-feed>
+          {% set storyHeading = "h3" %}
+          {% asyncEach item in feedItems %}
+            {% ifAsync not loop.first %}{% include "story-block.njk" %}{% endif %}
+          {% endeach %}
+        </div>
+      </section>
+    {% else %}
+      <div class="story-grid" data-feed>
+        {% set storyHeading = "h2" %}
+        {% asyncEach item in feedItems %}{% include "story-block.njk" %}{% endeach %}
+      </div>
     {% endif %}
-  {% endeach %}
   {% else %}<header class="feed-intro"><h2>News</h2><p class="empty-state">No headline articles are published yet. Read <a href="/featured/">Featured</a>.</p></header>{% endif %}
 </section>
 {% ifAsync not feedItems.length and pagination.pageNumber == 0 and collections.featured.length %}

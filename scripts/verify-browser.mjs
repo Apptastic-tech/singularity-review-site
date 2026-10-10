@@ -73,7 +73,9 @@ try {
     await page.waitForFunction(() => window.reworkPerformance.lcp !== null);
     assert.equal(await page.evaluate(() => window.reworkPerformance.cls),0,`${width}: zero CLS`);
   }
-  await page.setViewportSize({width:390,height:844}); await page.goto(url);
+  // Headless Chromium renders WebGL in software, which the lensing guard (1aedfb9) rejects; force the shader so the motion toggle can be exercised.
+  await page.setViewportSize({width:390,height:844}); await page.goto(new URL('?lensing=force', url).href);
+  await page.locator('[data-motion-toggle]:not([hidden])').waitFor({ timeout: 15000 });
   const masthead = await page.evaluate(() => {
     const brand = document.querySelector('.brand').getBoundingClientRect();
     const toggle = document.querySelector('[data-menu-toggle]').getBoundingClientRect();
@@ -263,7 +265,9 @@ try {
         assert.equal(await page.locator('.explainer .photo-credit a').count(), experts.filter(expert => expert.photo && expert.credit).length * 3);
         assert.equal(await page.locator('.expert-photo--initials').count(), 0);
       }
-      await page.screenshot({path:path.join(root, `.audit/browser-check/${route.split('/')[1]}-${name}.png`),fullPage:true});
+      // Artifact only: very tall pages exceed the software renderer's capture limit, so fall back to the viewport.
+      const shotPath = path.join(root, `.audit/browser-check/${route.split('/')[1]}-${name}.png`);
+      await page.screenshot({path:shotPath,fullPage:true}).catch(() => page.screenshot({path:shotPath}));
     }
   }
   await page.goto(`${url}/articles/washington-names-an-intelligence-chief/`);

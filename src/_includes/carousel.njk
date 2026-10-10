@@ -2,7 +2,7 @@
 {% set carouselSizes = "(min-width: 1312px) 608px, (min-width: 640px) calc((100vw - 96px) / 2), 100vw" if carouselItems.length == 1 else "(min-width: 640px) 520px, 100vw" %}
 <section class="author-shelf{% if homeFeed %} author-shelf--home{% endif %} wide-width" role="region" aria-roledescription="carousel" aria-labelledby="carousel-heading" data-carousel>
   <div class="shelf-heading">
-    <div><h2 id="carousel-heading">Featured</h2></div>
+    <div><h2 id="carousel-heading"{% if page.url == '/featured/' %} class="sr-only"{% endif %}>Featured</h2></div>
     <a class="shelf-all" href="{{ '#featured-archive' if page.url == '/featured/' else '/featured/' }}">{{ 'Article archive' if page.url == '/featured/' else 'View all' }}</a>
   </div>
   <p class="sr-only" id="carousel-help">Swipe to browse articles. Use the left and right arrow keys when the track is focused.</p>

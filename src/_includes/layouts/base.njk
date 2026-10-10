@@ -41,10 +41,11 @@
   <link rel="apple-touch-icon" href="{{ '/images/brand/apple-touch-icon.png' | asset }}" sizes="180x180">
   <link rel="alternate" type="application/rss+xml" title="{{ site.title }}" href="/rss.xml">
   <link rel="preload" href="/fonts/newsreader-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  {% set storyBlockSizes = "(min-width: 1312px) 400px, (min-width: 960px) calc((100vw - 128px) / 3), (min-width: 640px) calc((100vw - 96px) / 2), 100vw" %}
   {% if hero %}{% preloadHero hero, "(min-width: 1440px) 1440px, 100vw", title %}
-  {% elif feedItems and feedItems.length %}{% preloadHero feedItems[0].data.hero, "(min-width: 1312px) 1248px, (min-width: 640px) calc(100vw - 64px), 100vw", feedItems[0].data.title %}
-  {% elif cat and cat.articles.length %}{% preloadHero cat.articles[0].data.hero, "(min-width: 1312px) 1248px, (min-width: 640px) calc(100vw - 64px), 100vw", cat.articles[0].data.title %}{% endif %}
-  {% if person and person.articles.length %}{% preloadHero person.articles[0].data.hero, "(min-width: 1312px) 1248px, (min-width: 640px) calc(100vw - 64px), 100vw", person.articles[0].data.title %}{% endif %}
+  {% elif feedItems and feedItems.length %}{% preloadHero feedItems[0].data.hero, "(min-width: 1312px) 1248px, (min-width: 640px) calc(100vw - 64px), 100vw" if pagination.pageNumber == 0 else storyBlockSizes, feedItems[0].data.title %}
+  {% elif cat and cat.articles.length %}{% preloadHero cat.articles[0].data.hero, storyBlockSizes, cat.articles[0].data.title %}{% endif %}
+  {% if person and person.articles.length %}{% preloadHero person.articles[0].data.hero, storyBlockSizes, person.articles[0].data.title %}{% endif %}
   <link rel="stylesheet" href="{{ '/css/style.css' | asset }}">
   <script src="{{ '/js/transitions.js' | asset }}"></script>
   <script src="{{ '/js/site.js' | asset }}" defer></script>
