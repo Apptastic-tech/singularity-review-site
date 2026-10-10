@@ -1,0 +1,59 @@
+---
+layout: layouts/base.njk
+title: What is singularity
+description: "A measured guide to the technological singularity: where the idea came from, why it matters for AI and which questions remain open."
+permalink: /what-is-singularity/
+eleventyExcludeFromCollections: true
+---
+<article class="explainer">
+  <header class="explainer-header reading-width">
+    <p class="kicker">A guide to the idea</p>
+    <h1>What is singularity</h1>
+    <p class="explainer-lead">What happens when technology can improve the intelligence that creates it?</p>
+  </header>
+  <div class="prose reading-width">
+    <p>The technological singularity is a hypothetical turning point at which technological change, often driven by intelligence beyond human capabilities, becomes so rapid or profound that familiar ways of predicting the future break down. It is a family of ideas, rather than a single agreed scientific theory or a date on the calendar.</p>
+    <p>One influential version centres on feedback: an AI system helps design a more capable system, which can then accelerate the next round of research. Other versions emphasise human augmentation or the broader acceleration of technology. Neither the speed nor the inevitability of such a transition is established.</p>
+
+    <h2>Where the idea came from</h2>
+    <p>In a 1958 recollection of John von Neumann, mathematician Stanislaw Ulam described a conversation about accelerating technology and an approaching singularity in human history. This early use concerned technological change broadly. It was not a detailed prediction about today's AI. <a href="https://www.ams.org/journals/bull/1958-64-03/S0002-9904-1958-10189-5/" rel="noopener">Read Ulam's recollection</a>.</p>
+    <p>In 1965, statistician I. J. Good set out a more specific mechanism in <em>Speculations Concerning the First Ultraintelligent Machine</em>. A machine better than humans at intellectual work, he argued, could also design better machines, creating an intelligence explosion. Good also raised the problem of keeping such a machine under human control. <a href="https://doi.org/10.1016/S0065-2458(08)60418-0" rel="noopener">Read Good's paper</a>.</p>
+    <p>Vernor Vinge's 1993 essay, <em>The Coming Technological Singularity</em>, made greater-than-human intelligence central to the idea. He explored several routes to it, including AI, computer networks and closer links between humans and computers, and argued that its consequences would be difficult to foresee. <a href="https://ntrs.nasa.gov/citations/19940022856" rel="noopener">Read Vinge's essay</a>.</p>
+    <p>Ray Kurzweil brought the idea to a wider audience through books including <em>The Singularity Is Near</em> (2005). His account emphasises accelerating technological progress and the integration of people and machines. Its forecasts remain predictions, not settled findings. <a href="https://www.penguinrandomhouse.com/books/291221/the-singularity-is-near-by-ray-kurzweil/" rel="noopener">Explore Kurzweil's book</a>.</p>
+
+    <h2>Why it matters now</h2>
+    <p>AI is already being used to write software and assist research. <a href="https://www.anthropic.com/research/how-ai-is-transforming-work-at-anthropic" rel="noopener">Anthropic's study of its own engineers</a> offers one account of that shift, with limits that make generalisation difficult. These uses bring the question of AI accelerating AI development into practical focus.</p>
+    <p>Our view is that the pace of change warrants close reporting. That does not establish that a singularity has occurred or will occur. A useful discussion separates demonstrated capabilities, research hypotheses and forecasts about the future.</p>
+
+    <h2>What remains open</h2>
+    <p>Can systems reliably carry out long research projects and improve their own designs? How much will progress depend on human judgement, new data, energy, chips and physical experiments? Could improvements arrive gradually, or reinforce one another quickly?</p>
+    <p>There are political questions as well: who controls powerful systems, who benefits from their use and how their behaviour can be evaluated and governed. No agreed test tells us when the singularity begins. The value of the idea lies in examining these possibilities carefully, without mistaking a compelling scenario for an observed fact.</p>
+  </div>
+
+  <section class="explainer-section wide-width" aria-labelledby="experts-heading">
+    <h2 id="experts-heading">The people behind the idea</h2>
+    {% if experts.length %}<div class="expert-grid">
+      {% for expert in experts %}<article class="expert-card">
+        {% if expert.photo %}<img class="expert-photo" style="object-position: {{ expert.photoPosition or 'center 25%' }}" src="{{ expert.photo }}" alt="{{ expert.photoAlt or expert.name }}" width="480" height="360" loading="lazy">{% else %}<div class="expert-photo expert-photo--initials" aria-hidden="true">{{ expert.name | initials }}</div>{% endif %}
+        <h3>{{ expert.name }}</h3>
+        <p class="expert-role">{{ expert.role }}</p>
+        <span class="stance-badge">{{ expert.stanceType | capitalize }}</span>
+        <p class="expert-stance">{{ expert.stance }}</p>
+        {% if expert.works.length %}<ul class="expert-works" aria-label="Key works by {{ expert.name }}">{% for work in expert.works %}<li><a href="{{ work.url }}" rel="noopener">{{ work.title }}{% if work.year %} ({{ work.year }}){% endif %}</a></li>{% endfor %}</ul>{% endif %}
+        {% if expert.photo and expert.credit %}<p class="photo-credit">Photo: <a href="{{ expert.credit.authorUrl or expert.credit.sourceUrl }}" rel="noopener">{{ expert.credit.author }}</a>, <a href="{{ expert.credit.licenseUrl }}" rel="noopener">{{ expert.credit.license }}</a> via <a href="{{ expert.credit.sourceUrl }}" rel="noopener">Wikimedia Commons</a></p>{% endif %}
+      </article>{% endfor %}
+    </div>{% else %}<p class="meta">The original works linked above introduce the thinkers who shaped the idea. Profiles will be added here.</p>{% endif %}
+  </section>
+
+  <section class="explainer-section reading-width" aria-labelledby="reading-heading">
+    <h2 id="reading-heading">Further reading and organisations</h2>
+    {% if singularityOrgs.length %}<ul class="org-list">{% for org in singularityOrgs %}<li><h3><a href="{{ org.url }}" rel="noopener">{{ org.name }}</a></h3><p>{{ org.description }}</p></li>{% endfor %}</ul>{% endif %}
+    <p class="meta">Start with the original arguments and read their forecasts in the context of their time.</p>
+    <ul class="source-list">
+      <li><a href="https://www.ams.org/journals/bull/1958-64-03/S0002-9904-1958-10189-5/" rel="noopener">Stanislaw Ulam, recollection of John von Neumann (1958)</a></li>
+      <li><a href="https://doi.org/10.1016/S0065-2458(08)60418-0" rel="noopener">I. J. Good, Speculations Concerning the First Ultraintelligent Machine (1965)</a></li>
+      <li><a href="https://ntrs.nasa.gov/citations/19940022856" rel="noopener">Vernor Vinge, The Coming Technological Singularity (1993)</a></li>
+      <li><a href="https://www.penguinrandomhouse.com/books/291221/the-singularity-is-near-by-ray-kurzweil/" rel="noopener">Ray Kurzweil, The Singularity Is Near (2005)</a></li>
+    </ul>
+  </section>
+</article>

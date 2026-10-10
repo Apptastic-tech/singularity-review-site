@@ -3,3 +3,4 @@ _site/
 .firebase/
 firebase-debug.log
 .DS_Store
+.audit/

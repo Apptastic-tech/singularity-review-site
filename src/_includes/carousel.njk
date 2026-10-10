@@ -1,0 +1,28 @@
+{% set carouselSizes = "(min-width: 1152px) 544px, (min-width: 640px) calc((100vw - 72px) / 2), calc(100vw - 40px)" if carouselItems.length == 1 else "(min-width: 640px) 360px, 82vw" %}
+<section class="author-shelf wide-width" role="region" aria-roledescription="carousel" aria-labelledby="carousel-heading" data-carousel>
+  <div class="shelf-heading">
+    <div><p class="kicker">Ideas, analysis &amp; opinion</p><h2 id="carousel-heading">Featured author articles</h2></div>
+    <a class="shelf-all" href="{{ '#featured-archive' if page.url == '/featured/' else '/featured/' }}">View all <span aria-hidden="true">↗</span></a>
+  </div>
+  <p class="sr-only" id="carousel-help">Swipe to browse articles. Use the left and right arrow keys when the track is focused.</p>
+  <div class="carousel-track" tabindex="0" aria-label="Featured articles" aria-describedby="carousel-help" data-carousel-track>
+    {% asyncEach item in carouselItems %}
+    <article class="carousel-slide" role="group" aria-roledescription="slide" aria-label="{{ loop.index }} of {{ carouselItems.length }}" data-carousel-slide>
+      <a class="carousel-story" href="{{ item.url }}" aria-labelledby="carousel-title-{{ item.data.title | slugify }}">
+        {% picture item.data.hero, item.data.heroAlt, carouselSizes, "lazy", "auto", "carousel-image", item.data.title %}
+        <h3 id="carousel-title-{{ item.data.title | slugify }}">{{ item.data.title }}</h3>
+        <span class="carousel-author">
+          {% if item.data.authorPhoto %}<img class="author-avatar" src="{{ item.data.authorPhoto }}" width="36" height="36" alt="" loading="lazy">{% else %}<span class="author-avatar" aria-hidden="true">{{ item.data.author | initials }}</span>{% endif %}
+          <span>{{ item.data.author or site.defaultAuthor }}</span>
+        </span>
+      </a>
+    </article>
+    {% endeach %}
+  </div>
+  {% if carouselItems.length > 1 %}<div class="carousel-controls" hidden data-carousel-controls>
+    <button type="button" aria-label="Previous featured article" data-carousel-prev>←</button>
+    <button class="carousel-play" type="button" data-carousel-play>Pause auto-advance</button>
+    <button type="button" aria-label="Next featured article" data-carousel-next>→</button>
+  </div>{% endif %}
+  <p class="sr-only" role="status" aria-live="polite" data-carousel-status></p>
+</section>

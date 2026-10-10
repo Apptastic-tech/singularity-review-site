@@ -1,0 +1,21 @@
+---
+layout: layouts/base.njk
+title: Featured author articles
+description: "Personal perspectives, reviews and analysis from the authors of Singularity Review."
+permalink: /featured/
+hasCarousel: true
+eleventyExcludeFromCollections: true
+---
+<header class="feed-intro feed-width">
+  <p class="kicker">From our authors</p>
+  <h1>Featured author articles</h1>
+  <p class="intro-dek">Personal perspectives, reviews and analysis from people following AI closely.</p>
+</header>
+{% ifAsync collections.featured.length %}
+  {% set carouselItems = collections.featured %}
+  {% include "carousel.njk" %}
+  <section class="feed feed-width" aria-labelledby="featured-archive">
+    <h2 class="archive-title" id="featured-archive">All featured articles</h2>
+    {% asyncEach item in collections.featured %}{% set featured = false %}{% include "card.njk" %}{% endeach %}
+  </section>
+{% else %}<p class="empty-state reading-width">Our authors' next articles will appear here. Read the latest <a href="/">Singularity headline news</a>.</p>{% endif %}

@@ -3,8 +3,10 @@
   const toggle = document.querySelector('[data-menu-toggle]');
   const menu = document.querySelector('[data-menu]');
   const desktop = matchMedia('(min-width: 960px)');
-  const inertRegions = [...document.querySelectorAll('main, .site-footer, .floating-social, .chip-bar')];
+  const inertRegions = [...document.querySelectorAll('main, .site-footer, .skip, .brand')];
   let menuOpen = false;
+  let menuScrollY = 0;
+  let bodyStyles = "";
   let previousY = Math.max(0, scrollY);
   let travel = 0;
   let direction = 0;
@@ -17,7 +19,9 @@
     toggle.setAttribute('aria-expanded', 'false');
     toggle.setAttribute('aria-label', 'Open menu');
     document.documentElement.classList.remove('menu-open');
+    document.body.style.cssText = bodyStyles;
     inertRegions.forEach(region => { region.inert = false; });
+    window.scrollTo({ top: menuScrollY, behavior: 'instant' });
     if (restoreFocus) toggle.focus({ preventScroll: true });
     previousY = Math.max(0, scrollY);
   };
@@ -25,12 +29,16 @@
     toggle.hidden = false;
     toggle.addEventListener('click', () => {
       if (menuOpen) { closeMenu(); return; }
+      menuScrollY = Math.max(0, scrollY);
+      bodyStyles = document.body.style.cssText;
+      const scrollbar = innerWidth - document.documentElement.clientWidth;
       menuOpen = true;
       menu.hidden = false;
       toggle.setAttribute('aria-expanded', 'true');
       toggle.setAttribute('aria-label', 'Close menu');
       header.classList.remove('is-hidden');
       document.documentElement.classList.add('menu-open');
+      Object.assign(document.body.style, { position: 'fixed', top: `-${menuScrollY}px`, width: '100%', overflow: 'hidden', paddingRight: `${scrollbar}px` });
       inertRegions.forEach(region => { region.inert = true; });
       menu.querySelector('a').focus({ preventScroll: true });
     });
@@ -45,7 +53,17 @@
       else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
     });
     menu.addEventListener('click', event => { if (event.target.closest('a')) closeMenu(false); });
-    desktop.addEventListener('change', () => { if (desktop.matches) closeMenu(false); });
+    desktop.addEventListener('change', () => {
+      if (desktop.matches && menuOpen) {
+        closeMenu(false);
+        header.querySelector('.desktop-nav [aria-current]')?.focus({ preventScroll: true });
+      }
+    });
+    document.addEventListener('focusin', event => {
+      if (menuOpen && event.target !== toggle && !menu.contains(event.target)) {
+        menu.querySelector('a').focus({ preventScroll: true });
+      }
+    });
   }
   header?.addEventListener('focusin', () => header.classList.remove('is-hidden'));
   addEventListener('scroll', () => {
@@ -59,6 +77,7 @@
       direction = nextDirection;
       travel += Math.abs(delta);
       if (header && !menuOpen && !header.querySelector(':focus-visible')) {
+        header.classList.toggle('is-condensed', currentY > 100);
         if (currentY < 100 || (delta < 0 && travel > 8)) header.classList.remove('is-hidden');
         else if (delta > 0 && travel > 12) header.classList.add('is-hidden');
       }

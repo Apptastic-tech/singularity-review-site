@@ -4,6 +4,7 @@
 import Image from "@11ty/eleventy-img";
 import path from "node:path";
 import { access } from "node:fs/promises";
+import { articleSection } from "./src/_lib/sections.js";
 
 // Cache busting: {{ "/css/style.css" | asset }} -> /css/style.css?v=<content hash>
 import { createHash } from "node:crypto";
@@ -98,6 +99,23 @@ export default function (eleventyConfig) {
       .filter((item) => !item.data.draft)
       .sort((a, b) => b.date - a.date)
   );
+
+  for (const [name, section] of [['headlines', 'news'], ['featured', 'featured']]) {
+    eleventyConfig.addCollection(name, (api) => api.getFilteredByGlob('src/articles/*.md')
+      .filter(item => !item.data.draft && articleSection(item.data) === section)
+      .sort((a, b) => b.date - a.date));
+  }
+
+  eleventyConfig.addFilter('navigationSection', (url, author, defaultAuthor) => {
+    url = String(url || '/');
+    if (url === '/about/') return 'about';
+    if (url === '/what-is-singularity/') return 'singularity';
+    if (url === '/featured/' || url.startsWith('/authors/')) return 'featured';
+    if (url.startsWith('/articles/') && author && author !== defaultAuthor) return 'featured';
+    return 'news';
+  });
+  eleventyConfig.addFilter('initials', name => String(name || 'Singularity Review').trim().split(/\s+/)
+    .filter(Boolean).map(word => Array.from(word)[0]).filter(Boolean).slice(0, 2).join('').toUpperCase());
 
   // Categories: [{ name, slug, articles: [...] }], sorted by most recent article
   // Named (non-house) authors: [{ name, slug, articles }], newest article first.

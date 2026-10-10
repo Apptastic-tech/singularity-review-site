@@ -22,7 +22,7 @@ Add one markdown file to `src/articles/` (named `YYYY-MM-DD-slug.md`) and its he
 
 ## Redesign v2
 
-The reading feed uses large single-column cards, a sticky header that follows scroll direction, category chips, an accessible mobile menu, and progressive infinite loading. Homepage pagination publishes `/page/2/` onward only when needed. Without JavaScript, Load more remains a normal page link. Category pages and Read next reuse the same cards.
+The reading feed uses large single-column cards, a sticky header that follows scroll direction, a four-destination editorial navigation, a full-height accessible mobile menu, and progressive infinite loading. Homepage headline pagination publishes `/page/2/` onward only when needed. Without JavaScript, Load more remains a normal page link. The homepage contains headline news only, with a featured author carousel near the top. `/featured/` collects author articles; `/what-is-singularity/` explains the idea and consumes the separately maintained expert and organisation data. Category pages and Read next reuse the same cards. Section placement follows the author unless optional `section: featured` or `section: news` overrides it.
 
 Newsreader Variable and Inter Tight Variable are self-hosted from the installed packages into `/fonts/`. All article images are processed automatically at build time by `@11ty/eleventy-img` into cached AVIF, WebP, and JPEG variants in `_site/img/`, while original image URLs stay published for social sharing and RSS. The first hero receives a responsive preload; later images are lazy. Missing hero files cause a clear build error.
 
@@ -30,7 +30,7 @@ Prepare a new hero with `node scripts/prepare-hero.mjs <input-image> <slug>`. Re
 
 See [docs/DESIGN.md](docs/DESIGN.md) for the visual system and [docs/UX_REFERENCE.md](docs/UX_REFERENCE.md) for the interaction reference. See [GATES.md](GATES.md) for verification outcomes. Dependencies are already installed in this working checkout.
 
-Build verification: `npm run build` followed by `node scripts/verify-site.mjs`. Future-post regression checks: `node scripts/verify-content.mjs`. Browser verification requires an existing Playwright runtime and permission to launch a local browser and server; no dependencies are installed by these scripts.
+Build verification: `npm run build` followed by `node scripts/verify-site.mjs`. Future-post regression checks: `node scripts/verify-content.mjs`. Browser verification requires an existing Playwright runtime and an environment that permits launching a local browser and server; no dependencies are installed by these scripts. Set `BROWSER_RUNTIME_ROOT` to that runtime directory and optionally `BROWSER_EXECUTABLE_PATH` to an existing Chromium executable, then run `node scripts/verify-browser.mjs`. See [docs/MENU_SECTIONS_REPORT.md](docs/MENU_SECTIONS_REPORT.md) for the current verification status.
 
 ## Deploy
 
@@ -54,9 +54,12 @@ src/
   _includes/             layouts, social icons, and whole-card partial
   css/style.css          all styles
   js/site.js             small deferred navigation and loading enhancements
-  index.njk              homepage feed, ten stories per page
+  js/carousel.js         carousel controls and optional auto-advance
+  index.njk              headline feed, ten stories per page
+  featured.njk           author carousel and complete featured archive
+  what-is-singularity.njk singularity explainer and data-driven profiles
   category.njk           category pages (generated per category)
-  about.md               About page
+  about.md               Who we are page
   rss.njk, sitemap.njk   feeds
 content-template/        copy-paste article template (not built)
 ```

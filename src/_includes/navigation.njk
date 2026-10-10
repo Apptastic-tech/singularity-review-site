@@ -1,0 +1,3 @@
+{% macro navLinks(links, active) %}
+  {% for link in links %}<a href="{{ link.url }}"{% if active == link.section %} aria-current="page"{% endif %}>{{ link.label }}</a>{% endfor %}
+{% endmacro %}

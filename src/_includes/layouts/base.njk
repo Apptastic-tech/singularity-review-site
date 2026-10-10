@@ -1,4 +1,6 @@
 {% from "icons.njk" import icon, socialLink %}
+{% from "navigation.njk" import navLinks %}
+{%- set activeSection = page.url | navigationSection(author, site.defaultAuthor) -%}
 {%- set pageTitle = (title + " | " + site.title) if title else (site.title + ": " + site.tagline) -%}
 {%- set pageDescription = description or site.description -%}
 {%- set pageImage = (hero or site.defaultImage) | absoluteUrl(site.url) -%}
@@ -42,6 +44,7 @@
   {% elif cat and cat.articles.length %}{% preloadHero cat.articles[0].data.hero, "(min-width: 776px) 760px, calc(100vw - 16px)", cat.articles[0].data.title %}{% endif %}
   <link rel="stylesheet" href="{{ '/css/style.css' | asset }}">
   <script src="{{ '/js/site.js' | asset }}" defer></script>
+  {% if hasCarousel and collections.featured.length and (not homeFeed or pagination.pageNumber == 0) %}<script src="{{ '/js/carousel.js' | asset }}" defer></script>{% endif %}
   {% if jsonld %}<script type="application/ld+json">{{ jsonld | safe }}</script>{% endif %}
 </head>
 <body>
@@ -49,26 +52,23 @@
   <header class="site-header" data-header>
     <div class="header-inner">
       <a class="brand" href="/" aria-label="Singularity Review home"><img src="/images/brand/wordmark.svg" width="292" height="28" alt="Singularity Review"></a>
-      <nav class="desktop-nav" aria-label="Primary"><a href="/about/" {% if page.url == '/about/' %}aria-current="page"{% endif %}>About</a>{{ socialLink(site.facebook, "Facebook") }}{{ socialLink(site.instagram, "Instagram") }}</nav>
       <button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu" hidden data-menu-toggle><span></span><span></span></button>
     </div>
+    <nav class="desktop-nav" aria-label="Primary">{{ navLinks(navigation, activeSection) }}</nav>
     <nav class="mobile-menu" id="mobile-menu" aria-label="Main menu" hidden data-menu>
-      <a href="/">Latest</a><a href="/about/">About</a>
-      {% for section in collections.categories %}<a href="/category/{{ section.slug }}/">{{ section.name }}</a>{% endfor %}
-      <div class="menu-social">{{ socialLink(site.facebook, "Facebook", true) }}{{ socialLink(site.instagram, "Instagram", true) }}<a href="/rss.xml">{{ icon("RSS") }}<span>RSS</span></a></div>
+      <p class="kicker menu-label">Explore Singularity Review</p>
+      <div class="menu-links">{{ navLinks(navigation, activeSection) }}</div>
+      <div class="menu-social">{{ socialLink(site.facebook, "Facebook", true) }}{{ socialLink(site.instagram, "Instagram", true) }}<a href="/rss.xml" class="social-link">{{ icon("RSS") }}<span>RSS</span></a></div>
+      <p class="menu-note">{{ site.tagline }}.</p>
     </nav>
-    <nav class="chip-bar" aria-label="Categories"><div class="chip-inner">
-      <a class="chip" href="/" {% if homeFeed %}aria-current="page"{% endif %}>All</a>
-      {% for section in collections.categories %}<a class="chip" href="/category/{{ section.slug }}/" {% if (cat and cat.slug == section.slug) or (category and category == section.name) %}aria-current="{{ 'page' if cat else 'true' }}"{% endif %}>{{ section.name }}</a>{% endfor %}
-    </div></nav>
   </header>
-  <noscript><nav class="no-js-nav" aria-label="Primary"><a href="/">Latest</a><a href="/about/">About</a><a href="/rss.xml">RSS</a>{{ socialLink(site.facebook, "Facebook", true) }}{{ socialLink(site.instagram, "Instagram", true) }}</nav></noscript>
+  <noscript><nav class="no-js-nav" aria-label="Primary">{{ navLinks(navigation, activeSection) }}</nav></noscript>
   <main id="main" tabindex="-1">{{ content | safe }}</main>
-  <aside class="floating-social" aria-label="Follow Singularity Review">{{ socialLink(site.facebook, "Facebook") }}{{ socialLink(site.instagram, "Instagram") }}</aside>
   <footer class="site-footer">
     <a class="footer-brand" href="/" aria-label="Singularity Review home"><img src="/images/brand/wordmark.svg" width="292" height="28" alt="Singularity Review"></a>
-    <nav class="footer-links" aria-label="Footer"><a href="/about/">About</a><a href="/rss.xml">RSS</a></nav>
-    <nav class="footer-social" aria-label="Social">{{ socialLink(site.facebook, "Facebook") }}{{ socialLink(site.instagram, "Instagram") }}</nav>
+    <nav class="footer-links" aria-label="Footer">{{ navLinks(navigation, activeSection) }}</nav>
+    {% if collections.categories.length %}<nav class="footer-topics" aria-label="Topics"><span class="kicker">Topics</span>{% for topic in collections.categories %}<a href="/category/{{ topic.slug }}/"{% if cat and cat.slug == topic.slug %} aria-current="page"{% endif %}>{{ topic.name }}</a>{% endfor %}</nav>{% endif %}
+    <nav class="footer-social" aria-label="Social">{{ socialLink(site.facebook, "Facebook") }}{{ socialLink(site.instagram, "Instagram") }}<a class="social-link" href="/rss.xml" aria-label="RSS feed">{{ icon("RSS") }}</a></nav>
     <p class="footer-copy">&copy; {{ site.year }} Singularity Review</p>
   </footer>
 </body>

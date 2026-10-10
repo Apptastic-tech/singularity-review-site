@@ -18,8 +18,14 @@ The information architecture and interaction patterns supplied for ux-news.com i
 
 Cards and photographs are substantially larger than the reference. On mobile, cards use 8px gutters, a tall 4:5 photograph (capped at 68svh so the headline stays in view), and 32px headlines. On desktop the feed column reaches 760px with 4:3 photographs at full card width and 44px headlines. Card height follows the content, so there is no empty space below the excerpt.
 
-The design uses warm paper text on near-black ink, singularity amber, Newsreader reading typography, and Inter Tight controls. No purple. All tap targets are at least 48x48px except the explicitly 44px category chips. The top bar remains 56px on mobile. Body text is 19px or larger, and its desktop measure is limited to 65ch.
+The design uses warm paper text on near-black ink, singularity amber, Newsreader reading typography, and Inter Tight controls. No purple. Tap targets are at least 44px, with larger navigation rows on mobile. The current masthead is 72px on mobile. Body text is 19px or larger, and its desktop measure is limited to 65ch.
 
 Fonts are self-hosted. Responsive images are built automatically, the first hero receives a responsive preload and high fetch priority, and later images load lazily. Navigation, loading, and hover motion respect reduced-motion preferences. Floating social controls do not cover mobile stories.
 
 There are no ads, ad feeds, analytics, trackers, newsletters, portals, search controls, theme toggles, external font CDNs, or third-party scripts.
+
+## Current menu and section redesign
+
+The current implementation replaces category navigation in the header with four editorial destinations. The mobile menu fills the remaining viewport below the centered masthead and restores the reader's scroll position when it closes. The desktop uses a centered masthead over inline navigation. Scroll direction still reveals or hides the header, while upward scrolling condenses it to the navigation row.
+
+The headline feed paginates ten house-authored stories per page unless frontmatter overrides placement. A separate author carousel and featured archive provide access to personal analysis. The footer carries the same four destinations, generated topic links, social links and RSS. The fixed social stack has been removed.
