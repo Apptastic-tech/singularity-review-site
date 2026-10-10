@@ -45,7 +45,7 @@ assert.ok(contrast(paper,white)>=3&&contrast(muted,white)>=4.5,'Neutral text scr
 assert.ok(contrast(muted,[255,255,255])<4.5,'Removing the scrim fails the positive contrast control');
 // Bind the reconstructed surface to the production masks and grading parameters.
 assert.match(css, /#000 62%, rgb\(0 0 0 \/ \.92\) 70%, rgb\(0 0 0 \/ \.65\) 80%, rgb\(0 0 0 \/ \.25\) 90%, transparent 100%/);
-assert.match(css, /radial-gradient\(ellipse at 51% 48%, #000 40%, #000 58%, transparent 76%\)/);
+assert.match(css, /\.cover-disk picture \{[^}]*mask-image: radial-gradient\(closest-side at 51% 48%, #000 58%, rgb\(0 0 0 \/ \.6\) 80%, transparent 100%\)/, 'Static artwork mask reaches full transparency inside its box, so no rectangle shows in the fallback');
 assert.match(css, /filter: saturate\(\.72\) brightness\(\.78\)/);
 assert.match(css, /\.hero-statement::before \{[^}]*inset: -80px -260px -170px;[^}]*radial-gradient\(closest-side,[^}]*rgb\(11 12 14 \/ 0\)\)/, 'Scrim fades to fully transparent inside its own bounds, so no edge can show');
 assert.doesNotMatch(css, /\.hero-statement::before \{[^}]*mask-composite/);
@@ -95,3 +95,9 @@ for(const file of ['src/index.njk','src/css/style.css','src/js/lensing.js','elev
 await fs.writeFile('.audit/skyline/measurements.json',JSON.stringify({method:'Current built AVIF pixels composed with the production photograph, artwork, neutral scrim and photographic fade. Per-line envelopes use Sharp/Pango and the shipped fonts. GLSL frames are a CPU reconstruction with a conservative shimmer bound, not GPU execution. Lead Y and artwork bounds derive from current CSS reserved geometry, not browser measurements. Independent white-pixel bounds cover all animation and wrapping choices.',fingerprints,report,animationBound:{headline:contrast(paper,white),response:contrast(paper,white),description:contrast(muted,white)},renderedReview:'Assigned to the editor; no browser or application was launched.'},null,2)+'\n');
 console.log('SKYLINE VERIFIED: exact centered statement, clean fade, separate unboxed lead, feathered artwork, no pointer effects, CSS-derived bounds and fold positions, sharp sources, composed per-line pixels, animation bounds and compact footer');
 for(const r of report)console.log(`${r.viewport}: band ${r.bandHeight}px, lead Y ${r.leadHeadlineDocumentY}px, source ${r.chosenSkyWidth}w, contrast fallback ${r.perLine.map(line=>line.contrast.fallback.toFixed(2)).join('/')}, shader model ${r.perLine.map(line=>Math.min(line.contrast.shaderModel0,line.contrast.shaderModel60).toFixed(2)).join('/')}`);
+
+// Static fallback: the disk art screens over the sky as a whole (no dark halo), and the opaque shadow sits beneath it.
+assert.match(css, /\.cover-disk \{ mix-blend-mode: screen;/, 'Static disk must screen over the skyline so its black background never darkens the sky');
+assert.doesNotMatch(css.match(/\.cover-disk picture \{([^}]+)\}/)[1], /mix-blend-mode/, 'Blend belongs on .cover-disk, not the picture inside it');
+assert.match(css, /\.cover-atmosphere::before \{[^}]*z-index: -1;[^}]*border-radius: 50%; background: #000;/, 'Opaque event-horizon shadow drawn beneath the screened disk');
+assert.doesNotMatch(css, /\.cover-disk::before/, 'Shadow inside the screened disk would turn transparent');
