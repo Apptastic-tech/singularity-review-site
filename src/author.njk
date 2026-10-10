@@ -12,7 +12,7 @@ eleventyComputed:
 ---
 <header class="feed-intro category-intro feed-width">
   <h1>{{ person.name }}</h1>
-  <p class="meta">{{ person.articles.length }} {{ "article" if person.articles.length == 1 else "articles" }} for Singularity Review, newest first</p>
+  <p class="meta">{{ person.articles.length }} {{ "article" if person.articles.length == 1 else "articles" }} by {{ person.name }} for Singularity Review, newest first</p>
 </header>
 <section class="feed feed-width" aria-label="Articles by {{ person.name }}" data-feed>
   {% asyncEach item in person.articles %}{% set featured = loop.first %}{% include "card.njk" %}{% endeach %}

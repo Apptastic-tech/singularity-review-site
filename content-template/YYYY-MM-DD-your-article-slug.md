@@ -1,6 +1,6 @@
 ---
-title: "Headline in Title Case"
-description: "One or two sentence dek. Shown under the headline, on the homepage card, in RSS, and as the social share description."
+title: "Headline in sentence case"
+description: "One or two sentences explaining what happened and why it matters. Shown under the headline, on the homepage card, in RSS, and as the social share description."
 date: 2026-10-09T09:00:00Z
 category: Policy
 hero: /images/articles/your-article-slug.jpg
@@ -16,4 +16,4 @@ Second paragraph. Use normal markdown: **bold**, *italic*, [links](https://examp
 
 > Optional pull quote.
 
-Final paragraph.
+Final paragraph. See CONTENT_GUIDE.md for writing and publishing rules.

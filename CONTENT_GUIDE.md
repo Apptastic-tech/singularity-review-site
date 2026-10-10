@@ -1,4 +1,4 @@
-# Singularity Review: Content Guide
+# Singularity Review: content guide
 
 Publishing a new article means adding ONE markdown file plus its hero image, then building and deploying.
 
@@ -21,16 +21,16 @@ Copy `content-template/YYYY-MM-DD-your-article-slug.md` into `src/articles/`, re
 
 ```yaml
 ---
-title: "Headline in Title Case"            # required
-description: "One or two sentence dek."      # required. Card excerpt, RSS, og:description
+title: "Headline in sentence case"            # required
+description: "One or two sentences explaining the story."      # required. Card excerpt, RSS, og:description
 date: 2026-10-09T09:00:00Z                   # required. ISO 8601, UTC. Controls feed order (newest first)
 category: Policy                             # required. One category per article
 hero: /images/articles/your-article-slug.jpg # required. Path under src/images, starting with /images/
 heroAlt: "What the image shows"              # required. Alt text for accessibility
 author: Singularity Review                   # optional. Defaults to "Singularity Review"
 section: featured                            # optional. featured or news; absent = automatic
-authorPhoto: /images/authors/your-author.jpg  # optional. Self-hosted avatar for featured carousel
-tags: ["Tag one", "Tag two"]                 # optional. Shown as plain small caps under the article
+authorPhoto: /images/authors/your-author.jpg  # optional. Retained metadata; bylines have no avatar
+tags: ["Tag one", "Tag two"]                 # optional. Shown as plain text under the article
 updated: 2026-10-10T09:00:00Z                # optional. Used in sitemap lastmod and JSON-LD
 heroCaption: "Image credit or caption"       # optional. Shown under the hero image
 draft: true                                  # optional. If true, the article is not built or listed
@@ -39,19 +39,19 @@ draft: true                                  # optional. If true, the article is
 
 Body: plain markdown below the frontmatter. Do not repeat the title or dek in the body (the layout prints them). Start with the first paragraph of the story.
 
-## Headline news and featured articles
+## News and featured articles
 
-Section placement is automatic. A post with no `author`, or with `author: Singularity Review` (the site's `defaultAuthor`), appears in **Singularity headline news** on `/` and its ten-story pagination pages. A post whose author differs from the house name appears in **Featured author articles** on `/featured/` and in the featured carousel on the homepage.
+Section placement is automatic. A post with no `author`, or with `author: Singularity Review` (the site's `defaultAuthor`), appears in **News** on `/` and its ten-story pagination pages. A post whose author differs from the house name appears in **Featured** on `/featured/` and in the featured carousel on the homepage.
 
-The optional `section:` field overrides this placement. Use `section: featured` to feature a house-authored story, or `section: news` to place a named author's story in the headline feed. Leave it out for automatic placement. Other section values fail the build with a clear error. Existing articles need no changes.
+The optional `section:` field overrides this placement. Use `section: featured` to feature a house-authored story, or `section: news` to place a named author's story in the News feed. Leave it out for automatic placement. Other section values fail the build with a clear error. Existing articles need no changes.
 
-`authorPhoto:` optionally supplies a self-hosted author avatar, such as `/images/authors/your-author.jpg`. Place the image under `src/images/`; it is copied automatically. Without a photo, the carousel displays initials in an amber circle. Author archive URLs and bylines continue to follow the `author` field, and article navigation highlights the author destination for named authors even when `section: news` is set.
+The navigation labels are **News**, **Featured**, **Explainer** and **About**. Bylines read **By Name · Date · N min read**, without an avatar. Section headings use plain serif text in sentence case. `authorPhoto:` remains optional metadata; the current bylines do not display it. Author archive URLs and bylines follow the `author` field, and article navigation highlights the author destination for named authors even when `section: news` is set.
 
 RSS, sitemap, category pages and Read next include all published articles from both sections. Drafts remain excluded. The featured homepage band is hidden when there are no featured posts; both section routes still build when their feeds are empty.
 
 ## Categories
 
-Categories are created automatically from the `category` field. `/category/<slug>/` pages and the footer **Topics** list are generated for every category that has at least one article. Article kicker links also lead to category pages. Current categories: `Agents`, `Models`, `Policy`. Reuse the exact spelling to keep stories together. A new spelling creates a new topic page and footer link.
+Categories are created automatically from the `category` field. `/category/<slug>/` pages and the footer **Topics** list are generated for every category that has at least one article. Articles do not display category kicker links. Current categories: `Agents`, `Models`, `Policy`. Reuse the exact spelling to keep stories together. A new spelling creates a new topic page and footer link.
 
 ## Image guidelines
 
@@ -76,9 +76,15 @@ The helper reads the source orientation, center-crops to exactly 1280x720, and w
 
 ## Style rules
 
-- Narrative, New York Times feature voice.
-- No em dashes anywhere. Use periods, commas, colons, or parentheses. Avoid en dashes in prose too.
-- No emoji, no hollow futurism.
+- Write for a general reader. Use simple, explanatory prose with short paragraphs, an adult tone and enough context to identify the actors, what happened and why it matters. Do not be childish or talk down to the reader.
+- Define jargon briefly on first use, including terms such as agents, open weights, parameters, API and crawler. An API is a software interface; a crawler is software that automatically visits webpages.
+- Use sentence-case headlines and subheadings. Capitalise the first word and proper nouns, including AI, Claude, OpenAI, Anthropic, Wikimedia, Wikipedia, Mistral, Europe, Washington, Hugging Face and Singularity Review.
+- Use British spelling in new house copy, consistent with the site's explainer and interface. Preserve spelling inside verbatim quotations and an author's own voice.
+- No em or en dashes anywhere. Use periods, commas, colons or parentheses.
+- Never fabricate facts, figures, quotations, sources or links. Preserve exact quotations and distinguish a company's claims from independent findings. State uncertainty and keep source caveats.
+- Label opinion as opinion, including speculative interpretations.
+- Avoid hype, exclamation marks, emoji, empty futurism and rhetorical questions used as filler.
+- Keep these writing rules internal. Public copy should describe what the site covers rather than its narrative style or tone.
 
 ## Publish
 

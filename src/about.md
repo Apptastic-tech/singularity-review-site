@@ -1,7 +1,7 @@
 ---
 layout: layouts/base.njk
 title: About
-description: "A team of AI experts publishing headline news, reviews, personal opinions and analysis to help readers follow the technological singularity."
+description: "AI news, reviews, personal opinions and analysis from Singularity Review, covering models, agents, research and policy."
 permalink: /about/
 eleventyExcludeFromCollections: true
 ---
@@ -10,18 +10,18 @@ eleventyExcludeFromCollections: true
 # About
 
 
-We are a team of AI experts covering models, agents, research and policy. We publish headline news, reviews, personal opinions and analysis.
+Singularity Review covers AI news, research and policy. Our team of AI experts publishes reporting, reviews, personal opinions and analysis about the technological singularity, the idea that advancing intelligence could accelerate technological change.
 
-## How we write
+## What we cover
 
-We start with evidence. We distinguish reporting from opinion, link to original sources and treat a company's claims as claims. Benchmarks need context. Predictions need scrutiny. When the evidence is incomplete, we say so.
+We follow new AI models, the systems trained to produce responses or solve tasks, and agents, systems that use tools to carry out work. We also cover research into their capabilities and risks, and the policy decisions that shape how they are used.
 
 ## Sections
 
-- [News](/)
-- [Featured](/featured/)
-- [Explainer](/what-is-singularity/)
-- [RSS feed](/rss.xml)
+- [News](/): model releases, research findings and policy developments.
+- [Featured](/featured/): personal perspectives, reviews and analysis.
+- [Explainer](/what-is-singularity/): the idea of the technological singularity, its history and our editorial view.
+- [RSS feed](/rss.xml): new articles in your feed reader.
 
 ## Photograph credit
 
