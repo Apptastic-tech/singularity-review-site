@@ -15,7 +15,7 @@ eleventyExcludeFromCollections: true
 {% if pagination.pageNumber == 0 %}
 <header class="night-cover" data-cover>
   <div class="cover-sky" aria-hidden="true">{% brandPicture "skyline-clean", "(min-width: 1440px) 100vw, 1440px", "cover-sky-image", "high" %}</div>
-  <div class="cover-disk" aria-hidden="true">{% brandPicture "blackhole-wide", "(min-width: 960px) 640px, 90vw", "cover-disk-image" %}</div>
+  <div class="cover-disk" aria-hidden="true">{% brandPicture "blackhole-wide", "(min-width: 1385px) 360px, (min-width: 960px) 26vw, (min-width: 640px) 55vw, 90vw", "cover-disk-image" %}</div>
   <div class="cover-copy wide-width">
     <p class="kicker">An observatory for the AI beat</p>
     <h1>Singularity headline news</h1>
@@ -35,10 +35,14 @@ eleventyExcludeFromCollections: true
   {% asyncEach item in feedItems %}
     {% set featured = loop.first %}
     {% include "card.njk" %}
+    {% ifAsync loop.first and pagination.pageNumber == 0 and collections.featured.length %}
+      {% set carouselItems = collections.featured %}
+      {% include "carousel.njk" %}
+    {% endif %}
   {% endeach %}
   {% else %}<p class="empty-state">Headline reporting will appear here. Explore <a href="/featured/">Featured author articles</a> in the meantime.</p>{% endif %}
 </section>
-{% ifAsync pagination.pageNumber == 0 and collections.featured.length %}
+{% ifAsync not feedItems.length and pagination.pageNumber == 0 and collections.featured.length %}
   {% set carouselItems = collections.featured %}
   {% include "carousel.njk" %}
 {% endif %}
