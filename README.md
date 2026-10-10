@@ -7,7 +7,7 @@ Static site built with [Eleventy](https://www.11ty.dev/) (v3). No ads, no ad fee
 - Facebook: https://www.facebook.com/profile.php?id=61595278645448
 - Instagram: https://www.instagram.com/singularityreview/
 
-Live preview: https://singularity-review.web.app
+Live site: https://singularityreview.com (the Firebase default hosts singularity-review.web.app and singularity-review.firebaseapp.com send readers here)
 
 ## Quick start
 

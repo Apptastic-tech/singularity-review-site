@@ -3,7 +3,9 @@ export default {
   title: "Singularity Review",
   tagline: "AI news for people living through the singularity",
   description: "AI news, research, and analysis",
-  url: (process.env.SITE_URL || "https://singularity-review.web.app").replace(/\/$/, ""),
+  url: (process.env.SITE_URL || "https://singularityreview.com").replace(/\/$/, ""),
+  // Firebase default hostnames that should send readers to the canonical domain.
+  legacyHosts: ["singularity-review.web.app", "singularity-review.firebaseapp.com"],
   language: "en",
   defaultAuthor: "Singularity Review",
   defaultImage: "/images/brand/og-default.jpg",

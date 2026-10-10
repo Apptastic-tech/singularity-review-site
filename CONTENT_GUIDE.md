@@ -11,7 +11,7 @@ Publishing a new article means adding ONE markdown file plus its hero image, the
 | Extra inline images (optional) | `src/images/articles/` | `slug-2.jpg`, `slug-3.jpg`, and so on |
 
 The public URL is `/articles/<slug>/`. The date prefix in the filename is only for sorting files and is dropped from the URL.
-Example: `src/articles/2026-10-09-openai-agent-audit.md` becomes `https://singularity-review.web.app/articles/openai-agent-audit/`.
+Example: `src/articles/2026-10-09-openai-agent-audit.md` becomes `https://singularityreview.com/articles/openai-agent-audit/`.
 
 Use lowercase letters, numbers, and hyphens in the slug. Do not rename a published file: that changes its URL.
 
