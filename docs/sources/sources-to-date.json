@@ -1,0 +1,175 @@
+[
+  {
+    "article": "2026-09-04-emergence-of-ai-collective-mind.md",
+    "url": "/articles/emergence-of-ai-collective-mind/",
+    "sources": []
+  },
+  {
+    "article": "2026-10-06-europes-trillion-parameter-bet.md",
+    "url": "/articles/europes-trillion-parameter-bet/",
+    "sources": [
+      {
+        "title": "Introducing Mistral Large 4",
+        "publisher": "Mistral AI",
+        "url": "https://mistral.ai/news/mistral-large-4/",
+        "date": "2026-10-06",
+        "dateKnown": true,
+        "provenance": ".audit/sources-research.json supplied by the user"
+      },
+      {
+        "title": "Mistral debuts Large 4 'Le Chonk', a 1-trillion parameter text output model with high benchmarks planned for open weights release",
+        "publisher": "VentureBeat",
+        "url": "https://venturebeat.com/technology/mistral-debuts-large-4-le-chonk-a-1-trillion-parameter-text-output-model-with-high-benchmarks-planned-for-open-weights-release",
+        "date": "",
+        "dateKnown": false,
+        "provenance": ".audit/sources-research.json supplied by the user"
+      },
+      {
+        "title": "Mistral Large 4 model documentation",
+        "publisher": "Mistral AI",
+        "url": "https://docs.mistral.ai/models/mistral-large",
+        "date": "",
+        "dateKnown": false,
+        "provenance": ".audit/sources-research.json supplied by the user"
+      },
+      {
+        "title": "Mistral raises €3B as sovereign AI becomes big business",
+        "publisher": "TechCrunch",
+        "url": "https://techcrunch.com/2026/09/08/mistral-raises-e3b-as-sovereign-ai-becomes-big-business/",
+        "date": "2026-09-08",
+        "dateKnown": true,
+        "provenance": ".audit/sources-research.json supplied by the user"
+      },
+      {
+        "title": "Mistral bags $24 billion valuation as Samsung leads funding for Europe's AI champion",
+        "publisher": "CNBC",
+        "url": "https://www.cnbc.com/2026/09/08/mistral-ai-funding-valuation-samsung.html",
+        "date": "2026-09-08",
+        "dateKnown": true,
+        "provenance": ".audit/sources-research.json supplied by the user"
+      }
+    ]
+  },
+  {
+    "article": "2026-10-06-washington-names-an-intelligence-chief.md",
+    "url": "/articles/washington-names-an-intelligence-chief/",
+    "sources": [
+      {
+        "title": "New AI czar unveils goals, members of White House task force",
+        "publisher": "The Wall Street Journal",
+        "url": "https://www.wsj.com/tech/ai/new-ai-task-force-to-report-on-risks-of-technology-after-public-and-industry-concerns-b6308bef",
+        "date": "2026-10-03",
+        "dateKnown": true,
+        "provenance": ".audit/sources-research.json supplied by the user"
+      },
+      {
+        "title": "Trump taps Director of National Intelligence Jay Clayton as AI czar",
+        "publisher": "CNBC",
+        "url": "https://www.cnbc.com/2026/10/03/trump-jay-clayton-ai-czar.html",
+        "date": "2026-10-03",
+        "dateKnown": true,
+        "provenance": ".audit/sources-research.json supplied by the user"
+      },
+      {
+        "title": "Trump names national intelligence director Jay Clayton to lead new 'Super Intelligence Force' on AI",
+        "publisher": "Fortune",
+        "url": "https://fortune.com/2026/10/04/trump-national-intelligence-director-jay-clayton-super-intelligence-force-ai-agency/",
+        "date": "2026-10-04",
+        "dateKnown": true,
+        "provenance": ".audit/sources-research.json supplied by the user"
+      },
+      {
+        "title": "Spy chief Jay Clayton takes on White House's AI portfolio",
+        "publisher": "Nextgov/FCW",
+        "url": "https://www.nextgov.com/people/2026/10/spy-chief-jay-clayton-takes-white-houses-ai-portfolio/416413/",
+        "date": "2026-10-05",
+        "dateKnown": true,
+        "provenance": ".audit/sources-research.json supplied by the user"
+      }
+    ]
+  },
+  {
+    "article": "2026-10-06-when-the-agents-reach-for-the-open-web.md",
+    "url": "/articles/when-the-agents-reach-for-the-open-web/",
+    "sources": [
+      {
+        "title": "OpenAI \"rogue\" agent activities found on Wikimedia projects",
+        "publisher": "Wikimedia Foundation",
+        "url": "https://wikimediafoundation.org/news/2026/10/05/openai-rogue-agent-activities-found-on-wikimedia-projects/",
+        "date": "2026-10-05",
+        "dateKnown": true,
+        "provenance": ".audit/sources-research.json supplied by the user"
+      },
+      {
+        "title": "OpenAI agents tried to hack Wikipedia tools and flooded it with traffic",
+        "publisher": "Ars Technica",
+        "url": "https://arstechnica.com/security/2026/10/openai-agents-tried-to-hack-wikipedia-tools-and-flooded-it-with-traffic/",
+        "date": "",
+        "dateKnown": false,
+        "provenance": ".audit/sources-research.json supplied by the user"
+      }
+    ]
+  },
+  {
+    "article": "2026-10-10-when-claude-fills-out-the-wrong-form.md",
+    "url": "/articles/when-claude-fills-out-the-wrong-form/",
+    "sources": [
+      {
+        "title": "Investigating unintended model actions in our evaluations and internal use",
+        "publisher": "Anthropic",
+        "url": "https://www.anthropic.com/research/investigating-unintended-model-actions",
+        "date": "2026-10-09",
+        "dateKnown": true,
+        "provenance": "Existing body link; date from the article or URL; headline/date verified on the publisher page 2026-10-10 (The Verge, TechCrunch evals and Washington Post titles taken from URL slugs)"
+      },
+      {
+        "title": "An Anthropic AI model sent a false homicide tip to Philadelphia police",
+        "publisher": "TechCrunch",
+        "url": "https://techcrunch.com/2026/10/09/an-anthropic-ai-model-sent-a-false-homicide-tip-to-philadelphia-police/",
+        "date": "2026-10-09",
+        "dateKnown": true,
+        "provenance": "Existing body link; date from the article or URL; headline/date verified on the publisher page 2026-10-10 (The Verge, TechCrunch evals and Washington Post titles taken from URL slugs)"
+      },
+      {
+        "title": "Anthropic agents tried to fill out visa forms on State Dept. website",
+        "publisher": "The Seattle Times",
+        "url": "https://www.seattletimes.com/business/anthropic-agents-tried-to-fill-out-visa-forms-on-state-dept-website/",
+        "date": "2026-10-09",
+        "dateKnown": true,
+        "provenance": "Existing body link; date from the article or URL; headline/date verified on the publisher page 2026-10-10 (The Verge, TechCrunch evals and Washington Post titles taken from URL slugs)"
+      },
+      {
+        "title": "Exclusive: Anthropic breaches spark White House AI reporting mandate",
+        "publisher": "Axios",
+        "url": "https://www.axios.com/2026/10/09/anthropic-ai-security-white-house",
+        "date": "2026-10-09",
+        "dateKnown": true,
+        "provenance": "Existing body link; date from the article or URL; headline/date verified on the publisher page 2026-10-10 (The Verge, TechCrunch evals and Washington Post titles taken from URL slugs)"
+      },
+      {
+        "title": "Anthropic published a report about investigating unintended model actions during evaluations and internal use",
+        "publisher": "The Verge",
+        "url": "https://www.theverge.com/ai-artificial-intelligence/1009251/anthropic-published-a-report-about-investigating-unintended-model-actions-during-evaluations-and-internal-use",
+        "date": "",
+        "dateKnown": false,
+        "provenance": "Existing body link; date from the article or URL; headline/date verified on the publisher page 2026-10-10 (The Verge, TechCrunch evals and Washington Post titles taken from URL slugs)"
+      },
+      {
+        "title": "Anthropic can't reliably control its AI agents, so it's cutting off its internal evals from the live internet",
+        "publisher": "TechCrunch",
+        "url": "https://techcrunch.com/2026/10/09/anthropic-cant-reliably-control-its-ai-agents-its-cutting-off-its-internal-evals-from-the-live-internet-instead/",
+        "date": "2026-10-09",
+        "dateKnown": true,
+        "provenance": "Existing body link; date from the article or URL; headline/date verified on the publisher page 2026-10-10 (The Verge, TechCrunch evals and Washington Post titles taken from URL slugs)"
+      },
+      {
+        "title": "Anthropic discloses incidents of its AI models misusing government sites",
+        "publisher": "The Washington Post",
+        "url": "https://www.washingtonpost.com/technology/2026/10/09/anthropic-discloses-incidents-its-ai-models-misusing-government-sites/",
+        "date": "2026-10-09",
+        "dateKnown": true,
+        "provenance": "Existing body link; date from the article or URL; headline/date verified on the publisher page 2026-10-10 (The Verge, TechCrunch evals and Washington Post titles taken from URL slugs)"
+      }
+    ]
+  }
+]

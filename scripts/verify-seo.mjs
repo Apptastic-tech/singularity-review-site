@@ -305,9 +305,9 @@ assert.ok(llms.startsWith('# Singularity Review\n')); assert.match(llms, /\n> [^
 for (const heading of ['Articles', 'Explainer', 'About', 'Feeds', 'Policies']) assert.ok(llms.includes(`## ${heading}\n`));
 for (const article of articles) assert.ok(llms.includes(`[${article.title}](${site.url}${articleUrl(article)}): ${article.seoDescription || article.description}`), 'llms.txt includes current article title, URL and summary');
 for (const route of ['/rss.xml', '/atom.xml', '/sitemap.xml', '/privacy/', '/cookies/', '/editorial-standards/']) assert.ok(llms.includes(site.url + route));
-const audit = JSON.parse(await fs.readFile('.audit/sources-to-date.json', 'utf8'));
-const missing = JSON.parse(await fs.readFile('.audit/sources-missing.json', 'utf8'));
-const researched = JSON.parse(await fs.readFile('.audit/sources-research.json', 'utf8'));
+const audit = JSON.parse(await fs.readFile('docs/sources/sources-to-date.json', 'utf8'));
+const missing = JSON.parse(await fs.readFile('docs/sources/sources-missing.json', 'utf8'));
+const researched = JSON.parse(await fs.readFile('docs/sources/sources-research.json', 'utf8'));
 const explainerSource = await fs.readFile('src/what-is-singularity.njk', 'utf8');
 for (const article of articles) {
   const record = audit.find(item => item.article === article.file); assert.ok(record);
