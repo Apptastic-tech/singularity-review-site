@@ -4,6 +4,7 @@ layout: layouts/base.njk
 {% from "icons.njk" import socialLink %}
 {% from "share.njk" import shareBar with context %}
 {% from "byline.njk" import byline %}
+{% from "newsletter.njk" import newsletterForm %}
 {%- set shareUrl = page.url | absoluteUrl(site.url) -%}
 <article class="article">
   <header class="article-header reading-width">
@@ -29,6 +30,11 @@ layout: layouts/base.njk
       <p class="plain-label">Follow Singularity Review</p>
       <div class="follow-links">{{ socialLink(site.facebook, "Facebook", true) }}{{ socialLink(site.instagram, "Instagram", true) }}</div>
     </div>
+    <section class="newsletter-inline newsletter-article" aria-labelledby="newsletter-article-end-heading">
+      <h2 id="newsletter-article-end-heading">Get the newsletter</h2>
+      <p class="newsletter-description">The week's most important AI news, explained simply.</p>
+      {{ newsletterForm("article-end") }}
+    </section>
   </footer>
 </article>
 {% set more = collections.articles | exclude(page.url) | limit(4) %}

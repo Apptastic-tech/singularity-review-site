@@ -21,7 +21,8 @@ function checkChrome(html, file) {
   assert.match(header, /<span class="brand-wordmark">Singularity Review<\/span>/);
   assert.match(header, /class="header-inner">[\s\S]*class="desktop-nav"[\s\S]*class="menu-toggle"[\s\S]*<\/div>\s*<nav class="mobile-menu"/, 'Navigation and menu button occupy the masthead row');
   assert.doesNotMatch(html, legacy, `${file}: no avatar, icon or decorative heading markup`);
-  assert.doesNotMatch(html, sectionCopy, `${file}: current publication labels`);
+  // The privacy policy has the required plain-language "Who we are" section.
+  assert.doesNotMatch(file === 'privacy/index.html' ? html.replace('<h2>Who we are</h2>', '') : html, sectionCopy, `${file}: current publication labels`);
   const menu = markup(html, 'nav', 'mobile-menu');
   assert.equal((menu.match(/<a\b/g) || []).length, 4, 'Mobile sheet contains only the four sections');
   assert.doesNotMatch(menu, /<p|<h[1-6]|menu-social/);

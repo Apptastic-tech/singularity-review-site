@@ -1,6 +1,6 @@
 import { execFileSync } from 'node:child_process';
 // No server, production requests or fixture writes in the protected source tree.
-for (const name of ['site', 'content', 'rebrand', 'lensing', 'rework', 'chrome', 'skyline', 'headings', 'static-pages', 'blocks', 'feed']) {
+for (const name of ['site', 'content', 'rebrand', 'lensing', 'rework', 'chrome', 'skyline', 'headings', 'static-pages', 'blocks', 'feed', 'consent']) {
   process.stdout.write(execFileSync(process.execPath, [`scripts/verify-${name}.mjs`], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'] }));
 }
-console.log('SKYLINE SUITE VERIFIED: all eleven static/Node verification scripts passed');
+console.log('SKYLINE SUITE VERIFIED: all twelve static/Node verification scripts passed');

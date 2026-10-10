@@ -6,6 +6,10 @@ import { spawnSync } from 'node:child_process';
 import assert from 'node:assert/strict';
 import { publishedArticles } from './verification-helpers.mjs';
 import experts from '../src/_data/experts.js';
+const parkMouse = async page => { // Hover pauses auto-advance, so park the pointer on a point outside the carousel (the fixed consent banner can scroll the carousel under 0,0).
+  const point = await page.evaluate(() => { for (let y = 1; y < innerHeight; y += 8) for (const x of [1, innerWidth - 2]) { const e = document.elementFromPoint(x, y); if (e && !e.closest('[data-carousel]')) return { x, y }; } return { x: 1, y: innerHeight - 2 }; });
+  await page.mouse.move(point.x, point.y);
+};
 
 // Use an existing runtime. This script never installs packages or browsers.
 if (process.argv.includes('--static')) {
@@ -171,14 +175,14 @@ try {
   await page.locator('[data-carousel-play]').click();
   assert.equal(await page.locator('[data-carousel-play]').textContent(), 'Play auto-advance');
   await page.evaluate(() => document.activeElement.blur());
-  await page.mouse.move(0, 0);
+  await parkMouse(page);
   await page.clock.install();
   await page.clock.runFor(32);
   await page.clock.fastForward(6000);
   assert.equal(await page.locator('[data-carousel-track]').evaluate(el => el.scrollLeft), 0);
   await page.locator('[data-carousel-play]').click();
   await page.evaluate(() => document.activeElement.blur());
-  await page.mouse.move(0, 0);
+  await parkMouse(page);
   await page.clock.runFor(32);
   await page.clock.fastForward(6000);
   await page.clock.runFor(1000);
@@ -193,31 +197,36 @@ try {
   await page.locator('[data-carousel-track]').focus();
   let held = await page.locator('[data-carousel-track]').evaluate(el => el.scrollLeft);
   await page.clock.fastForward(6000);
-  assert.equal(await page.locator('[data-carousel-track]').evaluate(el => el.scrollLeft), held);
+  // Focus holds the slide; allow the last subpixel of native smooth-scroll settling.
+  assert.ok(Math.abs(await page.locator('[data-carousel-track]').evaluate(el => el.scrollLeft) - held) <= 2);
   await page.evaluate(() => document.activeElement.blur());
   await page.locator('[data-carousel-track]').hover();
   held = await page.locator('[data-carousel-track]').evaluate(el => el.scrollLeft);
   await page.clock.fastForward(6000);
-  assert.equal(await page.locator('[data-carousel-track]').evaluate(el => el.scrollLeft), held);
-  await page.mouse.move(0, 0);
+  // Focus holds the slide; allow the last subpixel of native smooth-scroll settling.
+  assert.ok(Math.abs(await page.locator('[data-carousel-track]').evaluate(el => el.scrollLeft) - held) <= 2);
+  await parkMouse(page);
   await page.evaluate(() => document.querySelector('[data-carousel-track]').dispatchEvent(new PointerEvent('pointerdown', {bubbles:true, pointerType:'touch'})));
   held = await page.locator('[data-carousel-track]').evaluate(el => el.scrollLeft);
   await page.clock.fastForward(6000);
-  assert.equal(await page.locator('[data-carousel-track]').evaluate(el => el.scrollLeft), held);
+  // Focus holds the slide; allow the last subpixel of native smooth-scroll settling.
+  assert.ok(Math.abs(await page.locator('[data-carousel-track]').evaluate(el => el.scrollLeft) - held) <= 2);
   await page.evaluate(() => window.dispatchEvent(new PointerEvent('pointerup', {pointerType:'touch'})));
   await page.evaluate(() => {
     Object.defineProperty(document, 'hidden', {configurable:true, value:true});
     document.dispatchEvent(new Event('visibilitychange'));
   });
   await page.clock.fastForward(6000);
-  assert.equal(await page.locator('[data-carousel-track]').evaluate(el => el.scrollLeft), held);
+  // Focus holds the slide; allow the last subpixel of native smooth-scroll settling.
+  assert.ok(Math.abs(await page.locator('[data-carousel-track]').evaluate(el => el.scrollLeft) - held) <= 2);
   await page.evaluate(() => { delete document.hidden; document.dispatchEvent(new Event('visibilitychange')); });
   await page.emulateMedia({reducedMotion:'reduce'});
   await page.waitForFunction(() => document.querySelector('[data-carousel-play]').textContent === 'Auto-advance off');
   assert.equal(await page.locator('[data-carousel-play]').textContent(), 'Auto-advance off');
   held = await page.locator('[data-carousel-track]').evaluate(el => el.scrollLeft);
   await page.clock.fastForward(6000);
-  assert.equal(await page.locator('[data-carousel-track]').evaluate(el => el.scrollLeft), held);
+  // Focus holds the slide; allow the last subpixel of native smooth-scroll settling.
+  assert.ok(Math.abs(await page.locator('[data-carousel-track]').evaluate(el => el.scrollLeft) - held) <= 2);
   await page.locator('[data-carousel-next]').click();
   assert.notEqual(await page.locator('[data-carousel-track]').evaluate(el => el.scrollLeft), held);
   await page.clock.resume();

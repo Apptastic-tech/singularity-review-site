@@ -6,6 +6,8 @@ eleventyExcludeFromCollections: true
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>{{ site.url }}/</loc>{% if collections.articles.length %}<lastmod>{{ collections.articles[0].date | shortDate }}</lastmod>{% endif %}</url>
   <url><loc>{{ site.url }}/about/</loc></url>
+  <url><loc>{{ site.url }}/privacy/</loc><lastmod>2026-10-10</lastmod></url>
+  <url><loc>{{ site.url }}/cookies/</loc><lastmod>2026-10-10</lastmod></url>
   <url><loc>{{ site.url }}/featured/</loc>{% if collections.featured.length %}<lastmod>{{ collections.featured[0].date | shortDate }}</lastmod>{% endif %}</url>
   <url><loc>{{ site.url }}/what-is-singularity/</loc></url>
   {% set totalPages = (collections.headlines.length / 10) | round(0, "ceil") %}

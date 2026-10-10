@@ -1,0 +1,34 @@
+{% from "newsletter.njk" import newsletterForm %}
+<section class="consent-banner" data-consent-banner role="region" aria-label="Cookie consent" hidden>
+  <p>We use device storage for your choices and reactions. We set no cookies and use no analytics or marketing tools. <a href="/cookies/">Cookie policy</a></p>
+  <div class="consent-actions">
+    <button class="privacy-button consent-choice" type="button" data-consent-choice="accept">Accept all</button>
+    <button class="privacy-button consent-choice" type="button" data-consent-choice="reject">Reject all</button>
+    <button class="privacy-button consent-choice" type="button" data-consent-open>Settings</button>
+  </div>
+</section>
+<dialog class="consent-dialog" data-consent-dialog aria-labelledby="consent-heading" aria-describedby="consent-explanation">
+  <button class="privacy-close" type="button" data-consent-close aria-label="Close cookie settings"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button>
+  <h2 id="consent-heading" tabindex="-1">Cookie settings</h2>
+  <p id="consent-explanation">Necessary storage supports features you request. Analytics and marketing categories are empty today. Turning them on has no effect until tools are added.</p>
+  <form data-consent-form>
+    <label class="consent-category"><input type="checkbox" name="necessary" checked disabled aria-describedby="consent-necessary"><span>Necessary</span></label>
+    <p id="consent-necessary">Always on. Remembers your choices, sky animation setting and reactions, and supports hosting and security.</p>
+    <label class="consent-category"><input type="checkbox" name="analytics"><span>Analytics</span></label>
+    <p>Off by default. No analytics tools are used today.</p>
+    <label class="consent-category"><input type="checkbox" name="marketing"><span>Marketing</span></label>
+    <p>Off by default. No marketing tools are used today.</p>
+    <div class="consent-save"><button class="privacy-button" type="submit">Save choices</button></div>
+    <div class="consent-actions consent-dialog-actions">
+      <button class="privacy-button consent-choice" type="button" data-consent-choice="accept">Accept all</button>
+      <button class="privacy-button consent-choice" type="button" data-consent-choice="reject">Reject all</button>
+    </div>
+  </form>
+</dialog>
+<section class="newsletter-prompt" data-newsletter-prompt role="region" aria-labelledby="newsletter-prompt-heading" hidden>
+  <button class="privacy-close" type="button" data-newsletter-close aria-label="Close"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button>
+  <h2 id="newsletter-prompt-heading" tabindex="-1">Get the newsletter</h2>
+  <p class="newsletter-description">The week's most important AI news, explained simply.</p>
+  {{ newsletterForm("prompt") }}
+</section>
+<p class="sr-only" data-newsletter-announcement role="status" aria-live="polite" aria-atomic="true"></p>

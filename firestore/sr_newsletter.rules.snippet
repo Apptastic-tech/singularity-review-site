@@ -1,0 +1,23 @@
+// Paste inside match /databases/{database}/documents in the existing service.
+// Prepare only. Do not deploy this standalone snippet.
+match /sr_newsletter/{id} {
+  allow create: if
+    id.matches('^[a-f0-9]{64}$') &&
+    request.resource.data.keys().hasOnly(['email', 'consentAt', 'consentTextVersion', 'consentText', 'sourcePage', 'source', 'status']) &&
+    request.resource.data.keys().hasAll(['email', 'consentAt', 'consentTextVersion', 'consentText', 'sourcePage', 'source', 'status']) &&
+    request.resource.data.email is string &&
+    request.resource.data.email.size() <= 254 &&
+    request.resource.data.email.matches('^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$') &&
+    request.resource.data.email == request.resource.data.email.lower() &&
+    id == hashing.sha256(request.resource.data.email).toHexString().lower() &&
+    request.resource.data.consentAt == request.time &&
+    request.resource.data.consentTextVersion is string &&
+    request.resource.data.consentTextVersion.size() <= 64 &&
+    request.resource.data.consentText == 'Send me the Singularity Review newsletter. Unsubscribe anytime.' &&
+    request.resource.data.sourcePage is string &&
+    request.resource.data.sourcePage.size() <= 200 &&
+    request.resource.data.sourcePage.matches('^/.*$') &&
+    request.resource.data.source in ['prompt', 'article-end', 'footer'] &&
+    request.resource.data.status == 'pending';
+  allow read, update, delete: if false;
+}

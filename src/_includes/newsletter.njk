@@ -1,0 +1,17 @@
+{% macro newsletterForm(source) %}
+<form class="newsletter-form" data-newsletter-form data-source="{{ source }}" aria-label="Newsletter subscription" method="post">
+  <fieldset data-newsletter-fields disabled>
+    <legend class="sr-only">Newsletter subscription</legend>
+    <label class="newsletter-email-label" for="newsletter-email-{{ source }}">Email address</label>
+    <div class="newsletter-input-row">
+      <input id="newsletter-email-{{ source }}" name="email" type="email" autocomplete="email" maxlength="254" required>
+      <button class="privacy-button" type="submit">Subscribe</button>
+    </div>
+    <label class="newsletter-choice" for="newsletter-choice-{{ source }}"><input id="newsletter-choice-{{ source }}" name="newsletterConsent" type="checkbox" required><span>Send me the Singularity Review newsletter. Unsubscribe anytime.</span></label>
+    <a class="newsletter-privacy" href="/privacy/">Privacy policy</a>
+    <div hidden aria-hidden="true"><label for="newsletter-website-{{ source }}">Website</label><input id="newsletter-website-{{ source }}" name="website" type="text" tabindex="-1" autocomplete="off"></div>
+  </fieldset>
+  <p class="newsletter-status" data-newsletter-status role="status" aria-live="polite" aria-atomic="true"></p>
+  <noscript><p class="newsletter-no-js">Enable JavaScript to subscribe. No email is submitted without it.</p></noscript>
+</form>
+{% endmacro %}

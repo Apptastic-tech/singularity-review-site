@@ -1,13 +1,14 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import os from 'node:os';
 import { spawnSync } from 'node:child_process';
 import assert from 'node:assert/strict';
 import sharp from 'sharp';
 import { publishedArticles, cardLinks, carouselLinks, articleUrl, verifyNavigation } from './verification-helpers.mjs';
 
 const root = process.cwd();
-const temp = await fs.mkdtemp(path.join(os.tmpdir(), 'singularity-content-'));
+// Keep fixture writes inside the repository for stage-only verification.
+await fs.mkdir(path.join(root, '.audit'), { recursive: true });
+const temp = await fs.mkdtemp(path.join(root, '.audit', 'singularity-content-'));
 const out = path.join(temp, '_site');
 const html = route => fs.readFile(path.join(out, route), 'utf8');
 const build = () => spawnSync(process.execPath, [path.join(root, 'node_modules/@11ty/eleventy/cmd.cjs')], { cwd: temp, encoding: 'utf8', timeout: 60000 });

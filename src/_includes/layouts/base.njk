@@ -1,5 +1,6 @@
 {% from "icons.njk" import icon, socialLink %}
 {% from "navigation.njk" import navLinks %}
+{% from "newsletter.njk" import newsletterForm %}
 {%- set activeSection = page.url | navigationSection(author, site.defaultAuthor) -%}
 {%- set pageTitle = (title + " | " + site.title) if title else site.title -%}
 {%- set pageDescription = description or site.description -%}
@@ -49,6 +50,8 @@
   <link rel="stylesheet" href="{{ '/css/style.css' | asset }}">
   <script src="{{ '/js/transitions.js' | asset }}"></script>
   <script src="{{ '/js/site.js' | asset }}" defer></script>
+  <script src="{{ '/js/consent.js' | asset }}" defer></script>
+  <script src="{{ '/js/newsletter.js' | asset }}" defer></script>
   {% if homeFeed and pagination.pageNumber == 0 %}<script type="module" src="{{ '/js/lensing.js' | asset }}"></script>{% endif %}
   {% if hasCarousel and collections.featured.length and (not homeFeed or pagination.pageNumber == 0) %}<script src="{{ '/js/carousel.js' | asset }}" defer></script>{% endif %}
   {% if jsonld %}<script type="application/ld+json">{{ jsonld | safe }}</script>{% endif %}
@@ -87,11 +90,17 @@
           <nav class="footer-social" aria-labelledby="footer-follow">{{ socialLink(site.facebook, "Facebook", true) }}{{ socialLink(site.instagram, "Instagram", true) }}<a class="social-link social-link--text" href="/rss.xml">{{ icon("RSS") }}<span>RSS</span></a></nav>
         </div>
       </div>
+      <section class="newsletter-inline newsletter-footer" aria-labelledby="newsletter-footer-heading">
+        <h2 id="newsletter-footer-heading">Get the newsletter</h2>
+        {{ newsletterForm("footer") }}
+      </section>
       <div class="footer-bottom">
         <p class="footer-copy">&copy; {{ site.year }} Singularity Review <span aria-hidden="true">·</span> <a href="/about/">About</a></p>
+        <nav class="footer-legal" aria-label="Legal"><a href="/privacy/">Privacy</a><a href="/cookies/">Cookies</a><button class="privacy-link" type="button" data-consent-open hidden>Cookie settings</button></nav>
         <p class="photo-credit skyline-credit">Skyline: <a href="https://commons.wikimedia.org/wiki/File:Kitt_Peak_at_Night_(3S8A6804).jpg">Kitt Peak at Night</a>, KPNO/NOIRLab/NSF/AURA/P. Marenfeld, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Colour graded; satellite trail removed.</p>
       </div>
     </div>
   </footer>
+  {% include "privacy-controls.njk" %}
 </body>
 </html>
