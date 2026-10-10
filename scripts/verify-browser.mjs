@@ -69,7 +69,7 @@ try {
   assert.equal(layout.overflow,false);assert.equal(layout.header,72);assert.ok(Math.abs(layout.card-390*.84)<1);assert.equal(layout.title,22);
   await page.waitForFunction(() => window.reworkPerformance.lcp !== null);
   assert.equal(await page.evaluate(() => window.reworkPerformance.cls), 0, 'Homepage CLS is zero');
-  for (const [width,height] of [[390,844],[768,1024],[1024,768],[1440,900],[1920,1080],[2560,1440]]) {
+  for (const [width,height] of [[320,844],[390,844],[639,844],[768,1024],[1024,768],[1440,900],[1920,1080],[2560,1440]]) {
     await page.setViewportSize({width,height}); await page.goto(url);
     await page.evaluate(() => document.fonts.ready);
     const rowHeading=await page.locator('.card-row-header h2').boundingBox();
@@ -79,6 +79,21 @@ try {
     const statement=await page.locator('.hero-statement').boundingBox();
     const gap=statement.y-disk.y-disk.height,oldGap=disk.width*.198+24;
     assert.ok(gap>0 && gap<=oldGap*.55,width+': gap halved and statement clears disk');
+    if (width < 960) {
+      const geometry = await page.evaluate(() => {
+        const band = document.querySelector('.night-cover').getBoundingClientRect();
+        const text = document.querySelector('.hero-description').getBoundingClientRect();
+        return { empty:band.bottom-text.bottom, bottom:band.bottom, textBottom:text.bottom, padding:parseFloat(getComputedStyle(document.querySelector('.night-cover')).paddingBottom) };
+      });
+      assert.ok(Math.abs(geometry.empty-(width<640?48:56))<1, width+': band follows actual subline wrapping');
+      assert.ok(geometry.empty<=(width<640?56:64), width+': no empty mobile hero tail');
+      const button = page.locator('[data-motion-toggle]');
+      if (await button.isVisible()) {
+        const target = await button.boundingBox();
+        assert.ok(target.y>=geometry.textBottom && target.y+target.height<=geometry.bottom, width+': pause target clears text and fits padding');
+        assert.equal(target.width,44); assert.equal(target.height,44);
+      }
+    }
     const domeLayout=await page.evaluate(()=>{
       const image=document.querySelector('.cover-sky-image'),box=image.getBoundingClientRect();
       const crop=image.naturalWidth/image.naturalHeight<1.1?{left:350,top:0,width:3648,height:3648}:{left:0,top:0,width:5472,height:3648};
@@ -102,6 +117,12 @@ try {
   // Headless Chromium renders WebGL in software, which the lensing guard (1aedfb9) rejects; force the shader so the motion toggle can be exercised.
   await page.setViewportSize({width:390,height:844}); await page.goto(new URL('?lensing=force', url).href);
   await page.locator('[data-motion-toggle]:not([hidden])').waitFor({ timeout: 15000 });
+  const phoneControl = await page.evaluate(() => {
+    const band=document.querySelector('.night-cover').getBoundingClientRect(), text=document.querySelector('.hero-description').getBoundingClientRect(), button=document.querySelector('[data-motion-toggle]').getBoundingClientRect();
+    return {gap:band.bottom-text.bottom,textBottom:text.bottom,buttonTop:button.top,buttonBottom:button.bottom,bandBottom:band.bottom,buttonRight:button.right};
+  });
+  assert.ok(Math.abs(phoneControl.gap-48)<1 && phoneControl.buttonTop>=phoneControl.textBottom && phoneControl.buttonBottom<=phoneControl.bandBottom);
+  assert.ok(Math.abs(phoneControl.buttonRight-(390-20))<1, 'Phone pause button aligns with the right gutter');
   const masthead = await page.evaluate(() => {
     const brand = document.querySelector('.brand').getBoundingClientRect();
     const toggle = document.querySelector('[data-menu-toggle]').getBoundingClientRect();

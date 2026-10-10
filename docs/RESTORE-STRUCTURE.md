@@ -22,7 +22,7 @@ The homepage retains only the unchanged v4 skyline hero and exact two lines of c
 - Duplicate About link in the legal list.
 - Social text labels, replaced by the existing accessible icons.
 
-The footer retains a small wordmark, the four approved section links, Facebook, Instagram and RSS icons, the existing consent-required newsletter form, small Privacy, Cookies, Terms and Contact links, Cookie settings, copyright and the CC BY skyline photo credit. Three compact wrapping rows share the content gutter. At desktop widths the newsletter heading and reserved response area sit beside the input row; the checkbox line uses the available width beneath it. Email and Subscribe stay on one line from 320px through 1920px; consent is unticked and the privacy link sits below the input.
+The footer retains a small wordmark, the four approved section links, Facebook, Instagram and RSS icons, the existing consent-required newsletter form, small Privacy, Cookies, Terms and Contact links, Cookie settings, copyright and the CC BY skyline photo credit. Three compact wrapping rows share the content gutter. At every width Get the newsletter sits above the input row, aligned with its left edge. The newsletter section stays in normal flow with a 520px maximum width; its checkbox and reserved response line sit below the input. Email and Subscribe stay on one line from 320px through 1920px; consent is unticked and the privacy link sits below the input.
 
 ## Preserved routes and behavior
 
@@ -39,6 +39,8 @@ Run npm run build and node scripts/check-restore-suite.mjs for every non-browser
 Browser scripts were adjusted for the owner and were not executed. Actual rendered geometry, touch scrolling, keyboard focus visibility, GPU behavior and CLS 0 need the prepared owner-run checks; static models do not prove browser rendering. No browser, desktop app, screenshot, network request or Git write is part of this task.
 
 ## Restore pass 2
+
+This section records the pass 2 snapshot. The pass 3 section below supersedes its accumulating shader rotation, breathing amount, narrow band height and motion model results.
 
 The featured archive keeps the owner-approved story blocks. The author carousel keeps its original template structure, JavaScript and behavior, with the approved section heading and See all label from pass 1. Headline post cards and horizontal card-row are limited to the homepage news row and /page/N/ news grids.
 
@@ -101,3 +103,52 @@ The final static motion model reports 1.78 percent changed after one second and 
 - src/featured.njk
 - src/js/lensing.js
 - Removed expert portrait, a plain file deletion.
+
+## Restore pass 3
+
+The shader no longer accumulates sky rotation. A four-second bounded oscillation has a maximum .35-radian angle at r=1.3, decreasing as inverse radius squared, with a smooth r=1.6 to r=2.6 fade. Swirl, tangential smear and drift are zero beyond r=2.6. The outer photographic field uses only the static deflection and its reduced 8 percent breathing. All five sky taps cap the complete sampling offset to .9 hole radii, including the foreground guard and smear, and retain the explicit 1.2-radius limit towards the horizon. The circular alpha fade remains r=3.8 to r=4.5.
+
+To keep the required motion in the bounded inner field, orbiting emission now covers the disk and lensed inner arch, with a 1.0 Keplerian rate and 90 percent orbit-light blend. The photon ring's coordinates remain locked, its travelling pulse remains 6 percent, shimmer remains 9 percent, and the supplied Doppler treatment, black shadow, ridge and dome masks remain. Outer emission transitions smoothly at r=2.2 to r=2.6 to at most six byte levels away from its static value. The bound concerns sky sampling; the retained outer disk detail is also constrained by the strict long-time pixel test.
+
+The footer heading is above the input at every width and shares its left edge. The desktop side-heading override and detached status positioning were removed. Post-card category and date now sit next to each other, left aligned with a 10px gap; distributed meta spacing was removed. Existing date formatting stays unchanged.
+
+Phones through 639px and tablets below 960px use natural statement height rather than a fixed-height tail. Padding reserves the disk and its approved gap above the text, then 48px below the phone subline or 56px below tablet text. The 44px pause target occupies that padding at the right gutter, with 2px or 6px clearance. Desktop geometry remains unchanged. CSS models use measured Sharp/Pango text height for narrow fold assertions, and owner-run browser checks measure actual text boxes and pause targets. At 390x844 the current model band is 512.513px with 48px after the subline; at 768x1024 it is 591.444px with 56px after the subline. Browser wrapping can differ from the font model; natural flow keeps the same padding.
+
+### Pass 3 measurements
+
+scripts/verify-lensing-pixels.mjs records current decoded-image results in .audit/skyline/motion-model.json, with source and asset fingerprints. It checks both the sky alone against the unchanged photograph and the full supplied-artwork composite against its static fallback. Seam circles bypass the CSS text scrim and band fade. Annulus means use equal-area pixels and linear sRGB luminance, every ten seconds through 600 seconds. Every visible DPR-1 pixel outside r=2.6 is compared at 600 versus 0 seconds. Shader-equation bindings and deliberately unsafe shader, seam, winding and outer-pixel controls are verified.
+
+- Motion above summed RGB difference 30: 2.80 percent at 1 second and 4.10 percent at 3 seconds. Most changed samples are inside r=2.6.
+- Worst mean absolute circle error over 39 radii from 2.6 to 4.5 at 0, 5, 30, 120 and 600 seconds: 3.456/255 composite and 3.312/255 sky alone, below 6/255.
+- Maximum absolute annulus luminance deviation from the static image, r=1.6 to r=4.5: 1.336 percent composite and 1.147 percent sky alone, within 4 percent.
+- Time-600 outer maximum difference: 20.522/765. Zero pixels exceed 40/765.
+- Maximum sampled sky displacement: .900 hole radii. Shadow and protected foreground have zero changed samples.
+
+These figures are CPU model measurements. Real GPU pixels, rendered alignment, touch behavior and CLS 0 remain the editor's prepared browser checks. Browser scripts were updated and syntax checked only. No browser, screen tool, network access or Git write was used.
+
+### Pass 3 removals
+
+Accumulating rotation and outer sky advection, the 12 percent breathing amplitude, the detached desktop newsletter heading and status positioning, space-between on post-card metadata, and fixed narrow hero band heights were removed. Navigation destinations, homepage sections, footer links, approved story blocks, the featured carousel and all publishing, consent, newsletter and ad behavior remain as established in pass 2.
+
+### Pass 3 file summary
+
+16 tracked paths changed.
+
+- src/js/lensing.js
+- src/css/style.css
+- scripts/hero-contract.mjs
+- scripts/hero-pixels.mjs
+- scripts/static-layout.mjs
+- scripts/verify-lensing-pixels.mjs
+- scripts/verify-lensing.mjs
+- scripts/verify-cards.mjs
+- scripts/verify-restore.mjs
+- scripts/verify-skyline.mjs
+- scripts/verify-static-pages.mjs
+- scripts/verify-browser.mjs
+- scripts/verify-blocks-browser.mjs
+- scripts/verify-consent-browser.mjs
+- docs/DESIGN.md
+- docs/RESTORE-STRUCTURE.md
+
+Final pass 3 validation: npm run build passed, all 18 non-browser verify scripts passed, and the separate ADSENSE_PREVIEW build passed. Completion ledger: 6 met, 0 unmet, 0 abandoned. Browser scripts passed syntax checks; browser, real-GPU and rendered CLS checks were not run, as required by the restoration rules.

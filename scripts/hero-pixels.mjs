@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import sharp from 'sharp';
-import { fontAt, length } from './static-layout.mjs';
+import { coverLayout, fontAt, length } from './static-layout.mjs';
 import { heroLines } from './hero-contract.mjs';
 
 export const ink = [11, 12, 14], paper = [244, 241, 234], muted = [200, 205, 209];
@@ -14,6 +14,18 @@ export const smooth = (a, b, x) => { x = clamp((x - a) / (b - a)); return x * x 
 const mix = (a, b, amount) => a.map((x, i) => x * (1 - amount) + b[i] * amount);
 const screen = (a, b) => a.map((v, i) => 255 - (255 - v) * (1 - b[i] / 255));
 const rotate = (p, angle) => [Math.cos(angle) * p[0] - Math.sin(angle) * p[1], Math.sin(angle) * p[0] + Math.cos(angle) * p[1]];
+const fract = x => x - Math.floor(x);
+function noise(p) {
+  const i = p.map(Math.floor), f = p.map((x, j) => { const value = x - i[j]; return value * value * (3 - 2 * value); });
+  const hash = (x, y) => {
+    let h = [x, y, x].map(value => fract(value * .1031));
+    const dot = h[0] * (h[1] + 19.19) + h[1] * (h[2] + 19.19) + h[2] * (h[0] + 19.19);
+    h = h.map(value => value + dot);
+    return fract((h[0] + h[1]) * h[2]);
+  };
+  const a = hash(...i), b = hash(i[0] + 1, i[1]), c = hash(i[0], i[1] + 1), d = hash(i[0] + 1, i[1] + 1);
+  return (a * (1 - f[0]) + b * f[0]) * (1 - f[1]) + (c * (1 - f[0]) + d * f[0]) * f[1];
+}
 const cache = new Map();
 export async function decode(url) {
   if (!cache.has(url)) cache.set(url, sharp('_site' + url).removeAlpha().raw().toBuffer({ resolveWithObject: true }));
@@ -64,6 +76,12 @@ export async function statementBoxes(layout, width, height) {
   }
   return result;
 }
+export async function measuredCoverLayout(css, width, height) {
+  const draft = coverLayout(css, width, height);
+  const boxes = await statementBoxes(draft, width, height);
+  const layout = draft.autoBand ? coverLayout(css, width, height, boxes.at(-1).bottom - draft.statement.top) : draft;
+  return { layout, boxes };
+}
 // Evaluate the actual edgeless CSS scrim, rather than treating its plateau as a rectangle.
 export function statementScrim(layout, boxes, width, height) {
   const style = layout.get('.hero-statement::before');
@@ -82,7 +100,7 @@ export function statementScrim(layout, boxes, width, height) {
     return clamp(av + (bv - av) * clamp((position - a) / (b - a)));
   };
 }
-export async function surfaces(layout, width, skyUrl, artUrl) {
+export async function surfaces(layout, width, skyUrl, artUrl, dpr = 1) {
   const skyImage = await decode(skyUrl), artImage = await decode(artUrl), bandHeight = layout.bandHeight;
   const { left: skyLeft, top: skyTop, width: skyWidth, height: skyHeight, crop } = layout.sky;
   const sourceOrigin = [crop.left / 5472, crop.top / 3648], sourceScale = [crop.width / 5472, crop.height / 3648];
@@ -103,44 +121,63 @@ export async function surfaces(layout, width, skyUrl, artUrl) {
     const feather = animated ? smooth(0, .12, Math.min(u, 1 - u)) * smooth(0, .14, Math.min(v, 1 - v)) : 1 - clamp((ellipse - .58) / (.76 - .58));
     return pixel.map(x => (light * .28 + x * .72) * .78 * feather);
   };
-  const photograph = (x, y, time = null) => {
+  const photograph = (x, y, time = null, skyOnly = false, traces = null) => {
     const u = (x - skyLeft) / skyWidth, v = (y - skyTop) / skyHeight;
     const originalSky = mix(ink, skyPixel(u, v), width < 1440 ? 1 - clamp((y / layout.sky.boxHeight - .78) / .22) : 1);
     const artUV = [(x - disk.left) / disk.width, (y - disk.top) / disk.height];
     const p = [(x - center[0]) / radius, (y - center[1]) / radius], r = Math.hypot(...p);
     if (time == null) {
+      if (skyOnly) return originalSky;
       const shadow = r < .114 / .109 ? [0, 0, 0] : originalSky;
       return screen(shadow, artPixel(...artUV, false));
     }
     const influence = 1 - smooth(3.8, 4.5, r), foreground = 1 - smooth(boundary(u) - .04, boundary(u) - .02, v), alpha = foreground * influence;
     if (!alpha) return originalSky;
     const skyMask = 1 - smooth(boundary(u) - .11, boundary(u) - .04, v);
-    const direction = p.map(x => x / Math.max(r, .001)), deflection = 1.4 / Math.max(r, .25) * influence ** 3 * (1 + .12 * Math.sin(time * .785398));
+    const direction = p.map(x => x / Math.max(r, .001)), deflection = 1.4 / Math.max(r, .25) * influence ** 3 * (1 + .08 * Math.sin(time * .785398));
     const drift = [Math.sin(time * .16) * .04, (Math.cos(time * .13) - 1) * .04], units = [radius / skyWidth, radius / skyHeight];
-    const bent = rotate(p.map((value, i) => value - direction[i] * deflection), time * (Math.min(.70 / Math.max(r*r, 1), .70) + .18 * smooth(1.5,2.5,r)) * influence);
-    const displaced = [u, v].map((x, i) => x + (bent[i] - p[i] + drift[i] * influence) * units[i] * skyMask);
+    const swirlMask = 1 - smooth(1.6, 2.6, r);
+    const bent = rotate(p.map((value, i) => value - direction[i] * deflection), .35 * 1.69 / Math.max(r*r, 1.69) * Math.sin(time * 1.570796) * swirlMask);
+    const displacement = p.map((value, i) => (bent[i] - value + drift[i] * swirlMask) * skyMask);
+    const bounded = offset => { offset[1] = Math.min(offset[1], 1.2); const scale = Math.min(1, .9 / Math.max(Math.hypot(...offset), .001)); return offset.map(value => value * scale); };
+    const tap = offset => {
+      offset = bounded(offset);
+      let uv = [u, v].map((value, i) => Math.max(.001, Math.min(.999, value + offset[i] * units[i])));
+      uv[1] = Math.min(uv[1], boundary(uv[0]) - .032);
+      offset = bounded(uv.map((value, i) => (value - [u, v][i]) / units[i]));
+      if (traces) traces.push(offset);
+      uv = [u, v].map((value, i) => value + offset[i] * units[i]);
+      return skyPixel(...uv);
+    };
     const critical = Math.exp(-(((r - 1.18) / .12) ** 2)), tangent = [-direction[1], direction[0]];
-    const smear = tangent.map((x, i) => x * units[i] * (.01 + critical * .035));
-    let background = skyPixel(...displaced, true).map(x => x * .4);
+    const smear = tangent.map(x => x * (.01 + critical * .035) * swirlMask);
+    let background = tap(displacement).map(x => x * .4);
     for (const [distance, weight] of [[1, .2], [-1, .2], [2, .1], [-2, .1]]) {
-      const pixel = skyPixel(displaced[0] + smear[0] * distance, displaced[1] + smear[1] * distance, true);
+      const pixel = tap(displacement.map((value, i) => value + smear[i] * distance));
       background = background.map((x, i) => x + pixel[i] * weight);
     }
     background = mix(originalSky, background, skyMask);
+    if (skyOnly) return mix(originalSky, background, alpha);
     const inclined = rotate(p, .22), plane = [inclined[0], inclined[1] / .24], diskRadius = Math.hypot(...plane);
-    const orbitPlane = rotate(plane, -time * .6 / Math.max(diskRadius, 1.2) ** 1.5), orbitPoint = rotate([orbitPlane[0], orbitPlane[1] * .24], -.22);
+    const orbitPlane = rotate(plane, -time * 1.0 / Math.max(diskRadius, 1.2) ** 1.5), orbitPoint = rotate([orbitPlane[0], orbitPlane[1] * .24], -.22);
     const original = artPixel(...artUV, true), movingPixel = artPixel(.51 + orbitPoint[0] * .109, .48 + orbitPoint[1] * .109 / .5625, true);
     const diskMask = (1 - smooth(.32, .72, Math.abs(inclined[1]))) * smooth(1.1, 1.6, diskRadius) * (1 - smooth(3.8, 5, diskRadius));
-    const moving = diskMask * smooth(.04, .16, Math.abs(r - 1.14));
-    // Bounded positive shimmer uses the shader's maximum noise contribution.
-    const orbit = time * .6 / Math.max(diskRadius, 1.2) ** 1.5;
+    const moving = Math.max(diskMask, swirlMask) * smooth(.04, .16, Math.abs(r - 1.14));
+    const orbit = time * 1.0 / Math.max(diskRadius, 1.2) ** 1.5;
     const flowAngle = Math.atan2(plane[1], plane[0]) - orbit;
-    const shimmer = (1 + .09 * Math.sin(flowAngle * 3 + diskRadius * .7) + .01) * (1 - .04 * plane[0] / Math.max(diskRadius, 1));
+    const shimmer = (1 + .09 * Math.sin(flowAngle * 3 + diskRadius * .7) + .02 * (noise(orbitPlane.map(value => value * .55)) - .5)) * (1 - .04 * plane[0] / Math.max(diskRadius, 1));
     const photonLock = 1 - smooth(.04, .16, Math.abs(r - 1.14));
     const pulse = 1 + .06 * Math.sin(Math.atan2(p[1], p[0]) - time * .6) * photonLock;
-    const emission = mix(original, original.map((x, i) => x * .50 + movingPixel[i] * .50), moving).map(x => Math.max(0, Math.min(255, x * (1 - moving + moving * shimmer) * pulse)));
-    const aa = 1.5 / (Math.min(width < 640 ? 1.5 : 2, 2) * radius), shadow = smooth(1.04 - aa, 1.04 + aa, r);
+    const emission = mix(original, original.map((x, i) => x * .10 + movingPixel[i] * .90), moving).map(x => x * (1 - moving + moving * shimmer) * pulse);
+    const quiet = smooth(2.2, 2.6, r), limit = .023529 * 255;
+    for (let i = 0; i < 3; i++) emission[i] = Math.max(0, Math.min(255, original[i] + (emission[i] - original[i]) * (1 - quiet) + Math.max(-limit, Math.min(limit, emission[i] - original[i])) * quiet));
+    const aa = 1.5 / (Math.min(dpr, width < 640 ? 1.5 : 2) * radius), shadow = smooth(1.04 - aa, 1.04 + aa, r);
     return mix(originalSky, screen(background.map(x => x * shadow), emission.map(x => x * shadow)), alpha);
   };
-  return { photograph, background: (x, y, time) => mix(ink, photograph(x, y, time), fadeAt(y, bandHeight)) };
+  return {
+    photograph,
+    skyPhotograph: (x, y, time) => photograph(x, y, time, true),
+    samples: (x, y, time) => { const traces = []; photograph(x, y, time, true, traces); return traces; },
+    background: (x, y, time) => mix(ink, photograph(x, y, time), fadeAt(y, bandHeight)),
+  };
 }

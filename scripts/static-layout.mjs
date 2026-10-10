@@ -66,15 +66,19 @@ export function fontAt(style, width, height) {
   const fontSize = length(style['font-size'] || size, width, height);
   return { fontSize, lineHeight: fontSize * +leading, italic: style.font.includes('italic'), weight: +(style.font.match(/\b[1-9]00\b/)?.[0] || 400) };
 }
-export function coverLayout(css, width, height) {
+export function coverLayout(css, width, height, statementHeight = 0) {
   const rules = cssRules(css), get = selector => styleAt(rules, selector, width, height);
   const cover = get('.night-cover'), variables = { ...get(':root'), ...cover };
-  const bandHeight = length(cover.height, width, height, width, variables);
+  const autoBand = cover.height === 'auto';
+  // Auto-height fold assertions must supply measured text, never a fixed line budget.
+  const statementTop = autoBand ? length(cover['padding-top'], width, height, width, variables) : null;
+  const bottomPadding = autoBand ? length(cover['padding-bottom'], width, height) : null;
+  const bandHeight = autoBand ? statementTop + statementHeight + bottomPadding : length(cover.height, width, height, width, variables);
   const diskWidth = length(variables['--disk-width'], width, height, width, variables);
   const disk = { left: length(variables['--disk-left'], width, height, width, variables), top: length(variables['--disk-top'], width, height), width: diskWidth, height: diskWidth * 9 / 16 };
-  const hero = get('.hero-statement'), inset = length(hero['inset-inline'], width, height);
+  const hero = get('.hero-statement'), inset = length(autoBand ? hero['margin-inline'] : hero['inset-inline'], width, height);
   const statementWidth = Math.min(width - inset * 2, length(hero['max-width'], width, height));
-  const statement = { left: (width - statementWidth) / 2, top: length(hero.top, width, height, bandHeight, variables), width: statementWidth };
+  const statement = { left: (width - statementWidth) / 2, top: autoBand ? statementTop : length(hero.top, width, height, bandHeight, variables), width: statementWidth };
   const mastheadHeight = length(get('.header-inner').height, width, height);
   const row = get('.card-row');
   const rowHeadingY = mastheadHeight + bandHeight + length(row['margin-block'].split(' ')[0], width, height);
@@ -92,5 +96,5 @@ export function coverLayout(css, width, height) {
   const position = get('.cover-sky-image')['object-position'].split(' ').map(value => parseFloat(value) / 100);
   const sky = { left: (width - skyWidth) * position[0], top: (skyBoxHeight - skyHeight) * position[1], width: skyWidth, height: skyHeight, boxHeight: skyBoxHeight, crop };
   const dome = { left: sky.left + (heroPhoto.dome.left * heroPhoto.source.width - crop.left) * skyScale, top: sky.top + (heroPhoto.dome.top * heroPhoto.source.height - crop.top) * skyScale, width: (heroPhoto.dome.right - heroPhoto.dome.left) * heroPhoto.source.width * skyScale, height: (heroPhoto.dome.bottom - heroPhoto.dome.top) * heroPhoto.source.height * skyScale };
-  return { rules, get, bandHeight, oldBandHeight, gap, oldGap, sky, dome, disk, diskBottom, lensingRegionBottom, statement, mastheadHeight, rowHeadingY };
+  return { rules, get, autoBand, bottomPadding, bandHeight, oldBandHeight, gap, oldGap, sky, dome, disk, diskBottom, lensingRegionBottom, statement, mastheadHeight, rowHeadingY };
 }

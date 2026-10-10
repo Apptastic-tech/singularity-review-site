@@ -114,7 +114,12 @@ checkPalette('a {color:#F2A93B;background:#1C1C1B}');
 for (const width of [320,390,640,768,1024,1440,1920]) {
   const get = selector => styleAt(rules, selector, width, 900);
   assert.equal(get('.newsletter-input-row input').flex, '1'); assert.equal(get('.newsletter-input-row input')['min-width'], '0'); assert.equal(get('.newsletter-input-row input').height, '44px');
-  assert.equal(get('.newsletter-input-row input')['border-radius'], '12px'); assert.equal(get('.newsletter-footer')['max-width'], width < 960 ? '520px' : 'none');
+  assert.equal(get('.newsletter-input-row input')['border-radius'], '12px'); assert.equal(get('.newsletter-footer')['max-width'], '520px');
+  assert.equal(get('.newsletter-footer').display, 'flex');
+  assert.equal(get('.newsletter-footer')['flex-direction'], 'column');
+  assert.equal(get('.newsletter-footer h2').position, 'static');
+  assert.equal(get('.newsletter-footer h2')['text-align'], 'left');
+  assert.ok(!['absolute', 'fixed'].includes(get('.newsletter-footer .newsletter-status').position));
   const gutter = width < 640 ? 20 : 32;
   const available = Math.min(width - 2*gutter, 1248, 520);
   assert.ok(available - 8 - 105 >= 100, 'Email and button fit even at 320px');

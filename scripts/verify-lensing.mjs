@@ -379,15 +379,21 @@ for (const width of [390, 768, 1024, 1280, 1440, 1920, 2560]) {
 console.log('LENSING VERIFIED: lazy start, failure cleanup, reduced motion, Save-Data, pause/resume, visibility, BFCache, two-texture reuse, mipmapped photograph, responsive source refresh, expanded field sizing, DPR caps, simulated 60/30fps pacing, shader contract and seven-width foreground geometry');
 
 assert.doesNotMatch(source, /pointermove|mousemove|uPointer|uCursor|spotlight/i);
-assert.match(source, /uTime \* 0\.6 \/ pow/);
+assert.match(source, /uTime \* 1\.0 \/ pow/);
 
 // Every observable fallback has its own state. Warm-up and isolated stalls never disable a GPU.
 assert.doesNotMatch(source,/console\s*\.\s*\w+\s*\(/,'No console logging in production lensing');
 assert.match(source,/float influence = 1\.0 - smoothstep\(3\.8, 4\.5, r\)/);
-assert.match(source,/float dragAngle = uTime \* dragRate \* influence/);
-assert.match(source,/0\.18 \* smoothstep\(1\.5, 2\.5, r\)/);
-assert.match(source,/1\.0 \+ 0\.12 \* sin\(uTime \* 0\.785398\)/);
-assert.match(source,/original \* 0\.50 \+ orbitLight \* 0\.50/);
+assert.doesNotMatch(source, /dragAngle = uTime|dragRate/);
+assert.match(source, /float swirlMask = 1\.0 - smoothstep\(1\.6, 2\.6, r\)/);
+assert.match(source, /0\.35 \* 1\.69 \/ max\(r \* r, 1\.69\)/);
+assert.match(source, /sin\(uTime \* 1\.570796\) \* swirlMask/);
+assert.match(source, /1\.0 \+ 0\.08 \* sin\(uTime \* 0\.785398\)/);
+assert.match(source, /offset\.y = min\(offset\.y, 1\.2\)/);
+assert.match(source, /0\.9 \/ max\(length\(offset\), 0\.001\)/);
+assert.equal((source.match(/sky\(baseUV, displacement/g) || []).length, 5, 'All five star-stream samples use the bounded sampler');
+assert.match(source, /boundedOffset\(\(uv - baseUV\) \/ skyUnits\)/, 'Foreground clipping is included in the final sample budget');
+assert.match(source,/original \* 0\.10 \+ orbitLight \* 0\.90/);
 assert.match(source,/0\.09 \* sin\(flowAngle/);
 assert.match(source,/0\.06 \* sin\(atan\(p\.y, p\.x\)/);
 for(const rendererName of ['Google SwiftShader','llvmpipe','softpipe','Microsoft Basic Render Driver']) {

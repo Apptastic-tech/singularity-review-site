@@ -2,8 +2,9 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import { parseDocument } from 'htmlparser2';
 import { findAll, textContent } from 'domutils';
-import { cssRules, styleAt, coverLayout, length } from './static-layout.mjs';
+import { cssRules, styleAt, length } from './static-layout.mjs';
 import { checkHeroControls } from './hero-contract.mjs';
+import { measuredCoverLayout } from './hero-pixels.mjs';
 
 const css = await fs.readFile('_site/css/style.css', 'utf8');
 assert.ok(css === await fs.readFile('src/css/style.css', 'utf8'), 'Checks use the current shipped CSS; rebuild after editing');
@@ -65,13 +66,14 @@ for (const file of (await fs.readdir('_site', { recursive: true })).filter(x => 
     const report = { viewport: `${width}x${height}`, gridWidth, gridLeft: (width-gridWidth)/2 };
     if (identity === 'home') {
       checkHeroControls(html, css);
-      const layout = coverLayout(css, width, height);
+      const { layout, boxes } = await measuredCoverLayout(css, width, height);
       assert.ok(layout.disk.left >= 24 && layout.disk.left + layout.disk.width <= width - 24);
       assert.ok(layout.disk.top >= 16 && layout.disk.top + layout.disk.height <= layout.bandHeight - 16);
       assert.ok(layout.rowHeadingY < (width < 640 ? 900 : height + 80));
       assert.ok(!get('.card-row').transform, 'The row remains in normal flow');
       assert.equal(get('.post-card-media')['aspect-ratio'], '16 / 9');
       assert.ok(layout.gap > 0 && layout.gap <= .55*layout.oldGap);
+      if (width < 960) assert.ok(Math.abs(layout.bandHeight - boxes.at(-1).bottom - (width < 640 ? 48 : 56)) < .001);
       report.gap=layout.gap; report.oldGap=layout.oldGap; report.statementTop=layout.statement.top; report.dome=layout.dome;
       report.bandHeight = layout.bandHeight; report.rowHeadingDocumentY = layout.rowHeadingY;
     }

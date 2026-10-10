@@ -51,6 +51,8 @@ try {
         assert.equal(card.radius,'24px'); assert.equal(card.headline,'700');
         assert.ok(card.meta.top>=card.media.bottom-.5 && card.title.top>=card.meta.bottom-.5 && card.excerpt.top>=card.title.bottom-.5);
         assert.ok(Math.abs(card.category.top-card.date.top)<8,'Category and date share one metadata line');
+        assert.ok(Math.abs(card.category.left-card.meta.left)<1,'Category starts at the metadata left edge');
+        assert.ok(Math.abs(card.date.left-card.category.right-10)<1,'Date immediately follows category with a 10px gap');
         for (const text of [card.meta,card.title,card.excerpt]) assert.ok(text.left>=card.box.left && text.right<=card.box.right+.5);
       }
       if (layout.grid) {

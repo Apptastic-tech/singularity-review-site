@@ -180,10 +180,11 @@ try {
   for (const width of [320,390,640,768,1024,1440,1920]) {
     const footer = await setup({viewport:{width,height:900},seed:{'sr-consent':decision,'sr-newsletter':{state:'dismissed',at:new Date().toISOString()}}});
     await goto(footer.page);
-    const fit=await footer.page.locator('.newsletter-footer').evaluate(section=>{const row=section.querySelector('.newsletter-input-row').getBoundingClientRect(),input=section.querySelector('input[type=email]').getBoundingClientRect(),button=section.querySelector('button[type=submit]').getBoundingClientRect(),container=document.querySelector('.footer-inner').getBoundingClientRect();return {row:{left:row.left,right:row.right},input:{left:input.left,right:input.right,width:input.width,height:input.height},button:{left:button.left,right:button.right,height:button.height},container:{left:container.left,right:container.right},overflow:document.documentElement.scrollWidth>innerWidth};});
+    const fit=await footer.page.locator('.newsletter-footer').evaluate(section=>{const heading=section.querySelector('h2').getBoundingClientRect(),row=section.querySelector('.newsletter-input-row').getBoundingClientRect(),input=section.querySelector('input[type=email]').getBoundingClientRect(),button=section.querySelector('button[type=submit]').getBoundingClientRect(),container=document.querySelector('.footer-inner').getBoundingClientRect();return {heading:{left:heading.left,bottom:heading.bottom},row:{left:row.left,right:row.right,top:row.top},input:{left:input.left,right:input.right,width:input.width,height:input.height},button:{left:button.left,right:button.right,height:button.height},container:{left:container.left,right:container.right},overflow:document.documentElement.scrollWidth>innerWidth};});
     assert.equal(fit.overflow,false); assert.ok(Math.abs(fit.input.left-fit.container.left)<1);
     assert.ok(fit.input.width>100 && fit.input.right<=fit.button.left && fit.button.right<=fit.container.right+.5);
     assert.equal(fit.input.height,44); assert.equal(fit.button.height,44);
+    assert.ok(Math.abs(fit.heading.left-fit.input.left)<1 && fit.heading.bottom<=fit.row.top, 'Newsletter heading sits above the input and shares its left edge at '+width+'px');
     await assertCLS(footer.page);
   }
   const phoneConsent = await setup({viewport:{width:390,height:844},reducedMotion:'no-preference'});

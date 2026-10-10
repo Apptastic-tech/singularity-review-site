@@ -56,9 +56,18 @@ float skyBoundary(float x) {
   return (mountain - dome - tree - uSourceOrigin.y) / uSourceScale.y;
 }
 
-vec3 sky(vec2 uv) {
+vec2 boundedOffset(vec2 offset) {
+  // Positive y points towards the horizon. Bound every tap, including its smear.
+  offset.y = min(offset.y, 1.2);
+  return offset * min(1.0, 0.9 / max(length(offset), 0.001));
+}
+
+vec3 sky(vec2 baseUV, vec2 offset, vec2 skyUnits) {
+  vec2 uv = clamp(baseUV + boundedOffset(offset) * skyUnits, 0.001, 0.999);
   uv.y = min(uv.y, skyBoundary(uv.x) - 0.032);
-  return texture2D(uSky, clamp(uv, 0.001, 0.999)).rgb;
+  // The foreground guard is part of the displacement budget as well.
+  uv = baseUV + boundedOffset((uv - baseUV) / skyUnits) * skyUnits;
+  return texture2D(uSky, uv).rgb;
 }
 
 vec2 rotate(vec2 p, float angle) {
@@ -89,25 +98,27 @@ void main() {
   float alpha = foregroundMask * influence;
 
   // The lens equation's critical radius lies outside the shadow, in visible sky.
-  float breathing = 1.0 + 0.12 * sin(uTime * 0.785398);
+  float breathing = 1.0 + 0.08 * sin(uTime * 0.785398);
   float deflection = 1.4 / max(r, 0.25) * influence * influence * influence * breathing;
-  // Frame dragging: one orbit in about 20 seconds at r=1.5, fading by r=4.5.
-  // Broader outer-sky advection keeps the dim photographic stars readable in motion.
-  float dragRate = min(0.70 / max(r * r, 1.0), 0.70)
-    + 0.18 * smoothstep(1.5, 2.5, r);
-  float dragAngle = uTime * dragRate * influence;
+  // Bounded four-second oscillation cannot wind the horizon around the shadow.
+  // At r=1.3 the displacement is at most .35 radians, then falls as 1/r squared.
+  float swirlMask = 1.0 - smoothstep(1.6, 2.6, r);
+  float dragAngle = 0.35 * 1.69 / max(r * r, 1.69)
+    * sin(uTime * 1.570796) * swirlMask;
   vec2 bent = rotate(p - direction * deflection, dragAngle);
   vec2 skyUnits = vec2(0.109, 0.109 / 0.5625) / uArtScale * uSkyScale;
   vec2 drift = vec2(sin(uTime * 0.16), cos(uTime * 0.13) - 1.0) * 0.04;
-  vec2 displacedUV = baseUV + (bent - p + drift * influence) * skyUnits * skyMask;
+  vec2 displacement = (bent - p + drift * swirlMask) * skyMask;
   vec2 tangent = vec2(-direction.y, direction.x);
   // Several linear samples smear drifting stars tangentially near the critical curve.
   float criticalDistance = (r - 1.18) / 0.12;
   float critical = exp(-criticalDistance * criticalDistance);
-  vec2 smear = tangent * skyUnits * (0.01 + critical * 0.035);
-  vec3 background = sky(displacedUV) * 0.4;
-  background += (sky(displacedUV + smear) + sky(displacedUV - smear)) * 0.2;
-  background += (sky(displacedUV + smear * 2.0) + sky(displacedUV - smear * 2.0)) * 0.1;
+  vec2 smear = tangent * (0.01 + critical * 0.035) * swirlMask;
+  vec3 background = sky(baseUV, displacement, skyUnits) * 0.4;
+  background += (sky(baseUV, displacement + smear, skyUnits)
+    + sky(baseUV, displacement - smear, skyUnits)) * 0.2;
+  background += (sky(baseUV, displacement + smear * 2.0, skyUnits)
+    + sky(baseUV, displacement - smear * 2.0, skyUnits)) * 0.1;
   // Keep the real ridge pixels near the foreground; never paint a synthetic hill.
   background = mix(texture2D(uSky, clamp(baseUV, 0.001, 0.999)).rgb, background, skyMask);
 
@@ -115,7 +126,7 @@ void main() {
   vec2 inclined = rotate(p, 0.22);
   vec2 plane = vec2(inclined.x, inclined.y / 0.24);
   float diskRadius = length(plane);
-  float orbit = uTime * 0.6 / pow(max(diskRadius, 1.2), 1.5);
+  float orbit = uTime * 1.0 / pow(max(diskRadius, 1.2), 1.5);
   vec2 orbitPlane = rotate(plane, -orbit);
   vec2 orbitPoint = rotate(vec2(orbitPlane.x, orbitPlane.y * 0.24), -0.22);
   vec2 orbitUV = vec2(0.51, 0.48) + orbitPoint * vec2(0.109, 0.109 / 0.5625);
@@ -125,8 +136,9 @@ void main() {
     * smoothstep(1.1, 1.6, diskRadius) * (1.0 - smoothstep(3.8, 5.0, diskRadius));
   // Preserve the photographed silhouette, lensed upper arch and crisp photon ring.
   float photonLock = 1.0 - smoothstep(0.04, 0.16, abs(r - 1.14));
-  float moving = diskMask * (1.0 - photonLock);
-  vec3 emission = mix(original, original * 0.50 + orbitLight * 0.50, moving);
+  // The lensed inner arch carries the same orbiting light, without moving the ring.
+  float moving = max(diskMask, swirlMask) * (1.0 - photonLock);
+  vec3 emission = mix(original, original * 0.10 + orbitLight * 0.90, moving);
   float flowAngle = atan(plane.y, plane.x) - orbit;
   float shimmer = 1.0 + 0.09 * sin(flowAngle * 3.0 + diskRadius * 0.7)
     + 0.02 * (noise(orbitPlane * 0.55) - 0.5);
@@ -138,6 +150,13 @@ void main() {
   // Match the static artwork grade; retain the supplied Doppler asymmetry.
   float light = dot(emission, vec3(0.2126, 0.7152, 0.0722));
   emission = mix(vec3(light), emission, 0.72) * 0.78;
+  // Keep outer disk detail, with at most six byte levels of orbital variation.
+  // A smooth transition prevents a circular brightness edge at the flow boundary.
+  float originalLight = dot(original, vec3(0.2126, 0.7152, 0.0722));
+  vec3 staticEmission = mix(vec3(originalLight), original, 0.72) * 0.78;
+  vec3 quietEmission = staticEmission + clamp(emission - staticEmission,
+    vec3(-0.023529), vec3(0.023529));
+  emission = mix(emission, quietEmission, smoothstep(2.2, 2.6, r));
 
   float aa = 1.5 * uArtScale.x / (uResolution.x * 0.109);
   float shadow = smoothstep(1.04 - aa, 1.04 + aa, r);

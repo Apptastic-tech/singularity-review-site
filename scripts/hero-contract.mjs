@@ -15,7 +15,13 @@ export function verifyHero(html, css) {
     const layout = coverLayout(css, width, height);
     assert.ok(layout.statement.top > layout.diskBottom, width + ': statement below the complete static disk');
     assert.ok(layout.gap > 0 && layout.gap <= .55 * layout.oldGap, width + ': gap is at most 55 percent of pass 1');
-    assert.ok(Math.abs((layout.oldBandHeight - layout.bandHeight) - (layout.oldGap - layout.gap)) < .001, width + ': band shrinks by the same amount as the gap');
+    if (width >= 960) assert.ok(Math.abs((layout.oldBandHeight - layout.bandHeight) - (layout.oldGap - layout.gap)) < .001, width + ': desktop geometry remains unchanged');
+    else {
+      assert.equal(layout.get('.night-cover').height, 'auto', width + ': narrow band follows its text');
+      assert.equal(layout.get('.hero-statement').position, 'relative');
+      assert.equal(layout.bottomPadding, width < 640 ? 48 : 56);
+      assert.ok(layout.bottomPadding <= (width < 640 ? 56 : 64), width + ': bounded empty padding');
+    }
   }
   assert.equal((html.match(/<h1\b/g) || []).length, 1, 'Homepage has one h1');
   const band = html.slice(html.indexOf('<div class="night-cover"'), html.indexOf('<section class="card-row'));

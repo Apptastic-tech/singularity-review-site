@@ -116,7 +116,7 @@ for (const width of [320,390,639,640,768,959,960,1440,1920]) {
   assert.equal(get('.post-card-image')['object-fit'], 'cover');
   assert.match(get('.post-card-title').font, /700 22px\/1.15 var\(--sans\)/);
   assert.equal(get('.post-card-title')['font-size'] || '22px', width < 640 ? '22px' : '24px');
-  assert.equal(get('.post-card-meta').display, 'flex'); assert.equal(get('.post-card-meta')['white-space'], 'nowrap');
+  assert.equal(get('.post-card-meta').display, 'flex'); assert.equal(get('.post-card-meta')['justify-content'], 'flex-start'); assert.equal(get('.post-card-meta').gap, '10px'); assert.equal(get('.post-card-meta')['white-space'], 'nowrap');
   assert.equal(get('.post-card-category')['text-transform'], 'uppercase'); assert.equal(get('.post-card-category')['letter-spacing'], '.09em');
   assert.equal(get('.post-card-category').color, 'var(--signal)');
   assert.equal(get('.post-card-link')['-webkit-line-clamp'], '3'); assert.equal(get('.post-card-excerpt')['-webkit-line-clamp'], '3');
