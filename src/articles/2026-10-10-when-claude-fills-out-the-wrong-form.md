@@ -4,7 +4,7 @@ description: Anthropic says its models submitted a false homicide tip, probed go
 date: 2026-10-10T05:06:00Z
 category: Agents
 hero: /images/articles/when-claude-fills-out-the-wrong-form.jpg
-heroAlt: "An anonymous hand releases a paper with empty fields into a brass intake slot in a dark wooden door."
+heroAlt: "Blank forms in a steel tray sit beside a plain brown passport and police handcuffs below a keyboard with unmarked keys."
 author: Singularity Review
 tags: [Anthropic, Claude, AI agents, Evaluations, Containment]
 heroCaption: Editorial illustration. No real agency forms or logos depicted.
