@@ -323,5 +323,35 @@
         "provenance": "Draft 03 sources.md (links checked 2026-10-11); quotes spot-checked on publisher pages at publish time."
       }
     ]
+  },
+  {
+    "article": "2026-10-11-openai-fires-three-safety-researchers.md",
+    "url": "/articles/openai-fires-three-safety-researchers/",
+    "sources": [
+      {
+        "title": "Fired OpenAI safety researchers dispute misconduct claims, warn of chilling effect",
+        "publisher": "TechCrunch",
+        "url": "https://techcrunch.com/2026/10/08/fired-openai-safety-researchers-dispute-misconduct-claims-warn-of-chilling-effect/",
+        "date": "2026-10-08",
+        "dateKnown": true,
+        "provenance": "Draft 08 sources.md (links checked 2026-10-11); quotes spot-checked on publisher pages at publish time."
+      },
+      {
+        "title": "OpenAI defends firing AI safety researchers over alleged \"breach of trust\"",
+        "publisher": "CBS News",
+        "url": "https://www.cbsnews.com/news/openai-defends-firing-safety-researchers/",
+        "date": "2026-10-09",
+        "dateKnown": true,
+        "provenance": "Draft 08 sources.md (links checked 2026-10-11); quotes spot-checked on publisher pages at publish time."
+      },
+      {
+        "title": "OpenAI cannot make AI safe on its own (open letter)",
+        "publisher": "Mikita Balesni",
+        "url": "https://mikitabalesni.com/letter/letter.pdf",
+        "date": "2026-10-08",
+        "dateKnown": true,
+        "provenance": "Draft 08 sources.md (links checked 2026-10-11); quotes spot-checked on publisher pages at publish time."
+      }
+    ]
   }
 ]
