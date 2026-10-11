@@ -32,7 +32,7 @@ function checkFooter(dom) {
   assert.equal(classes(footer, 'newsletter-input-row').length, 1);
   const social = classes(footer, 'footer-social')[0];
   assert.deepEqual(nodes(social).filter(node => node.name === 'a').map(node => node.attribs['aria-label']), ['Singularity Review on Facebook', 'Singularity Review on Instagram', 'RSS']);
-  for (const text of ['2026 Singularity Review','Kitt Peak at Night','KPNO/NOIRLab/NSF/AURA/P. Marenfeld','CC BY 4.0']) assert.ok(textContent(footer).includes(text));
+  assert.ok(textContent(footer).includes('2026 Singularity Review')); for (const text of ['Kitt Peak at Night','Marenfeld','CC BY 4.0']) assert.ok(!textContent(footer).includes(text), 'Skyline credit moved to /about/');
 }
 function checkHome(dom, preview = false) {
   const main = nodes(dom).find(node => node.name === 'main');

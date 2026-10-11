@@ -169,9 +169,13 @@ for (const file of await fs.readdir(out,{recursive:true})) {
   assert.match(page, /src="\/js\/site\.js\?v=[a-f0-9]{10}"/);
   assert.match(page, /<script src="\/js\/transitions\.js\?v=[a-f0-9]{10}"><\/script>/, 'Transition listener registers before first render');
   assert.match(page, /l\.replace\(t\+l\.pathname\+l\.search\+l\.hash\)/, 'Legacy redirect preserves path, query and fragment');
-  assert.match(page, /Kitt Peak at Night/);
-  assert.match(page, /KPNO\/NOIRLab\/NSF\/AURA\/P\. Marenfeld/);
-  assert.match(page, /https:\/\/creativecommons\.org\/licenses\/by\/4\.0\//);
+  const footerHtml = (page.match(/<footer[\s\S]*?<\/footer>/) || [''])[0];
+  assert.doesNotMatch(footerHtml, /Kitt Peak|Marenfeld|CC BY 4\.0/, `Skyline credit not in footer: ${file}`);
+  if (/^about[\\/]index\.html$/.test(file)) {
+    assert.match(page, /class="photo-credit about-image-credits"><span class="about-image-credits-label">Image credits\.<\/span> Skyline: <a href="https:\/\/commons\.wikimedia\.org\/wiki\/File:Kitt_Peak_at_Night_\(3S8A6804\)\.jpg">Kitt Peak at Night<\/a>, KPNO\/NOIRLab\/NSF\/AURA\/P\. Marenfeld, <a href="https:\/\/creativecommons\.org\/licenses\/by\/4\.0\/">CC BY 4\.0<\/a>\. Colour graded; satellite trail removed\.<\/p>/, 'Image credits note on /about/');
+  } else {
+    assert.doesNotMatch(page, /Marenfeld/, `Skyline credit only on /about/: ${file}`);
+  }
   assert.ok(!page.includes(retiredImage), `No retired skyline references: ${file}`);
   assert.doesNotMatch(page, /class="kicker"|Explore Singularity Review|From our authors|AI news for people living through the singularity|Stay in the loop|Follow the stories that matter/);
   if (!page.includes('class="hero-image"')) assert.match(page, /property="og:image" content="[^" ]+\/images\/brand\/og-default\.jpg"/);

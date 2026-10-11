@@ -39,8 +39,6 @@ Write to [Contact email] for questions, corrections, privacy requests or adverti
 - [RSS feed](/rss.xml): new articles in your feed reader.
 - [Editorial standards](/editorial-standards/): sourcing, corrections, opinion, ownership and production disclosures.
 
-## Photograph credit
-
-The skyline photograph, [Kitt Peak at Night](https://commons.wikimedia.org/wiki/File:Kitt_Peak_at_Night_(3S8A6804).jpg), is by KPNO/NOIRLab/NSF/AURA/P. Marenfeld, licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). The supplied version is colour graded and has a satellite trail removed.
+<p class="photo-credit about-image-credits"><span class="about-image-credits-label">Image credits.</span> Skyline: <a href="https://commons.wikimedia.org/wiki/File:Kitt_Peak_at_Night_(3S8A6804).jpg">Kitt Peak at Night</a>, KPNO/NOIRLab/NSF/AURA/P. Marenfeld, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Colour graded; satellite trail removed.</p>
 
 </div>

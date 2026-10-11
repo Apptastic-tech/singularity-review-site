@@ -570,3 +570,5 @@ figcaption { color: var(--muted); font-size: 13px; padding: 12px 20px 0; }
 @media (min-width: 960px) and (max-width: 1439px) {
   .cover-sky { height: min(620px, calc(50vw - 16px)); mask-image: linear-gradient(to bottom, #000 0%, #000 78%, transparent 100%); }
 }
+.about-image-credits { margin-top: 48px; }
+.about-image-credits-label { font-weight: 600; }

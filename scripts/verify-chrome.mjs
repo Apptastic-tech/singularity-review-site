@@ -32,7 +32,7 @@ function checkChrome(html, file) {
   assert.equal(plain(markup(footer, 'a', 'footer-brand')), 'Singularity Review');
   assert.deepEqual([...markup(footer, 'nav', 'footer-social').matchAll(/aria-label="([^"]+)"/g)].map(item => item[1]), ['Singularity Review on Facebook', 'Singularity Review on Instagram', 'RSS']);
   assert.match(footer, /&copy; \d{4} Singularity Review/);
-  for (const text of ['Kitt Peak at Night', 'KPNO/NOIRLab/NSF/AURA/P. Marenfeld', 'CC BY 4.0']) assert.ok(footer.includes(text));
+  for (const text of ['Kitt Peak at Night', 'Marenfeld', 'CC BY 4.0']) assert.ok(!footer.includes(text), 'Skyline credit moved to /about/');
   for (const [, byline] of html.matchAll(/<p class="(?:byline meta|card-byline meta(?: lead-byline)?|carousel-byline meta)">([\s\S]*?)<\/p>/g)) {
     assert.match(plain(byline), /^By .+ · [A-Z][a-z]+ \d{1,2}, \d{4}(?: · \d+ min read)?$/);
     assert.match(byline, /<time datetime="[^"]+">/);
