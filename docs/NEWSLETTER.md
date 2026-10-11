@@ -59,7 +59,7 @@ According to the supplied deployment brief, the current catch-all deny rule reje
 
 App Check is recommended along with server-side rate limits and abuse monitoring. The REST client currently sends no App Check token. Evaluate App Check support and enforcement for this REST-only web flow in the target Firebase setup; add token acquisition and verification before enforcing it. A protected server endpoint may be a better place for bot checks, rate limiting and email delivery.
 
-Database location remains [Firestore database location to confirm]. Email processor: beehiiv. Processing terms remain [beehiiv data processing terms and transfer safeguards to confirm].
+Database location remains [Firestore database location to confirm]. Email processor: beehiiv. Processing terms: beehiiv Data Protection Addendum, https://www.beehiiv.com/dpa (last modified 16 July 2026), cited in the privacy policy.
 
 ## Double opt-in plan
 

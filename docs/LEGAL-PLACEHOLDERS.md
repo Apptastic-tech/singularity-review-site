@@ -11,7 +11,6 @@ Stage draft, last updated 11 October 2026. Every bracketed legal placeholder use
 | [Data protection officer, if any] | Privacy policy | Whether a DPO exists and their contact details |
 | [Supervisory authority] | Privacy policy | Competent supervisory authority |
 | [Firestore database location to confirm] | Privacy policy; Newsletter architecture | Actual region of the existing database |
-| [beehiiv data processing terms and transfer safeguards to confirm] | Privacy policy; Newsletter architecture | beehiiv data processing agreement and transfer mechanism |
 | [Google contracting entity and applicable transfer safeguards to confirm] | Privacy policy | Applicable Google entity, processing agreement and transfer mechanism |
 | [Retention period for confirmed subscriptions and consent evidence] | Privacy policy; Newsletter architecture | Approved retention for active subscription records |
 | [Retention period for consent evidence after unsubscribe] | Privacy policy; Newsletter architecture | Approved minimum evidence retention after withdrawal |
