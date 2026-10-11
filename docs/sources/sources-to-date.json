@@ -233,5 +233,51 @@
         "provenance": "Daily SOURCES.md; title, date and quoted text verified on the publisher page 2026-10-11."
       }
     ]
+  },
+  {
+    "article": "2026-10-11-openai-math-manuscripts-flood.md",
+    "url": "/articles/openai-math-manuscripts-flood/",
+    "sources": [
+      {
+        "title": "Sharing AI progress in mathematics",
+        "publisher": "OpenAI",
+        "url": "https://openai.com/index/sharing-ai-progress-in-mathematics/",
+        "date": "2026-10-06",
+        "dateKnown": true,
+        "provenance": "Draft 01 sources.md (links checked 2026-10-11); quotes spot-checked on publisher pages at publish time."
+      },
+      {
+        "title": "openai/math repository",
+        "publisher": "OpenAI on GitHub",
+        "url": "https://github.com/openai/math",
+        "date": "2026-10-06",
+        "dateKnown": true,
+        "provenance": "Draft 01 sources.md (links checked 2026-10-11); quotes spot-checked on publisher pages at publish time."
+      },
+      {
+        "title": "OpenAI withdraws three preprints a day after releasing 722 manuscripts on unsolved math problems",
+        "publisher": "Retraction Watch",
+        "url": "https://retractionwatch.com/2026/10/08/openai-withdraws-preprints-722-manuscripts-unsolved-math-problems/",
+        "date": "2026-10-08",
+        "dateKnown": true,
+        "provenance": "Draft 01 sources.md (links checked 2026-10-11); quotes spot-checked on publisher pages at publish time."
+      },
+      {
+        "title": "\"How much beauty have we lost?\" Mathematicians react with shock and disgust as OpenAI bulldozes their field",
+        "publisher": "The Decoder",
+        "url": "https://the-decoder.com/how-much-beauty-have-we-lost-mathematicians-react-with-shock-and-disgust-as-openai-bulldozes-their-field/",
+        "date": "2026-10-10",
+        "dateKnown": true,
+        "provenance": "Draft 01 sources.md (links checked 2026-10-11); quotes spot-checked on publisher pages at publish time."
+      },
+      {
+        "title": "OpenAI Math manuscript index",
+        "publisher": "Independent community index (kisonecat)",
+        "url": "https://kisonecat.github.io/openai-math/",
+        "date": "",
+        "dateKnown": false,
+        "provenance": "Draft 01 sources.md (links checked 2026-10-11); quotes spot-checked on publisher pages at publish time."
+      }
+    ]
   }
 ]
