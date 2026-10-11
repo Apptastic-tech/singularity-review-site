@@ -279,5 +279,27 @@
         "provenance": "Draft 01 sources.md (links checked 2026-10-11); quotes spot-checked on publisher pages at publish time."
       }
     ]
+  },
+  {
+    "article": "2026-10-11-california-ai-workplace-laws.md",
+    "url": "/articles/california-ai-workplace-laws/",
+    "sources": [
+      {
+        "title": "California's nation-leading AI framework just got stronger, Governor Newsom signs more first-in-the-nation worker protections and more",
+        "publisher": "Office of the Governor of California",
+        "url": "https://www.gov.ca.gov/2026/09/30/californias-nation-leading-ai-framework-just-got-stronger-governor-newsom-signs-more-first-in-the-nation-worker-protections-and-more/",
+        "date": "2026-09-30",
+        "dateKnown": true,
+        "provenance": "Draft 02 sources.md (links checked 2026-10-11); quotes spot-checked on publisher pages at publish time."
+      },
+      {
+        "title": "California Expands Its AI Rulebook: Governor Newsom Signs Over Two Dozen Laws Governing AI Oversight and Use",
+        "publisher": "O'Melveny",
+        "url": "https://www.omm.com/insights/alerts-publications/california-expands-its-ai-rulebook-governor-newsom-signs-over-two-dozen-laws-governing-ai-oversight-and-use/",
+        "date": "2026-10-08",
+        "dateKnown": true,
+        "provenance": "Draft 02 sources.md (links checked 2026-10-11); quotes spot-checked on publisher pages at publish time."
+      }
+    ]
   }
 ]
