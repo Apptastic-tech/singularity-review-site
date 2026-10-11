@@ -114,7 +114,7 @@ checkPalette('a {color:#F2A93B;background:#1C1C1B}');
 for (const width of [320,390,640,768,1024,1440,1920]) {
   const get = selector => styleAt(rules, selector, width, 900);
   assert.equal(get('.newsletter-embed')['min-width'], '0'); assert.equal(get('.newsletter-embed-frame')['border-radius'], '16px'); assert.equal(get('.newsletter-embed-frame').overflow, 'hidden');
-  assert.equal(get('.newsletter-embed-frame iframe').width, '100%'); assert.equal(get('.newsletter-footer')['max-width'], '520px');
+  assert.equal(get('.newsletter-embed-frame iframe').width, 'calc(100% + 2 * var(--bhv-trim)) !important'); assert.equal(get('.newsletter-footer')['max-width'], '520px');
   assert.equal(get('.newsletter-footer').display, 'flex');
   assert.equal(get('.newsletter-footer')['flex-direction'], 'column');
   assert.equal(get('.newsletter-footer h2').position, 'static');

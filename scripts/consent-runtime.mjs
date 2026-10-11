@@ -216,6 +216,8 @@ export async function verifyConsentRuntime({ consent, newsletter, fields, senten
   lazy.size('prompt'); assert.equal(lazy.embed('prompt').dataset.state, 'ready');
   // Footer never sized: falls back to the beehiiv page link after 10 seconds.
   assert.equal(lazy.embed('footer').dataset.state, 'fallback');
+  const slow = fresh(); slow.reveal('footer'); slow.embed('footer').frame.iframe = { sized: false, contentWindow: {} }; slow.advance(10000);
+  assert.equal(slow.embed('footer').dataset.state, 'slow', 'An unsized iframe stays visible beside the fallback link');
   const failing = fresh(); failing.reveal('article-end'); scripts(failing, 'article-end')[0].emit('error');
   assert.equal(failing.embed('article-end').dataset.state, 'fallback');
   // Completed signup reported by the beehiiv iframe suppresses the prompt.

@@ -29,7 +29,8 @@
       if (!frame.querySelector('iframe[data-bhv-sized]')) return false;
       embed.dataset.state = 'ready'; clearAttribution(); return true;
     };
-    const fail = () => { if (embed.dataset.state === 'loading') embed.dataset.state = 'fallback'; };
+    // No sized form in time: keep any iframe (it may be showing a bot check) and add the link to beehiiv.
+    const fail = () => { if (embed.dataset.state === 'loading') embed.dataset.state = frame.querySelector('iframe') ? 'slow' : 'fallback'; };
     const fallbackTimer = setTimeout(fail, EMBED_TIMEOUT_MS);
     if (typeof MutationObserver === 'function') {
       const watch = new MutationObserver(() => { if (ready()) { clearTimeout(fallbackTimer); watch.disconnect(); } });

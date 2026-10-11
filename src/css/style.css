@@ -584,10 +584,13 @@ figcaption { color: var(--muted); font-size: 13px; padding: 12px 20px 0; }
 .newsletter-embed { min-width: 0; font: 400 13px/1.5 var(--sans); }
 .newsletter-embed-frame { border-radius: 16px; overflow: hidden; background: #0B0B0C; }
 .newsletter-embed-frame:empty { display: none; }
-.newsletter-embed-frame iframe { display: block; width: 100%; border: 0; }
+.newsletter-embed-frame { --bhv-trim: 60px; }
+/* The beehiiv form draws 80px of its own padding; trim 60px of it on every side so the form sits close to our copy. */
+.newsletter-embed-frame iframe { display: block; width: calc(100% + 2 * var(--bhv-trim)) !important; max-width: none; margin: calc(-1 * var(--bhv-trim)) 0 calc(-1 * var(--bhv-trim)) calc(-1 * var(--bhv-trim)); border: 0; }
 .newsletter-embed:is([data-state="idle"], [data-state="loading"]) .newsletter-embed-frame { display: block; min-height: 180px; }
 .newsletter-embed:is([data-state="idle"], [data-state="loading"], [data-state="ready"]) .newsletter-fallback { display: none; }
 .newsletter-embed[data-state="fallback"] .newsletter-embed-frame { display: none; }
+.newsletter-embed[data-state="slow"] .newsletter-fallback { margin-top: 12px; }
 .newsletter-fallback { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
 .newsletter-note { margin: 8px 0 0; color: var(--muted); font: 400 13px/1.5 var(--sans); }
 .popup-card .newsletter-note { margin: 8px 0 0; font-size: 13px; }
