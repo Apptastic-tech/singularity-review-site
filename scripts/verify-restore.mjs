@@ -29,7 +29,7 @@ function checkFooter(dom) {
   assert.equal(buttons.length, 1); assert.equal(textContent(buttons[0]), 'Cookie settings'); assert.ok(Object.hasOwn(buttons[0].attribs, 'data-consent-open'));
   assert.equal(nodes(footer).filter(node => node.name === 'h2').length, 1);
   assert.equal(textContent(nodes(footer).find(node => node.name === 'h2')), 'Get the newsletter');
-  assert.equal(classes(footer, 'newsletter-input-row').length, 1);
+  assert.equal(classes(footer, 'newsletter-embed').length, 1);
   const social = classes(footer, 'footer-social')[0];
   assert.deepEqual(nodes(social).filter(node => node.name === 'a').map(node => node.attribs['aria-label']), ['Singularity Review on Facebook', 'Singularity Review on Instagram', 'Singularity Review on Telegram', 'RSS']);
   assert.ok(textContent(footer).includes('2026 Singularity Review')); for (const text of ['Kitt Peak at Night','Marenfeld','CC BY 4.0']) assert.ok(!textContent(footer).includes(text), 'Skyline credit moved to /about/');
@@ -113,13 +113,13 @@ for (const color of ['#800080','#ff00ff','hsl(255 1% 50%)','oklch(.5 .1 330)','r
 checkPalette('a {color:#F2A93B;background:#1C1C1B}');
 for (const width of [320,390,640,768,1024,1440,1920]) {
   const get = selector => styleAt(rules, selector, width, 900);
-  assert.equal(get('.newsletter-input-row input').flex, '1'); assert.equal(get('.newsletter-input-row input')['min-width'], '0'); assert.equal(get('.newsletter-input-row input').height, '44px');
-  assert.equal(get('.newsletter-input-row input')['border-radius'], '12px'); assert.equal(get('.newsletter-footer')['max-width'], '520px');
+  assert.equal(get('.newsletter-embed')['min-width'], '0'); assert.equal(get('.newsletter-embed-frame')['border-radius'], '16px'); assert.equal(get('.newsletter-embed-frame').overflow, 'hidden');
+  assert.equal(get('.newsletter-embed-frame iframe').width, '100%'); assert.equal(get('.newsletter-footer')['max-width'], '520px');
   assert.equal(get('.newsletter-footer').display, 'flex');
   assert.equal(get('.newsletter-footer')['flex-direction'], 'column');
   assert.equal(get('.newsletter-footer h2').position, 'static');
   assert.equal(get('.newsletter-footer h2')['text-align'], 'left');
-  assert.ok(!['absolute', 'fixed'].includes(get('.newsletter-footer .newsletter-status').position));
+  assert.ok(!['absolute', 'fixed'].includes(get('.newsletter-footer .newsletter-embed').position));
   const gutter = width < 640 ? 20 : 32;
   const available = Math.min(width - 2*gutter, 1248, 520);
   assert.ok(available - 8 - 105 >= 100, 'Email and button fit even at 320px');

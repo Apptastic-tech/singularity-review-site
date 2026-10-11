@@ -3,15 +3,55 @@
   const NEWSLETTER_DISMISS_MS = 30 * 24 * 60 * 60 * 1000;
   const NEWSLETTER_KEY = 'sr-newsletter';
   const SESSION_KEY = 'sr-newsletter-session';
-  const CONSENT_TEXT_VERSION = 'newsletter-2026-10-10';
-  const CONSENT_TEXT = 'Send me the Singularity Review newsletter. Unsubscribe anytime.';
-  const SUCCESS_TEXT = "Thanks. We'll email you to confirm your subscription before sending anything.";
-  const RETRY_TEXT = 'Could not subscribe. Please try again shortly.';
-  const FIRESTORE_BASE = 'https://firestore.googleapis.com/v1/projects/apptastic-mobi/databases/(default)/documents';
+  // Signups are handled by the beehiiv embed form. Its loader is fetched only when a signup is shown.
+  const BEEHIIV_ORIGIN = 'https://subscribe-forms.beehiiv.com';
+  const BEEHIIV_LOADER = BEEHIIV_ORIGIN + '/v3/loader.js';
+  const BEEHIIV_FORM = 'e785ea2e-cba3-470a-8d47-87fb1c73e623';
+  const EMBED_TIMEOUT_MS = 10000;
+  // First-party attribution cookies written by the beehiiv loader or attribution.js. Kept only with analytics consent.
+  const ATTRIBUTION_COOKIES = ['bhv_attribution', 'attribution_data'];
   const prompt = document.querySelector('[data-newsletter-prompt]');
   const announcement = document.querySelector('[data-newsletter-announcement]');
-  const forms = [...document.querySelectorAll('[data-newsletter-form]')];
+  const embeds = [...document.querySelectorAll('[data-newsletter-embed]')];
   if (!prompt || !window.srConsent) return;
+  const analyticsGranted = () => window.srConsent.get()?.analytics === true;
+  const clearAttribution = () => {
+    if (analyticsGranted()) return;
+    const present = String(document.cookie || '').split(/;\s*/).map(item => item.split('=')[0]);
+    // Expire only; this never stores a value.
+    ATTRIBUTION_COOKIES.filter(name => present.includes(name)).forEach(name => { document.cookie = name + '=; Max-Age=0; path=/; SameSite=Lax'; });
+  };
+  const mount = embed => {
+    if (!embed || (embed.dataset.state && embed.dataset.state !== 'idle')) return;
+    embed.dataset.state = 'loading';
+    const frame = embed.querySelector('[data-newsletter-frame]');
+    const ready = () => {
+      if (!frame.querySelector('iframe[data-bhv-sized]')) return false;
+      embed.dataset.state = 'ready'; clearAttribution(); return true;
+    };
+    const fail = () => { if (embed.dataset.state === 'loading') embed.dataset.state = 'fallback'; };
+    const fallbackTimer = setTimeout(fail, EMBED_TIMEOUT_MS);
+    if (typeof MutationObserver === 'function') {
+      const watch = new MutationObserver(() => { if (ready()) { clearTimeout(fallbackTimer); watch.disconnect(); } });
+      watch.observe(frame, { subtree: true, childList: true, attributes: true, attributeFilter: ['data-bhv-sized'] });
+    }
+    const script = document.createElement('script');
+    script.async = true;
+    script.src = BEEHIIV_LOADER;
+    script.setAttribute('data-beehiiv-form', BEEHIIV_FORM);
+    script.addEventListener('load', clearAttribution);
+    script.addEventListener('error', () => { clearTimeout(fallbackTimer); embed.dataset.state = 'fallback'; });
+    frame.appendChild(script);
+  };
+  embeds.forEach(embed => { embed.dataset.state = 'idle'; });
+  const promptEmbed = embeds.find(embed => embed.dataset.source === 'prompt');
+  const inlineEmbeds = embeds.filter(embed => embed !== promptEmbed);
+  if (typeof IntersectionObserver === 'function') {
+    const nearby = new IntersectionObserver(entries => entries.forEach(entry => {
+      if (entry.isIntersecting) { nearby.unobserve(entry.target); mount(entry.target); }
+    }), { rootMargin: '300px 0px' });
+    inlineEmbeds.forEach(embed => nearby.observe(embed));
+  } else inlineEmbeds.forEach(mount);
   const read = (storage, key) => {
     try { return JSON.parse(window[storage].getItem(key)); } catch { return null; }
   };
@@ -66,6 +106,7 @@
     shownAt = Date.now();
     persistSession();
     prompt.hidden = false;
+    mount(promptEmbed);
     announcement.textContent = 'Get the newsletter. A subscription form is available at the bottom of the page.';
   };
   // Never move focus on appearance. A click on the prompt's non-interactive copy focuses its heading.
@@ -111,77 +152,15 @@
   });
   window.srConsent.onChange(value => {
     if (!value || consentVisible()) hidePrompt();
+    clearAttribution();
     tick();
   });
-  const complete = form => {
+  // beehiiv reports a completed signup from its own iframe; remember it so the prompt stays away.
+  window.addEventListener('message', event => {
+    if (event.origin !== BEEHIIV_ORIGIN || event.data?.type !== 'beehiiv:submitted') return;
+    if (!embeds.some(embed => embed.querySelector('iframe')?.contentWindow === event.source)) return;
     remember('subscribed');
     clearTimeout(timer);
-    if (form.dataset.source !== 'prompt') hidePrompt();
-    forms.forEach(other => {
-      other.querySelector('[data-newsletter-fields]').disabled = true;
-      other.querySelector('[data-newsletter-status]').textContent = SUCCESS_TEXT;
-      other.elements.email.value = '';
-    });
-  };
-  forms.forEach(form => {
-    const fields = form.querySelector('[data-newsletter-fields]');
-    fields.disabled = false;
-    let busy = false;
-    form.addEventListener('submit', async event => {
-      event.preventDefault();
-      if (busy) return;
-      const email = form.elements.email.value.trim().toLowerCase();
-      const status = form.querySelector('[data-newsletter-status]');
-      if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        status.textContent = 'Enter a valid email address.';
-        form.elements.email.focus(); return;
-      }
-      if (!form.elements.newsletterConsent.checked) {
-        status.textContent = 'Please tick the newsletter consent checkbox.';
-        form.elements.newsletterConsent.focus(); return;
-      }
-      if (form.elements.website.value) { complete(form); return; }
-      busy = true;
-      fields.disabled = true;
-      status.textContent = 'Submitting...';
-      try {
-        const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(email));
-        const id = [...new Uint8Array(hash)].map(byte => byte.toString(16).padStart(2, '0')).join('');
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 15000);
-        let response;
-        try {
-          response = await fetch(`${FIRESTORE_BASE}:commit`, {
-            method: 'POST', credentials: 'omit', referrerPolicy: 'no-referrer', signal: controller.signal,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ writes: [{
-              update: {
-                name: `projects/apptastic-mobi/databases/(default)/documents/sr_newsletter/${id}`,
-                fields: {
-                  email: { stringValue: email },
-                  consentTextVersion: { stringValue: CONSENT_TEXT_VERSION },
-                  consentText: { stringValue: CONSENT_TEXT },
-                  sourcePage: { stringValue: location.pathname.slice(0, 200) },
-                  source: { stringValue: form.dataset.source },
-                  status: { stringValue: 'pending' },
-                },
-              },
-              updateTransforms: [{ fieldPath: 'consentAt', setToServerValue: 'REQUEST_TIME' }],
-              currentDocument: { exists: false },
-            }] }),
-          });
-        } finally { clearTimeout(timeout); }
-        if (!response.ok) {
-          const error = await response.json().catch(() => ({}));
-          // This write has only one precondition: the address document must not exist.
-          if (!['ALREADY_EXISTS', 'FAILED_PRECONDITION'].includes(error.error?.status)) throw new Error('Subscription unavailable');
-        }
-        complete(form);
-      } catch {
-        status.textContent = RETRY_TEXT;
-        fields.disabled = false;
-      } finally { busy = false; }
-    });
   });
   tick();
 })();

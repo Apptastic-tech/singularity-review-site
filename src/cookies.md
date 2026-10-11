@@ -15,7 +15,7 @@ eleventyExcludeFromCollections: true
 
 ## Cookies today
 
-We set no cookies today. We use local storage and session storage, which are browser storage features separate from cookies, to provide features and remember choices you request. We use no analytics, ads, pixels or third-party scripts. Fonts are self-hosted. Google receives hosting and Firestore requests, including IP addresses, as described in our [Privacy policy](/privacy/).
+We set no cookies of our own. The beehiiv newsletter signup form, loaded only when a signup is shown, can set the cookies listed below. We use local storage and session storage, which are browser storage features separate from cookies, to provide features and remember choices you request. We use no analytics tools, ads or pixels. Fonts are self-hosted. Google receives hosting and Firestore reaction requests, and beehiiv receives signup form requests, including IP addresses, as described in our [Privacy policy](/privacy/).
 
 ## Storage on your device
 
@@ -26,6 +26,9 @@ We set no cookies today. We use local storage and session storage, which are bro
 | `sr-consent` (local storage) | Records your cookie choices, version and decision time | Necessary / functional | Until cleared or replaced; a new version asks again | Singularity Review |
 | `sr-newsletter` (local storage) | Remembers dismissal or a submitted subscription on this device | Functional, reader choice | Dismissal suppresses for 30 days; submitted subscription suppresses until cleared. The record remains until cleared or replaced | Singularity Review |
 | Planned Google AdSense cookies and similar technologies | Advertising, measurement and personalisation according to choices | Advertising / Marketing | Planned, set by Google only after consent when ads are enabled; durations depend on Google's configuration | Google and advertising partners |
+| `bhv_<publication>_subscribed` (cookie) | Set by the beehiiv form after you sign up, so it does not ask again | Functional, reader choice | 1 year | beehiiv |
+| `bhv_attribution`, `attribution_data` (cookies) | Record how you arrived (campaign link or referring site) for newsletter attribution | Analytics | 30 days; removed by this site unless you accept Analytics | beehiiv |
+| Cookies inside the beehiiv form | Bot protection and security for signups, set on beehiiv's own domain | Necessary for the signup you request | Set by beehiiv and its security providers | beehiiv |
 | `sr-newsletter-session` (session storage) | Counts visible time across pages and remembers whether and when this tab has seen the prompt | Functional, prompt presentation | This tab's browsing session; browser session restore may preserve it | Singularity Review |
 
 Necessary storage is always available for these requested features. Analytics and marketing are off by default. No ads or analytics tools are active today. Marketing will map to personalised ads when advertising is enabled. Optional tools will have to respect your stored choices and the consent version.
@@ -42,15 +45,15 @@ A Google-certified CMP integrated with the IAB TCF is required before serving ad
 
 <button class="privacy-button" type="button" data-consent-open hidden>Cookie settings</button>
 
-You can use the Cookie settings control above or in the footer at any time without reloading. Choose Accept all, Reject all, or save individual settings. The three banner buttons have equal prominence. Closing settings without saving leaves your existing decision unchanged. Newsletter consent is a separate, unticked checkbox; it is not granted by accepting cookie categories.
+You can use the Cookie settings control above or in the footer at any time without reloading. Choose Accept all, Reject all, or save individual settings. The three banner buttons have equal prominence. Closing settings without saving leaves your existing decision unchanged. Newsletter consent is given only by submitting the signup form; it is not granted by accepting cookie categories.
 
 ## How to clear storage
 
-Use your browser's settings for site data or storage, select this site's address, and clear its local and session storage. This removes your preferences and may cause the consent banner or newsletter prompt to return. It does not unsubscribe you, delete a server-side newsletter signup or reverse aggregate reaction counts. To withdraw newsletter consent, contact [Contact email]; future emails will have an unsubscribe link.
+Use your browser's settings for site data or storage, select this site's address, and clear its local and session storage. This removes your preferences and may cause the consent banner or newsletter prompt to return. It does not unsubscribe you, delete a newsletter signup held by beehiiv or reverse aggregate reaction counts. To withdraw newsletter consent, use the unsubscribe link in any newsletter or contact [Contact email].
 
 ## Without JavaScript
 
-No consent banner is needed without JavaScript because no non-essential tools run. The scripts also do not write preferences or make reaction or newsletter requests. The legal pages and normal reading remain available. Newsletter forms are disabled until JavaScript is available, so they never send an email address through a fallback page request.
+No consent banner is needed without JavaScript because no non-essential tools run. The scripts also do not write preferences or make reaction or newsletter requests. The legal pages and normal reading remain available. Without JavaScript the signup form does not load; a link to the newsletter page on beehiiv is shown instead.
 
 ## Who is responsible
 

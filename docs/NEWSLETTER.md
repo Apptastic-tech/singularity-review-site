@@ -1,5 +1,18 @@
 # Newsletter architecture
 
+## Current: beehiiv embed form (feat/beehiiv-newsletter)
+
+Signups now go to beehiiv. The Firestore client write described further down is removed from `src/js/newsletter.js`; the rules file is left unchanged for reference.
+
+- `src/_includes/newsletter.njk` renders an empty slot (`data-newsletter-embed`) for `prompt`, `article-end` and `footer`, a fallback link to https://singularity-newsletter.beehiiv.com/ and a short note that beehiiv handles signups.
+- `src/js/newsletter.js` appends `https://subscribe-forms.beehiiv.com/v3/loader.js` with `data-beehiiv-form="e785ea2e-cba3-470a-8d47-87fb1c73e623"` into a slot only when that signup is shown: the prompt when it appears, inline and footer slots when they come within 300px of the viewport. The loader renders an auto-sized iframe after the script tag.
+- States: `idle`, `loading`, `ready` (iframe sized by beehiiv), `fallback` (script error or no sized iframe after 10 seconds). The fallback link is visible without JavaScript.
+- A `beehiiv:submitted` message from the beehiiv iframe records `sr-newsletter` as subscribed, so the prompt is not shown again.
+- Attribution: `https://subscribe-forms.beehiiv.com/attribution.js` is an inert `data-consent="analytics"` placeholder, activated by `consent.js` only after Analytics is granted. The loader itself can write a `bhv_attribution` cookie for visitors arriving from a campaign link or external referrer; without Analytics consent `newsletter.js` expires `bhv_attribution` and `attribution_data` after the loader runs and on consent changes.
+- Prompt timing, dismissal, the cookie banner guard and the follow line are unchanged.
+
+## Previous Firestore design (superseded)
+
 Stage only, version newsletter-2026-10-10. No emails are sent now. The browser writes only a pending signup; the confirmation workflow is still a plan.
 
 ## Forms and prompt
@@ -46,7 +59,7 @@ According to the supplied deployment brief, the current catch-all deny rule reje
 
 App Check is recommended along with server-side rate limits and abuse monitoring. The REST client currently sends no App Check token. Evaluate App Check support and enforcement for this REST-only web flow in the target Firebase setup; add token acquisition and verification before enforcing it. A protected server endpoint may be a better place for bot checks, rate limiting and email delivery.
 
-Database location remains [Firestore database location to confirm]. Email processor remains [Email provider to be chosen].
+Database location remains [Firestore database location to confirm]. Email processor: beehiiv. Processing terms remain [beehiiv data processing terms and transfer safeguards to confirm].
 
 ## Double opt-in plan
 

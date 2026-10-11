@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
-import { createHash, webcrypto } from 'node:crypto';
+import { webcrypto } from 'node:crypto';
 
 // In-memory behavior checks. No browser, socket or real request is available here.
 function surface() {
@@ -40,13 +40,32 @@ function environment(options = {}) {
   const prompt = surface(), promptHeading = surface(), promptClose = surface(), announcement = surface();
   prompt.hidden = true;
   prompt.querySelector = selector => selector === 'h2' ? promptHeading : promptClose;
+  // beehiiv embed slots: the frame records appended loader scripts; a test can place a sized iframe in it.
   const forms = ['prompt', 'article-end', 'footer'].map(source => {
-    const form = surface(), fields = { disabled: true }, status = { textContent: '' };
-    form.dataset.source = source;
-    form.elements = { email: { ...surface(), value: '' }, newsletterConsent: { ...surface(), checked: false }, website: { value: '' } };
-    form.querySelector = selector => selector === '[data-newsletter-fields]' ? fields : status;
-    return form;
+    const embed = surface(), frame = { scripts: [], iframe: null };
+    embed.dataset.source = source;
+    frame.appendChild = script => frame.scripts.push(script);
+    frame.querySelector = selector => selector.startsWith('iframe') && frame.iframe && (selector === 'iframe' || frame.iframe.sized) ? frame.iframe : null;
+    embed.frame = frame;
+    embed.querySelector = selector => selector === '[data-newsletter-frame]' ? frame : selector === 'iframe' ? frame.querySelector('iframe') : null;
+    return embed;
   });
+  const cookieWrites = [];
+  let cookieJar = options.cookie || '';
+  Object.defineProperty(document, 'cookie', { get: () => cookieJar, set: value => { cookieWrites.push(value); }, configurable: true });
+  const observers = { intersection: [], mutation: [] };
+  class IntersectionObserverMock {
+    constructor(callback) { this.callback = callback; this.targets = new Set(); observers.intersection.push(this); }
+    observe(target) { this.targets.add(target); }
+    unobserve(target) { this.targets.delete(target); }
+    reveal(target) { if (this.targets.has(target)) this.callback([{ target, isIntersecting: true }]); }
+  }
+  class MutationObserverMock {
+    constructor(callback) { this.callback = callback; this.active = false; observers.mutation.push(this); }
+    observe() { this.active = true; }
+    disconnect() { this.active = false; }
+    fire() { if (this.active) this.callback([]); }
+  }
   const placeholders = (options.gates || []).map(category => {
     const placeholder = surface(); placeholder.dataset.consent = category; placeholder.dataset.src = `/test-${category}.js`;
     placeholder.hasAttribute = () => false;
@@ -58,14 +77,14 @@ function environment(options = {}) {
     '[data-newsletter-prompt]': prompt, '[data-newsletter-announcement]': announcement,
   })[selector];
   document.querySelectorAll = selector => ({
-    '[data-consent-open]': [open], '[data-consent-choice]': [accept, reject], '[data-newsletter-form]': forms,
+    '[data-consent-open]': [open], '[data-consent-choice]': [accept, reject], '[data-newsletter-embed]': forms,
     'script[type="text/plain"][data-consent]': placeholders,
   })[selector] || [];
-  document.createElement = () => ({ dataset: {}, setAttribute() {} });
+  document.createElement = () => { const element = surface(); element.attributes = {}; element.setAttribute = (name, value) => { element.attributes[name] = value; }; element.hasAttribute = () => false; element.after = () => {}; return element; };
   document.documentElement = { classList: { contains: () => false } };
   document.hidden = false;
   document.activeElement = main;
-  const elements = [main, heading, banner, dialog, closeSettings, open, accept, reject, prompt, promptHeading, promptClose, ...forms.flatMap(form => [form, form.elements.email, form.elements.newsletterConsent])];
+  const elements = [main, heading, banner, dialog, closeSettings, open, accept, reject, prompt, promptHeading, promptClose, ...forms];
   elements.forEach(element => { element.document = document; });
   class ClockDate extends Date {
     constructor(...args) { super(...(args.length ? args : [clock.wall + clock.time])); }
@@ -79,7 +98,8 @@ function environment(options = {}) {
     CustomEvent: class { constructor(type, init) { this.type = type; this.detail = init?.detail; } },
     setTimeout(callback, delay) { const id = ++nextTimer; timers.set(id, { callback, at: clock.time + delay }); return id; },
     clearTimeout(id) { timers.delete(id); },
-    fetch: async (url, init) => { requests.push({ url, init, body: JSON.parse(init.body) }); return responses.shift() || { ok: true }; },
+    fetch: async (url, init) => { requests.push({ url, init }); return responses.shift() || { ok: true }; },
+    IntersectionObserver: IntersectionObserverMock, MutationObserver: MutationObserverMock,
   });
   const context = vm.createContext(window);
   const run = code => vm.runInContext(code, context, { timeout: 1000 });
@@ -92,13 +112,10 @@ function environment(options = {}) {
     }
     clock.time = end;
   };
-  const submit = async (source = 'footer', email = ' Reader@Example.COM ', checked = true) => {
-    const form = forms.find(value => value.dataset.source === source);
-    form.elements.email.value = email; form.elements.newsletterConsent.checked = checked;
-    await form.events.get('submit')[0]({ preventDefault() {} });
-    return form.querySelector('[data-newsletter-status]').textContent;
-  };
-  return { window, document, run, advance, localStorage, sessionStorage, requests, responses, banner, dialog, consentForm, main, heading, open, accept, reject, closeSettings, prompt, promptHeading, promptClose, forms, placeholders, submit };
+  const embed = source => forms.find(value => value.dataset.source === source);
+  const reveal = source => observers.intersection.forEach(observer => observer.reveal(embed(source)));
+  const size = source => { embed(source).frame.iframe = { sized: true, contentWindow: { source } }; observers.mutation.forEach(observer => observer.fire()); };
+  return { window, document, run, advance, localStorage, sessionStorage, requests, responses, banner, dialog, consentForm, main, heading, open, accept, reject, closeSettings, prompt, promptHeading, promptClose, forms, placeholders, embed, reveal, size, cookieWrites };
 }
 
 export async function verifyConsentRuntime({ consent, newsletter, fields, sentence }) {
@@ -182,35 +199,40 @@ export async function verifyConsentRuntime({ consent, newsletter, fields, senten
   });
   restored.run(consent); restored.run(newsletter);
   assert.equal(restored.prompt.hidden, false, 'A restored session can show again after the 30-day suppression expires');
-  for (const source of ['prompt', 'article-end', 'footer']) {
-    const test = fresh(); const message = await test.submit(source);
-    assert.equal(message, "Thanks. We'll email you to confirm your subscription before sending anything.");
-    assert.equal(test.requests.length, 1);
-    const request = test.requests[0], write = request.body.writes[0];
-    assert.equal(request.init.credentials, 'omit');
-    assert.deepEqual(Object.keys(write).sort(), ['update', 'updateTransforms', 'currentDocument'].sort());
-    assert.equal(write.currentDocument.exists, false);
-    assert.deepEqual([...Object.keys(write.update.fields), ...write.updateTransforms.map(value => value.fieldPath)].sort(), fields);
-    assert.equal(write.updateTransforms[0].setToServerValue, 'REQUEST_TIME');
-    assert.equal(write.update.fields.email.stringValue, 'reader@example.com');
-    assert.equal(write.update.fields.consentText.stringValue, sentence);
-    assert.equal(write.update.fields.consentTextVersion.stringValue, 'newsletter-2026-10-10');
-    assert.equal(write.update.fields.source.stringValue, source);
-    assert.equal(write.update.fields.status.stringValue, 'pending');
-    assert.equal(write.update.fields.sourcePage.stringValue, '/');
-    assert.equal(write.update.name.split('/').at(-1), createHash('sha256').update('reader@example.com').digest('hex'));
-    assert.equal(JSON.parse(test.localStorage.getItem('sr-newsletter')).state, 'subscribed');
+  const loader = 'https://subscribe-forms.beehiiv.com/v3/loader.js', formId = 'e785ea2e-cba3-470a-8d47-87fb1c73e623';
+  const scripts = (test, source) => test.embed(source).frame.scripts;
+  // Nothing loads from beehiiv until a signup is shown.
+  const lazy = fresh();
+  for (const source of ['prompt', 'article-end', 'footer']) { assert.equal(scripts(lazy, source).length, 0, source + ': no loader before shown'); assert.equal(lazy.embed(source).dataset.state, 'idle'); }
+  lazy.reveal('footer');
+  assert.equal(scripts(lazy, 'footer').length, 1); assert.equal(scripts(lazy, 'article-end').length, 0); assert.equal(scripts(lazy, 'prompt').length, 0);
+  const [footerScript] = scripts(lazy, 'footer');
+  assert.equal(footerScript.src, loader); assert.equal(footerScript.async, true); assert.equal(footerScript.attributes['data-beehiiv-form'], formId);
+  assert.equal(lazy.embed('footer').dataset.state, 'loading');
+  lazy.reveal('footer'); assert.equal(scripts(lazy, 'footer').length, 1, 'Mounted once');
+  lazy.advance(61000); assert.equal(lazy.prompt.hidden, false);
+  assert.equal(scripts(lazy, 'prompt').length, 1, 'Prompt mounts the loader when it appears');
+  assert.equal(lazy.requests.length, 0, 'No Firestore or other fetch');
+  lazy.size('prompt'); assert.equal(lazy.embed('prompt').dataset.state, 'ready');
+  // Footer never sized: falls back to the beehiiv page link after 10 seconds.
+  assert.equal(lazy.embed('footer').dataset.state, 'fallback');
+  const failing = fresh(); failing.reveal('article-end'); scripts(failing, 'article-end')[0].emit('error');
+  assert.equal(failing.embed('article-end').dataset.state, 'fallback');
+  // Completed signup reported by the beehiiv iframe suppresses the prompt.
+  const signup = fresh(); signup.advance(61000); signup.size('prompt');
+  const frameWindow = signup.embed('prompt').frame.iframe.contentWindow;
+  signup.window.emit('message', { origin: 'https://example.org', data: { type: 'beehiiv:submitted' }, source: frameWindow });
+  assert.equal(signup.localStorage.getItem('sr-newsletter'), null, 'Other origins are ignored');
+  signup.window.emit('message', { origin: 'https://subscribe-forms.beehiiv.com', data: { type: 'beehiiv:submitted' }, source: {} });
+  assert.equal(signup.localStorage.getItem('sr-newsletter'), null, 'Only the mounted iframe counts');
+  signup.window.emit('message', { origin: 'https://subscribe-forms.beehiiv.com', data: { type: 'beehiiv:submitted' }, source: frameWindow });
+  assert.equal(JSON.parse(signup.localStorage.getItem('sr-newsletter')).state, 'subscribed');
+  // Attribution cookies survive only with Analytics consent.
+  for (const analytics of [false, true]) {
+    const test = environment({ cookie: 'bhv_attribution=%7B%7D; other=1', local: { 'sr-consent': JSON.stringify({ ...record, analytics }) } });
+    test.run(consent); test.run(newsletter); test.reveal('footer'); scripts(test, 'footer')[0].emit('load');
+    assert.deepEqual(test.cookieWrites, analytics ? [] : ['bhv_attribution=; Max-Age=0; path=/; SameSite=Lax']);
   }
-  for (const status of ['ALREADY_EXISTS', 'FAILED_PRECONDITION', 'PERMISSION_DENIED']) {
-    const test = fresh(); test.responses.push({ ok: false, json: async () => ({ error: { status } }) });
-    const result = await test.submit();
-    assert.equal(result, status === 'PERMISSION_DENIED' ? 'Could not subscribe. Please try again shortly.' : "Thanks. We'll email you to confirm your subscription before sending anything.");
-    if (status === 'PERMISSION_DENIED') assert.equal(test.localStorage.getItem('sr-newsletter'), null);
-  }
-  const invalid = fresh();
-  await invalid.submit('footer', 'invalid'); await invalid.submit('footer', 'x'.repeat(255) + '@example.com');
-  await invalid.submit('footer', 'reader@example.com', false);
-  assert.equal(invalid.requests.length, 0, 'Validation rejects invalid or unconsented signups');
-  invalid.forms.find(form => form.dataset.source === 'footer').elements.website.value = 'bot';
-  await invalid.submit(); assert.equal(invalid.requests.length, 0, 'Honeypot never submits');
+  const clean = fresh(); clean.reveal('footer'); scripts(clean, 'footer')[0].emit('load');
+  assert.deepEqual(clean.cookieWrites, [], 'No cookie write when no attribution cookie exists');
 }

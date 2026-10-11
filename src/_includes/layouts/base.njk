@@ -60,6 +60,7 @@
   <script src="{{ '/js/card-row.js' | asset }}" defer></script>
   <script src="{{ '/js/consent.js' | asset }}" defer></script>
   <script src="{{ '/js/newsletter.js' | asset }}" defer></script>
+  <script type="text/plain" data-consent="analytics" data-src="https://subscribe-forms.beehiiv.com/attribution.js"></script>
   {% if site.adsense.client or site.adsense.preview %}<script src="{{ '/js/ads.js' | asset }}" data-ad-client="{{ site.adsense.client }}" data-ad-preview="{{ 'true' if site.adsense.preview else 'false' }}" defer></script>{% endif %}
   {% if homeFeed and pagination.pageNumber == 0 %}<script type="module" src="{{ '/js/lensing.js' | asset }}"></script>{% endif %}
   {% if hasCarousel and collections.featured.length and (not homeFeed or pagination.pageNumber == 0) %}<script src="{{ '/js/carousel.js' | asset }}" defer></script>{% endif %}

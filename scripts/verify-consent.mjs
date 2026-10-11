@@ -51,7 +51,10 @@ for (const file of ['consent', 'newsletter']) assert.equal(await read(`_site/js/
 assert.equal(await read('_site/css/style.css'), css, 'Build must contain current CSS');
 const sourceFiles = (await fs.readdir('src', { recursive: true })).filter(file => /\.(js|njk|md|html|css)$/.test(file)).map(file => 'src/' + file);
 sourceFiles.push('eleventy.config.js');
-for (const file of sourceFiles) assert.doesNotMatch(await read(file), cookieWrite, `${file}: no cookie writes`);
+// The only permitted cookie write expires beehiiv attribution cookies when Analytics is not granted.
+const attributionExpiry = "document.cookie = name + '=; Max-Age=0; path=/; SameSite=Lax';";
+assert.equal(newsletter.split(attributionExpiry).length, 2, 'Exactly one expiring attribution cookie write');
+for (const file of sourceFiles) assert.doesNotMatch((await read(file)).replace(attributionExpiry, ''), cookieWrite, `${file}: no cookie writes`);
 const storageFiles = sourceFiles.filter(file => file.endsWith('.js'));
 const storageUsers = [];
 for (const file of storageFiles) if (/\b(?:localStorage|sessionStorage)\b/.test(await read(file))) storageUsers.push(file);
@@ -67,33 +70,28 @@ assert.match(newsletter, /NEWSLETTER_DISMISS_MS = 30 \* 24 \* 60 \* 60 \* 1000/)
 assert.ok(newsletter.includes("['localhost', '127.0.0.1', '[::1]']"));
 assert.ok(newsletter.includes("'visibilitychange'"));
 assert.ok(newsletter.includes('document.hidden'));
-assert.ok(newsletter.includes('crypto.subtle.digest'));
-assert.ok(newsletter.includes('currentDocument: { exists: false }'));
-assert.ok(newsletter.includes("setToServerValue: 'REQUEST_TIME'"));
-assert.ok(newsletter.includes("credentials: 'omit'"));
-assert.ok(newsletter.includes(sentence));
+// beehiiv replaces the Firestore client write; its loader is injected only when a signup is shown.
+assert.doesNotMatch(newsletter, /firestore|fetch\(|sr_newsletter/i, 'No Firestore newsletter write remains');
+for (const text of ["'https://subscribe-forms.beehiiv.com'", "'/v3/loader.js'", "'e785ea2e-cba3-470a-8d47-87fb1c73e623'", "'beehiiv:submitted'", 'event.origin !== BEEHIIV_ORIGIN', "?.analytics === true", "['bhv_attribution', 'attribution_data']", 'IntersectionObserver', 'mount(promptEmbed)']) assert.ok(newsletter.includes(text), text);
 
-function checkForm(form) {
-  const descendants = nodes(form), checkbox = descendants.find(node => node.attribs?.name === 'newsletterConsent');
-  assert.ok(checkbox && checkbox.attribs.type === 'checkbox');
-  assert.ok(Object.hasOwn(checkbox.attribs, 'required'));
-  assert.equal(checkbox.attribs.checked, undefined);
-  const label = descendants.find(node => node.name === 'label' && node.attribs.for === checkbox.attribs.id);
-  assert.equal(textContent(label).replace('Privacy policy', '').trim(), sentence);
+function checkForm(embed) {
+  const descendants = nodes(embed);
+  const frame = hook(embed, 'data-newsletter-frame');
+  assert.equal(frame.length, 1); assert.equal(frame[0].children.length, 0, 'Embed slot is empty until newsletter.js mounts beehiiv');
+  assert.ok(!descendants.some(node => node.name === 'script' || node.name === 'iframe' || node.name === 'input'), 'No form fields or third-party script in static HTML');
+  const fallback = descendants.find(node => hasClass(node, 'newsletter-fallback'));
+  assert.equal(fallback.attribs.href, 'https://singularity-newsletter.beehiiv.com/');
+  assert.equal(textContent(fallback), 'Subscribe to the newsletter');
   assert.ok(descendants.some(node => node.name === 'a' && node.attribs.href === '/privacy/' && textContent(node) === 'Privacy policy'));
-  const email = descendants.find(node => node.attribs?.name === 'email');
-  assert.equal(email.attribs.type, 'email');
-  assert.equal(email.attribs.autocomplete, 'email');
-  assert.equal(email.attribs.maxlength, '254');
-  assert.ok(Object.hasOwn(email.attribs, 'required'));
-  assert.equal(textContent(descendants.find(node => node.name === 'label' && node.attribs.for === email.attribs.id)), 'Email address');
-  assert.ok(descendants.some(node => node.attribs?.name === 'website' && node.parent.attribs?.hidden === ''));
-  assert.ok(hook(form, 'data-newsletter-fields').every(node => Object.hasOwn(node.attribs, 'disabled')));
+  assert.match(textContent(descendants.find(node => hasClass(node, 'newsletter-note'))), /^Signups are handled by beehiiv\./);
 }
 const pages = (await fs.readdir('_site', { recursive: true })).filter(file => file.endsWith('.html'));
 for (const file of pages) {
   const html = await read('_site/' + file), dom = parseDocument(html);
   checkScripts(html);
+  assert.doesNotMatch(html, /\ssrc="https:\/\/subscribe-forms\.beehiiv\.com/, 'beehiiv never loads from static markup');
+  const attribution = nodes(dom).filter(node => node.name === 'script' && node.attribs['data-src'] === 'https://subscribe-forms.beehiiv.com/attribution.js');
+  assert.equal(attribution.length, 1); assert.equal(attribution[0].attribs.type, 'text/plain'); assert.equal(attribution[0].attribs['data-consent'], 'analytics');
   for (const script of ['consent', 'newsletter']) assert.match(html, new RegExp(`src="/js/${script}\\.js\\?v=[a-f0-9]{10}" defer`));
   const [banner] = hook(dom, 'data-consent-banner');
   assert.ok(banner && banner.attribs.role === 'region' && banner.attribs['aria-labelledby'] === 'consent-banner-heading');
@@ -116,7 +114,7 @@ for (const file of pages) {
   const footer = nodes(dom).find(node => hasClass(node, 'site-footer'));
   assert.ok(hook(footer, 'data-consent-open').some(node => textContent(node) === 'Cookie settings'));
   for (const link of ['/privacy/', '/cookies/']) assert.ok(nodes(footer).some(node => node.attribs?.href === link));
-  const forms = hook(dom, 'data-newsletter-form');
+  const forms = hook(dom, 'data-newsletter-embed');
   const sources = forms.map(node => node.attribs['data-source']).sort();
   assert.deepEqual(sources, file.startsWith('articles/') ? ['article-end', 'footer', 'prompt'] : ['footer', 'prompt']);
   forms.forEach(checkForm);
@@ -169,4 +167,4 @@ assert.equal(styleAt(parsedCSS, '.privacy-button', 1440, 900).height, '44px');
 assert.match(newsletter, /banner && !banner.hidden/);
 assert.match(consent, /popup|is-leaving/);
 await verifyConsentRuntime({ consent, newsletter, fields, sentence });
-console.log(`CONSENT VERIFIED: ${pages.length} pages, equal consent classes, gated script allowlist, no cookie writes, defaults/version/API, footer controls, legal headings, ${listed.size} visible placeholders, forms, fixed geometry, client/rules fields and Node behavior. Browser checks were not run.`);
+console.log(`CONSENT VERIFIED: ${pages.length} pages, equal consent classes, gated script allowlist, no cookie writes, defaults/version/API, footer controls, legal headings, ${listed.size} visible placeholders, forms, fixed geometry, beehiiv embed slots and gated attribution, Node behavior. Browser checks were not run.`);

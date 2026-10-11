@@ -164,7 +164,8 @@ for (const file of await fs.readdir(out,{recursive:true})) {
   assert.match(page, /name="theme-color" content="#0B0C0E"/);
   assert.match(page, /name="twitter:image"/);
   assert.equal((page.match(/as="font"/g)||[]).length,1);
-  assert.equal((page.match(/<script[^>]+src="https?:/g)||[]).length,0);
+  // No executable external script; consent-gated placeholders use data-src (beehiiv attribution, Analytics only).
+  assert.equal((page.match(/<script[^>]+\ssrc="https?:/g)||[]).length,0);
   assert.match(page, /href="\/css\/style\.css\?v=[a-f0-9]{10}"/);
   assert.match(page, /src="\/js\/site\.js\?v=[a-f0-9]{10}"/);
   assert.match(page, /<script src="\/js\/transitions\.js\?v=[a-f0-9]{10}"><\/script>/, 'Transition listener registers before first render');

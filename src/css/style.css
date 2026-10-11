@@ -482,7 +482,7 @@ figcaption { color: var(--muted); font-size: 13px; padding: 12px 20px 0; }
 .consent-dialog { position: fixed; inset: 0; z-index: 60; margin: auto; width: min(560px, calc(100% - 48px)); max-height: calc(100dvh - 48px); overflow: auto; }
 .consent-dialog::backdrop { background: rgb(0 0 0 / .65); }
 .consent-category { display: flex; align-items: center; gap: 12px; font-weight: 600; }
-.consent-category input, .newsletter-choice input { flex: 0 0 auto; width: 18px; height: 18px; margin: 0; accent-color: var(--paper); }
+.consent-category input { flex: 0 0 auto; width: 18px; height: 18px; margin: 0; accent-color: var(--paper); }
 .consent-dialog .consent-category + p { margin: 8px 0 20px; }
 .consent-save { margin-top: 24px; }
 .consent-dialog-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 12px; }
@@ -492,21 +492,7 @@ figcaption { color: var(--muted); font-size: 13px; padding: 12px 20px 0; }
 .newsletter-footer { width: 100%; max-width: 520px; min-width: 0; }
 .newsletter-footer h2 { margin-bottom: 8px; font: 600 15px/1.2 var(--sans); }
 .newsletter-description { margin: 0 0 16px; color: var(--muted); font: 400 14.5px/1.5 var(--sans); }
-.newsletter-form { margin: 0; min-width: 0; font: 400 13px/1.5 var(--sans); }
-.newsletter-form fieldset { min-width: 0; margin: 0; padding: 0; border: 0; }
-.newsletter-email-label { display: block; margin-bottom: 6px; }
-.newsletter-footer .newsletter-email-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
-.newsletter-input-row { display: flex; gap: 8px; width: 100%; min-width: 0; max-width: 520px; }
-.newsletter-input-row input { flex: 1; width: 0; min-width: 0; max-width: 420px; height: 44px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--ink-0); color: var(--paper); font: 400 16px/1.4 var(--sans); }
-.newsletter-input-row button { flex-shrink: 0; }
-.newsletter-choice { display: flex; align-items: flex-start; gap: 10px; margin-top: 8px; }
-.newsletter-choice input { margin-top: 1px; }
-.newsletter-choice span { min-width: 0; }
 .newsletter-privacy { font-size: 13px; white-space: nowrap; }
-.newsletter-status { height: 4.5em; overflow: auto; margin: 8px 0 0; color: var(--muted); font: 400 13px/1.5 var(--sans); }
-.newsletter-footer .newsletter-status { height: 1.5em; margin-top: 4px; }
-.popup-card .newsletter-status { height: 4.5em; margin: 8px 0 0; font: 400 13px/1.5 var(--sans); }
-.newsletter-no-js { color: var(--muted); }
 .newsletter-prompt { position: fixed; inset: auto 24px 24px auto; z-index: 35; width: min(400px, calc(100% - 48px)); max-height: 60vh; max-height: 60dvh; overflow: auto; }
 .legal-page { padding-block: 40px 64px; }
 .legal-page h1 { margin: 0 0 16px; font: 500 clamp(38px, 6vw, 56px)/1.1 var(--serif); }
@@ -593,3 +579,16 @@ figcaption { color: var(--muted); font-size: 13px; padding: 12px 20px 0; }
 .newsletter-follow .social-link { width: 36px; height: 36px; min-width: 36px; min-height: 36px; color: var(--paper); }
 .newsletter-follow .social-link:hover { color: var(--signal); background: transparent; }
 .newsletter-follow svg { width: 16px; height: 16px; }
+
+/* beehiiv embed form. The loader renders an auto-sized iframe; we frame it as an inset card. */
+.newsletter-embed { min-width: 0; font: 400 13px/1.5 var(--sans); }
+.newsletter-embed-frame { border-radius: 16px; overflow: hidden; background: #0B0B0C; }
+.newsletter-embed-frame:empty { display: none; }
+.newsletter-embed-frame iframe { display: block; width: 100%; border: 0; }
+.newsletter-embed:is([data-state="idle"], [data-state="loading"]) .newsletter-embed-frame { display: block; min-height: 180px; }
+.newsletter-embed:is([data-state="idle"], [data-state="loading"], [data-state="ready"]) .newsletter-fallback { display: none; }
+.newsletter-embed[data-state="fallback"] .newsletter-embed-frame { display: none; }
+.newsletter-fallback { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
+.newsletter-note { margin: 8px 0 0; color: var(--muted); font: 400 13px/1.5 var(--sans); }
+.popup-card .newsletter-note { margin: 8px 0 0; font-size: 13px; }
+.newsletter-footer .newsletter-embed { width: 100%; }
