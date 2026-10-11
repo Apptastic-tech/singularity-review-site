@@ -2,7 +2,7 @@
 title: "OpenAI released 722 maths papers in one day, and mathematicians are still sorting through them"
 description: "OpenAI has published hundreds of manuscripts on open mathematical problems produced by an unreleased internal model. Some proofs are computer checked, about half were released unconfirmed, and three were withdrawn within a day."
 date: 2026-10-11T12:02:00Z
-category: Models
+category: Science
 hero: /images/articles/openai-math-manuscripts-flood.jpg
 heroAlt: "A pencil drawing of a small study crowded with towering stacks of bound manuscripts, a reading lamp over an open notebook on the desk and more stacks arriving on a trolley."
 author: Singularity Review

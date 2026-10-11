@@ -572,3 +572,6 @@ figcaption { color: var(--muted); font-size: 13px; padding: 12px 20px 0; }
 }
 .about-image-credits { margin-top: 48px; }
 .about-image-credits-label { font-weight: 600; }
+/* Breathing room between the header share row and the article body (takeaways or hero). */
+.article-header .share-bar--compact { margin-bottom: 48px; }
+@media (max-width: 639px) { .article-header .share-bar--compact { margin-bottom: 32px; } }
