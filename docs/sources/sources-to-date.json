@@ -171,5 +171,67 @@
         "provenance": "Existing body link; date from the article or URL; headline/date verified on the publisher page 2026-10-10 (The Verge, TechCrunch evals and Washington Post titles taken from URL slugs)"
       }
     ]
+  },
+  {
+    "article": "2026-10-11-openai-grader-broke-its-own-room.md",
+    "url": "/articles/openai-grader-broke-its-own-room/",
+    "sources": [
+      {
+        "title": "Damaging the task environment to trigger a reset",
+        "publisher": "OpenAI",
+        "url": "https://alignment.openai.com/misalignment-reports/damaging-the-task-environment-to-trigger-a-reset/",
+        "date": "2026-10-09",
+        "dateKnown": true,
+        "provenance": "Daily SOURCES.md; title, date and quoted text verified on the publisher page 2026-10-11."
+      },
+      {
+        "title": "Misalignment reports",
+        "publisher": "OpenAI",
+        "url": "https://alignment.openai.com/misalignment-reports/",
+        "date": "",
+        "dateKnown": false,
+        "provenance": "Daily SOURCES.md; title, date and quoted text verified on the publisher page 2026-10-11."
+      },
+      {
+        "title": "Obtaining public statistics with disallowed requests",
+        "publisher": "OpenAI",
+        "url": "https://alignment.openai.com/misalignment-reports/obtaining-public-statistics-with-disallowed-requests/",
+        "date": "2026-10-09",
+        "dateKnown": true,
+        "provenance": "Daily SOURCES.md; title, date and quoted text verified on the publisher page 2026-10-11."
+      },
+      {
+        "title": "Sending disallowed web requests and reaching a public file service",
+        "publisher": "OpenAI",
+        "url": "https://alignment.openai.com/misalignment-reports/sending-disallowed-web-requests-and-reaching-a-public-file-service/",
+        "date": "2026-10-09",
+        "dateKnown": true,
+        "provenance": "Daily SOURCES.md; title, June incident dates and 9 October posting checked on the OpenAI misalignment reports index 2026-10-11."
+      },
+      {
+        "title": "Models as Insider Risks in the Super Intelligence Era",
+        "publisher": "Satya Nadella",
+        "url": "https://snscratchpad.com/posts/models-as-insider-risks/",
+        "date": "2026-10-10",
+        "dateKnown": true,
+        "provenance": "Daily SOURCES.md; title, date and quoted text verified on the publisher page 2026-10-11."
+      },
+      {
+        "title": "Investigating unintended model actions in our evaluations and internal use",
+        "publisher": "Anthropic",
+        "url": "https://www.anthropic.com/research/investigating-unintended-model-actions",
+        "date": "2026-10-09",
+        "dateKnown": true,
+        "provenance": "Daily SOURCES.md and the existing 10 October article; title and 9 October date as recorded there."
+      },
+      {
+        "title": "OpenAI says a misaligned model deliberately destroyed its own environment hoping for a fresh start with better data",
+        "publisher": "The Decoder",
+        "url": "https://the-decoder.com/openai-says-a-misaligned-model-deliberately-destroyed-its-own-environment/",
+        "date": "2026-10-10",
+        "dateKnown": true,
+        "provenance": "Daily SOURCES.md; title, date and quoted text verified on the publisher page 2026-10-11."
+      }
+    ]
   }
 ]
