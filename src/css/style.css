@@ -575,3 +575,21 @@ figcaption { color: var(--muted); font-size: 13px; padding: 12px 20px 0; }
 /* Breathing room between the header share row and the article body (takeaways or hero). */
 .article-header .share-bar--compact { margin-bottom: 48px; }
 @media (max-width: 639px) { .article-header .share-bar--compact { margin-bottom: 32px; } }
+
+/* Follow links: compact monochrome icons in the masthead, mobile sheet and newsletter prompt. */
+.header-social { display: none; }
+.menu-follow { display: flex; gap: 8px; margin-top: 24px; }
+.menu-follow .social-link { width: 44px; height: 44px; min-width: 44px; min-height: 44px; border: 1px solid var(--line); color: var(--paper); }
+.menu-follow .social-link:hover { color: var(--signal); border-color: var(--signal); background: transparent; }
+@media (min-width: 1280px) {
+  .desktop-nav { margin-left: auto; }
+  .header-social { display: flex; align-items: center; gap: 4px; padding-left: 16px; }
+  .header-social .social-link { width: 36px; height: 36px; min-width: 36px; min-height: 36px; color: rgb(255 255 255 / .63); }
+  .header-social .social-link:hover { color: #fff; background: transparent; }
+  .header-social svg { width: 16px; height: 16px; }
+}
+.newsletter-follow { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin-top: 4px; color: var(--muted); font: 400 13px/1.5 var(--sans); }
+.newsletter-follow-links { display: inline-flex; gap: 4px; }
+.newsletter-follow .social-link { width: 36px; height: 36px; min-width: 36px; min-height: 36px; color: var(--paper); }
+.newsletter-follow .social-link:hover { color: var(--signal); background: transparent; }
+.newsletter-follow svg { width: 16px; height: 16px; }

@@ -69,7 +69,7 @@ export function pageGraph(data, image) {
   const organization = {
     '@type': 'Organization', '@id': orgId, name: site.title, url: `${site.url}/`,
     logo: { '@type': 'ImageObject', '@id': `${site.url}/#logo`, url: absolute('/images/brand/social-avatar.png', site), width: 512, height: 512 },
-    sameAs: [site.facebook, site.instagram].filter(Boolean),
+    sameAs: [site.facebook, site.instagram, site.telegram].filter(Boolean),
   };
   const graph = [organization, {
     '@type': 'WebSite', '@id': websiteId, name: site.title, url: `${site.url}/`,

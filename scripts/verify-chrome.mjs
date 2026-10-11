@@ -17,20 +17,26 @@ function checkChrome(html, file) {
   // Owner's tenth note: the AI black hole mark returns beside the one-typeface serif wordmark.
   assert.equal((header.match(/<img/g) || []).length, 1, 'Exactly one header image: the AI black hole mark');
   assert.match(header, /<img class="masthead-mark"[^>]*alt=""/);
-  assert.doesNotMatch(header, /<picture|<svg|<em|<strong/);
+  // Follow links (Facebook, Instagram, Telegram) are the only header SVGs, in their own compact groups.
+  const follow = [...header.matchAll(/<div class="(?:header-social|menu-follow)"[^>]*>([\s\S]*?)<\/div>/g)];
+  assert.equal(follow.length, 2, 'Masthead and mobile sheet each carry one follow group');
+  for (const [, group] of follow) assert.deepEqual([...group.matchAll(/aria-label="([^"]+)"/g)].map(item => item[1]), ['Singularity Review on Facebook', 'Singularity Review on Instagram', 'Singularity Review on Telegram']);
+  assert.doesNotMatch(header.replace(/<div class="(?:header-social|menu-follow)"[^>]*>[\s\S]*?<\/div>/g, ''), /<picture|<svg|<em|<strong/);
   assert.match(header, /<span class="brand-wordmark">Singularity Review<\/span>/);
   assert.match(header, /class="header-inner">[\s\S]*class="desktop-nav"[\s\S]*class="menu-toggle"[\s\S]*<\/div>\s*<nav class="mobile-menu"/, 'Navigation and menu button occupy the masthead row');
   assert.doesNotMatch(html, legacy, `${file}: no avatar, icon or decorative heading markup`);
   // Privacy and Terms have the required plain-language operator section.
   assert.doesNotMatch(['privacy/index.html', 'terms/index.html'].includes(file) ? html.replace('<h2>Who we are</h2>', '') : html, sectionCopy, `${file}: current publication labels`);
   const menu = markup(html, 'nav', 'mobile-menu');
-  assert.equal((menu.match(/<a\b/g) || []).length, 4, 'Mobile sheet contains only the four sections');
-  assert.doesNotMatch(menu, /<p|<h[1-6]|menu-social/);
+  const menuLinks = menu.match(/<div class="menu-links">([\s\S]*?)<\/div>/)[1];
+  assert.equal((menuLinks.match(/<a\b/g) || []).length, 4, 'Mobile sheet contains only the four sections');
+  assert.equal((menu.match(/<a\b/g) || []).length, 7, 'Mobile sheet adds only the three follow icons');
+  assert.doesNotMatch(menu.replace(/<div class="menu-follow"[^>]*>[\s\S]*?<\/div>/, ''), /<p|<h[1-6]|menu-social/);
   const footer = markup(html, 'footer', 'site-footer');
   assert.ok(footer);
   assert.doesNotMatch(footer, /class="footer-(?:columns?|description|heading|topics)\b|<img|<picture|<em/);
   assert.equal(plain(markup(footer, 'a', 'footer-brand')), 'Singularity Review');
-  assert.deepEqual([...markup(footer, 'nav', 'footer-social').matchAll(/aria-label="([^"]+)"/g)].map(item => item[1]), ['Singularity Review on Facebook', 'Singularity Review on Instagram', 'RSS']);
+  assert.deepEqual([...markup(footer, 'nav', 'footer-social').matchAll(/aria-label="([^"]+)"/g)].map(item => item[1]), ['Singularity Review on Facebook', 'Singularity Review on Instagram', 'Singularity Review on Telegram', 'RSS']);
   assert.match(footer, /&copy; \d{4} Singularity Review/);
   for (const text of ['Kitt Peak at Night', 'Marenfeld', 'CC BY 4.0']) assert.ok(!footer.includes(text), 'Skyline credit moved to /about/');
   for (const [, byline] of html.matchAll(/<p class="(?:byline meta|card-byline meta(?: lead-byline)?|carousel-byline meta)">([\s\S]*?)<\/p>/g)) {

@@ -1,4 +1,4 @@
-{% from "icons.njk" import icon, socialLink %}
+{% from "icons.njk" import icon, socialLink, followLinks with context %}
 {% from "navigation.njk" import navLinks %}
 {% from "newsletter.njk" import newsletterForm %}
 {%- set activeSection = page.url | navigationSection(author, site.defaultAuthor) -%}
@@ -71,10 +71,12 @@
     <div class="header-inner">
       <a class="brand" href="/" aria-label="Singularity Review home"><img class="masthead-mark" src="{{ '/images/brand/mark-ai-96.png' | asset }}" srcset="{{ '/images/brand/mark-ai-96.png' | asset }} 1x, {{ '/images/brand/mark-ai-192.png' | asset }} 2x" width="40" height="40" alt="" decoding="async"><span class="brand-wordmark">Singularity Review</span></a>
       <nav class="desktop-nav" aria-label="Primary">{{ navLinks(navigation, activeSection) }}</nav>
+      <div class="header-social" role="group" aria-label="Follow Singularity Review">{{ followLinks(site) }}</div>
       <button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu" hidden data-menu-toggle><span></span><span></span></button>
     </div>
     <nav class="mobile-menu" id="mobile-menu" aria-label="Main menu" hidden data-menu>
       <div class="menu-links">{{ navLinks(navigation, activeSection) }}</div>
+      <div class="menu-follow" role="group" aria-label="Follow Singularity Review">{{ followLinks(site) }}</div>
     </nav>
   </header>
   <noscript><nav class="no-js-nav" aria-label="Primary">{{ navLinks(navigation, activeSection) }}</nav></noscript>
@@ -84,7 +86,7 @@
       <div class="footer-top">
         <a class="footer-brand" href="/">Singularity Review</a>
         <nav class="footer-links" aria-label="Publication sections">{{ navLinks(navigation, activeSection) }}</nav>
-        <nav class="footer-social" aria-label="Social links">{{ socialLink(site.facebook, "Facebook") }}{{ socialLink(site.instagram, "Instagram") }}<a class="social-link" href="/rss.xml" aria-label="RSS">{{ icon("RSS") }}</a></nav>
+        <nav class="footer-social" aria-label="Social links">{{ followLinks(site) }}<a class="social-link" href="/rss.xml" aria-label="RSS">{{ icon("RSS") }}</a></nav>
       </div>
       <section class="newsletter-inline newsletter-footer" aria-labelledby="newsletter-footer-heading">
         <h2 id="newsletter-footer-heading">Get the newsletter</h2>

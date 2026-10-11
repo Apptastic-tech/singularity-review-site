@@ -86,7 +86,7 @@ for (const file of files) {
   required(organization, ['name', 'url', 'logo', 'sameAs'], `${file}: Organization`);
   assert.equal(organization['@id'], orgId);
   assert.equal(organization.name, site.title); assert.equal(organization.url, rootUrl);
-  assert.deepEqual(organization.sameAs, [site.facebook, site.instagram]);
+  assert.deepEqual(organization.sameAs, [site.facebook, site.instagram, site.telegram]);
   assert.equal(organization.address, undefined); assert.equal(organization.telephone, undefined);
   const logo = await sharp(path.join('_site', absolute(organization.logo.url).pathname)).metadata();
   assert.equal(logo.format, 'png'); assert.equal(logo.width, 512); assert.equal(logo.height, 512);

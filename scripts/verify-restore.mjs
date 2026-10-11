@@ -31,7 +31,7 @@ function checkFooter(dom) {
   assert.equal(textContent(nodes(footer).find(node => node.name === 'h2')), 'Get the newsletter');
   assert.equal(classes(footer, 'newsletter-input-row').length, 1);
   const social = classes(footer, 'footer-social')[0];
-  assert.deepEqual(nodes(social).filter(node => node.name === 'a').map(node => node.attribs['aria-label']), ['Singularity Review on Facebook', 'Singularity Review on Instagram', 'RSS']);
+  assert.deepEqual(nodes(social).filter(node => node.name === 'a').map(node => node.attribs['aria-label']), ['Singularity Review on Facebook', 'Singularity Review on Instagram', 'Singularity Review on Telegram', 'RSS']);
   assert.ok(textContent(footer).includes('2026 Singularity Review')); for (const text of ['Kitt Peak at Night','Marenfeld','CC BY 4.0']) assert.ok(!textContent(footer).includes(text), 'Skyline credit moved to /about/');
 }
 function checkHome(dom, preview = false) {

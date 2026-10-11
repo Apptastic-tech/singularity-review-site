@@ -1,4 +1,5 @@
 {% from "newsletter.njk" import newsletterForm %}
+{% from "icons.njk" import followLinks with context %}
 <section class="popup-card consent-banner" data-consent-banner role="region" aria-labelledby="consent-banner-heading" hidden>
   <h2 id="consent-banner-heading">Cookies and privacy</h2>
   <p>Only necessary storage is used by default. Analytics and ad cookies need acceptance. <a href="/cookies/">Cookie policy</a>.</p>
@@ -31,5 +32,6 @@
   <h2 id="newsletter-prompt-heading" tabindex="-1">Get the newsletter</h2>
   <p class="newsletter-description">The week's AI news, research and analysis.</p>
   {{ newsletterForm("prompt") }}
+  <div class="newsletter-follow"><span>or follow us on</span><span class="newsletter-follow-links">{{ followLinks(site) }}</span></div>
 </section>
 <p class="sr-only" data-newsletter-announcement role="status" aria-live="polite" aria-atomic="true"></p>

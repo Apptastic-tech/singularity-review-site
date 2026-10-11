@@ -2,7 +2,7 @@
 layout: layouts/base.njk
 ---
 {% from "ad-slot.njk" import adSlot %}
-{% from "icons.njk" import socialLink %}
+{% from "icons.njk" import followLinks with context %}
 {% from "share.njk" import shareBar with context %}
 {% from "byline.njk" import byline %}
 {% from "newsletter.njk" import newsletterForm %}
@@ -34,7 +34,7 @@ layout: layouts/base.njk
     {% if tags.length %}<ul class="tags" aria-label="Article topics">{% for tag in tags %}<li>{{ tag }}</li>{% endfor %}</ul>{% endif %}
     <div class="follow">
       <p class="plain-label">Follow Singularity Review</p>
-      <div class="follow-links">{{ socialLink(site.facebook, "Facebook", true) }}{{ socialLink(site.instagram, "Instagram", true) }}</div>
+      <div class="follow-links">{{ followLinks(site, true) }}</div>
     </div>
     {% if sources.length %}<section class="article-sources" aria-labelledby="sources-heading">
       <h2 id="sources-heading">Sources</h2>
