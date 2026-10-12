@@ -353,5 +353,43 @@
         "provenance": "Draft 08 sources.md (links checked 2026-10-11); quotes spot-checked on publisher pages at publish time."
       }
     ]
+  },
+  {
+    "article": "2026-10-12-white-house-restores-uk-frontier-ai-access.md",
+    "url": "/articles/white-house-restores-uk-frontier-ai-access/",
+    "sources": [
+      {
+        "title": "Britain to get first look at AI systems after White House U-turn",
+        "publisher": "The Telegraph",
+        "url": "https://www.telegraph.co.uk/news/2026/10/11/britain-get-first-look-ai-systems-after-white-house-u-turn/",
+        "date": "2026-10-11",
+        "dateKnown": true,
+        "provenance": "Draft 12 sources.md (links checked 2026-10-11); quotes spot-checked on publisher pages at publish time."
+      },
+      {
+        "title": "US reverses course on Britain's testing of AI models, Telegraph says",
+        "publisher": "Reuters",
+        "url": "https://d2233.cms.socastsrm.com/2026/10/11/us-reverses-course-on-britains-testing-of-ai-models-telegraph-says/",
+        "date": "2026-10-11",
+        "dateKnown": true,
+        "provenance": "Draft 12 sources.md (links checked 2026-10-11); quotes spot-checked on publisher pages at publish time."
+      },
+      {
+        "title": "Britain to get first look at AI systems (Telegraph reprint)",
+        "publisher": "AOL",
+        "url": "https://www.aol.com/articles/britain-first-look-ai-systems-184607000.html",
+        "date": "2026-10-11",
+        "dateKnown": true,
+        "provenance": "Draft 12 sources.md (links checked 2026-10-11); quotes spot-checked on publisher pages at publish time."
+      },
+      {
+        "title": "AI Security Institute",
+        "publisher": "UK AI Security Institute",
+        "url": "https://www.aisi.gov.uk/",
+        "date": "",
+        "dateKnown": false,
+        "provenance": "Draft 12 sources.md (links checked 2026-10-11); quotes spot-checked on publisher pages at publish time."
+      }
+    ]
   }
 ]
