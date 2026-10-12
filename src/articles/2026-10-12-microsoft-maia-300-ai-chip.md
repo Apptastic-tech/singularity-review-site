@@ -4,9 +4,9 @@ description: Microsoft's third-generation Maia chip is built to run AI models ra
 date: 2026-10-12T19:16:00Z
 category: Hardware
 hero: /images/articles/microsoft-maia-300-ai-chip.jpg
-heroAlt: A screenprint-style illustration of a small square chip glowing warm orange at the centre of a vast power grid of pylons and cables
+heroAlt: "A gloved hand holds a small square AI chip up to warm window light, under the headline: Microsoft is done waiting for Nvidia. It just showed the chip it wants running its AI by 2027."
 tags: [Microsoft, Maia, AI chips, Nvidia, Datacenters, Inference]
-heroCaption: Editorial illustration. No real logos depicted.
+heroCaption: Editorial image. No real logos depicted.
 author: Singularity Review
 seoDescription: "Microsoft's Maia 300 AI chip promises 40% more tokens per megawatt than GPUs and will run most of Microsoft's AI, including Copilot, from 2027."
 takeaways:
@@ -38,8 +38,6 @@ Microsoft says Maia 300 will deliver 40% more tokens per megawatt than "leading 
 The company also says a full rack of 96 Maia 300 accelerators delivers up to seven times the token throughput of a rack of the previous chip, Maia 200. According to the [Microsoft blog](https://blogs.microsoft.com/blog/2026/10/12/microsoft-to-expand-azure-maia-system-to-multi-gigawatt-deployments/), each rack runs within a 167-kilowatt power envelope and holds 27.6 terabytes of high-bandwidth memory, the very fast memory that sits next to the chip and feeds it data. Microsoft describes the design as "inference-first," tuned for long-context reasoning, quick back-and-forth conversation and "sustained, multi-step agentic tasks," meaning AI agents that work through long jobs on their own.
 
 These are the company's own projections. Maia 300 does not begin production deployments until 2027, and no independent tests of the chip have been published.
-
-![Two dark funnels pour streams of small white cubes beneath an orange lightning bolt, with power pylons on the hills behind](/images/articles/microsoft-maia-300-ai-chip-2.jpg)
 
 ## Why build your own chip
 

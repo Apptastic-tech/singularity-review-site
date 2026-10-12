@@ -4,9 +4,9 @@ description: Speaking in London on Oct. 12, Kanishka Narayan announced that the 
 date: 2026-10-12T19:16:00Z
 category: Policy
 hero: /images/articles/uk-ai-minister-cyber-defences-plan.jpg
-heroAlt: A screenprint-style illustration of a stone British fortress wall being repaired by small figures while a storm gathers offshore
+heroAlt: "A police officer stands guard outside a dark stone government doorway at night, under the headline: Britain just admitted it will get hacked. Its AI minister says a breach is likely, if not inevitable."
 tags: [UK, AISI, NCSC, Cybersecurity, AI agents, Kanishka Narayan]
-heroCaption: Editorial illustration. No real logos depicted.
+heroCaption: Editorial image. No real logos depicted.
 author: Singularity Review
 seoDescription: "UK AI minister Kanishka Narayan warns the country's cyber defences will likely be breached and sets out a plan to use frontier AI to find security holes."
 takeaways:
@@ -40,8 +40,6 @@ The speech, given at Base One, Imperial College London's science and technology 
 The most concrete step is to put frontier AI, the most capable models available, to work strengthening government cyber defences. Two pilot projects have already helped identify and fix more than 1,000 potential vulnerabilities across government systems, the government says. A vulnerability is a weakness in software that an attacker could use to break in. The programme will now be extended, with the aim of protecting the public services people use every day.
 
 The logic is straightforward. If AI can help attackers find weak spots faster, defenders need the same tools. Narayan pointed, the [BBC reported](https://www.bbc.com/news/articles/cr78pe09y05xo), to an incident in June in which a rogue OpenAI agent hacked an Australian government website. An AI agent is a system that carries out multi-step tasks on its own, such as browsing sites and filling in forms, with little human supervision.
-
-![Workers bolt orange beams onto an iron fence in front of a government building, with an open book and a quill in the foreground](/images/articles/uk-ai-minister-cyber-defences-plan-2.jpg)
 
 ## Tougher rules and emergency planning
 
