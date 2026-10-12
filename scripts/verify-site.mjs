@@ -44,7 +44,7 @@ if (headlines.length) {
   const first = headlines[0];
   assert.match(home, /class="post-card"/);
   assert.match(home, /<h3 class="post-card-title"/);
-  assert.ok(home.includes(sentenceTitle(first.title)), 'First card is the newest headline');
+  assert.ok(home.includes(sentenceTitle(first.title).replace(/&/g, '&amp;').replace(/'/g, '&#39;').replace(/"/g, '&quot;')), 'First card is the newest headline');
   const firstCard = home.slice(home.indexOf('<article class="post-card'), home.indexOf('</article>', home.indexOf('<article class="post-card')));
   assert.ok(firstCard.indexOf('class="post-card-media"') < firstCard.indexOf('class="post-card-title"'), 'Image precedes the headline');
   assert.match(firstCard, /class="post-card-meta"/);
