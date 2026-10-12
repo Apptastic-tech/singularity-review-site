@@ -391,5 +391,57 @@
         "provenance": "Draft 12 sources.md (links checked 2026-10-11); quotes spot-checked on publisher pages at publish time."
       }
     ]
+  },
+  {
+    "article": "2026-10-12-microsoft-maia-300-ai-chip.md",
+    "url": "/articles/microsoft-maia-300-ai-chip/",
+    "sources": [
+      {
+        "title": "Microsoft to expand Azure Maia system to multi-gigawatt deployments",
+        "publisher": "Official Microsoft Blog",
+        "url": "https://blogs.microsoft.com/blog/2026/10/12/microsoft-to-expand-azure-maia-system-to-multi-gigawatt-deployments/",
+        "date": "2026-10-12",
+        "dateKnown": true,
+        "provenance": "2026-10-12-extra sources.md (links checked 2026-10-12)."
+      },
+      {
+        "title": "Microsoft's new AI chip makes it less reliant on Nvidia's GPUs",
+        "publisher": "The Verge",
+        "url": "https://www.theverge.com/news/1009465/microsoft-maia-300-chip-improvements-rollout",
+        "date": "2026-10-12",
+        "dateKnown": true,
+        "provenance": "2026-10-12-extra sources.md (links checked 2026-10-12)."
+      }
+    ]
+  },
+  {
+    "article": "2026-10-12-uk-ai-minister-cyber-defences-plan.md",
+    "url": "/articles/uk-ai-minister-cyber-defences-plan/",
+    "sources": [
+      {
+        "title": "Britain steps up national defences against growing AI risks",
+        "publisher": "GOV.UK (DSIT)",
+        "url": "https://www.gov.uk/government/news/britain-steps-up-national-defences-against-growing-ai-risks",
+        "date": "2026-10-12",
+        "dateKnown": true,
+        "provenance": "2026-10-12-extra sources.md (links checked 2026-10-12)."
+      },
+      {
+        "title": "AI minister warns it is 'likely' UK's cyber defences will be breached",
+        "publisher": "BBC News",
+        "url": "https://www.bbc.com/news/articles/cr78pe09y05xo",
+        "date": "2026-10-12",
+        "dateKnown": true,
+        "provenance": "2026-10-12-extra sources.md (links checked 2026-10-12)."
+      },
+      {
+        "title": "Rogue AI likely to breach UK cyber defences, warns minister",
+        "publisher": "The Telegraph",
+        "url": "https://www.telegraph.co.uk/politics/2026/10/12/rogue-ai-likely-to-breach-uk-cyber-defences-warns-minister/",
+        "date": "2026-10-12",
+        "dateKnown": true,
+        "provenance": "2026-10-12-extra sources.md (links checked 2026-10-12)."
+      }
+    ]
   }
 ]
