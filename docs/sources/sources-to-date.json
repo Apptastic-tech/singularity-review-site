@@ -443,5 +443,51 @@
         "provenance": "2026-10-12-extra sources.md (links checked 2026-10-12)."
       }
     ]
+  },
+  {
+    "article": "2026-10-13-meta-muse-wonder-frontier-model.md",
+    "url": "/articles/meta-muse-wonder-frontier-model/",
+    "sources": [
+      {
+        "title": "Muse Wonder",
+        "publisher": "Meta",
+        "url": "https://research.meta.ai/blog/muse-wonder",
+        "date": "2026-10-12",
+        "dateKnown": true,
+        "provenance": "2026-10-13 SOURCES.md (links checked 2026-10-13)."
+      },
+      {
+        "title": "Meta says new Muse model reaches AI frontier after aggressive push",
+        "publisher": "The Business Times",
+        "url": "https://www.businesstimes.com.sg/companies-markets/meta-says-new-muse-model-reaches-ai-frontier-after-aggressive-push",
+        "date": "2026-10-13",
+        "dateKnown": true,
+        "provenance": "2026-10-13 SOURCES.md (links checked 2026-10-13)."
+      },
+      {
+        "title": "Muse Wonder",
+        "publisher": "Artificial Analysis",
+        "url": "https://artificialanalysis.ai/articles/muse-wonder",
+        "date": "2026-10-12",
+        "dateKnown": true,
+        "provenance": "2026-10-13 SOURCES.md (links checked 2026-10-13)."
+      },
+      {
+        "title": "Meta releases its first frontier model, Muse Wonder",
+        "publisher": "TechCrunch",
+        "url": "https://techcrunch.com/2026/10/12/meta-releases-its-first-frontier-model-muse-wonder/",
+        "date": "2026-10-12",
+        "dateKnown": true,
+        "provenance": "2026-10-13 SOURCES.md (links checked 2026-10-13)."
+      },
+      {
+        "title": "Muse Wonder Model Card",
+        "publisher": "Meta",
+        "url": "https://research.meta.ai/static/muse-wonder-model-card",
+        "date": "2026-10-12",
+        "dateKnown": true,
+        "provenance": "2026-10-13 SOURCES.md (links checked 2026-10-13)."
+      }
+    ]
   }
 ]
