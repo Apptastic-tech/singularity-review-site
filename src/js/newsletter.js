@@ -21,8 +21,10 @@
     // Expire only; this never stores a value.
     ATTRIBUTION_COOKIES.filter(name => present.includes(name)).forEach(name => { document.cookie = name + '=; Max-Age=0; path=/; SameSite=Lax'; });
   };
+  clearAttribution();
   const mount = embed => {
     if (!embed || (embed.dataset.state && embed.dataset.state !== 'idle')) return;
+    if (!analyticsGranted()) { embed.dataset.state = 'fallback'; return; }
     embed.dataset.state = 'loading';
     const frame = embed.querySelector('[data-newsletter-frame]');
     const ready = () => {
@@ -154,6 +156,10 @@
   window.srConsent.onChange(value => {
     if (!value || consentVisible()) hidePrompt();
     clearAttribution();
+    if (analyticsGranted()) {
+      // Only slots already shown or approached may load after a later Accept.
+      embeds.filter(embed => embed.dataset.state === 'fallback').forEach(embed => { embed.dataset.state = 'idle'; mount(embed); });
+    }
     tick();
   });
   // beehiiv reports a completed signup from its own iframe; remember it so the prompt stays away.

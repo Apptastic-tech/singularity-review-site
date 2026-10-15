@@ -5,9 +5,13 @@ import { findAll, textContent } from 'domutils';
 import site from '../src/_data/site.js';
 import { cssRules, styleAt } from './static-layout.mjs';
 import { verifyConsentRuntime } from './consent-runtime.mjs';
+import { verifyAnalyticsRuntime } from './analytics-runtime.mjs';
+import { utmLinks } from './utm-link.mjs';
+import { spawnSync } from 'node:child_process';
 
 const read = file => fs.readFile(file, 'utf8');
 const consent = await read('src/js/consent.js');
+const analytics = await read('src/js/analytics.js');
 const newsletter = await read('src/js/newsletter.js');
 const css = await read('src/css/style.css');
 const rules = await read('firestore/sr_newsletter.rules.snippet');
@@ -16,12 +20,13 @@ const hook = (root, name) => nodes(root).filter(node => Object.hasOwn(node.attri
 const hasClass = (node, name) => (node.attribs?.class || '').split(/\s+/).includes(name);
 const sentence = 'Send me the Singularity Review newsletter. Unsubscribe anytime.';
 const fields = ['email', 'consentAt', 'consentTextVersion', 'consentText', 'sourcePage', 'source', 'status'].sort();
-const allowedScripts = new Set(['transitions', 'site', 'card-row', 'lensing', 'carousel', 'article', 'consent', 'newsletter'].map(name => `/js/${name}.js`));
+const allowedScripts = new Set(['transitions', 'site', 'card-row', 'lensing', 'carousel', 'article', 'consent', 'analytics', 'newsletter'].map(name => `/js/${name}.js`));
 if (site.adsense.client || site.adsense.preview) allowedScripts.add('/js/ads.js');
 const redirect = `(function(l,h,t){if(h.indexOf(l.hostname)>-1&&l.hostname!==t.replace(/^https?:\\/\\//,"")){l.replace(t+l.pathname+l.search+l.hash)}})(location,${JSON.stringify(site.legacyHosts)},${JSON.stringify(site.url)})`;
 function checkScripts(html) {
   for (const script of nodes(parseDocument(html)).filter(node => node.name === 'script')) {
     const attrs = script.attribs;
+    assert.doesNotMatch(attrs.src || '', /googletagmanager\.com\/gtag|google-analytics\.com|clarity\.ms/i, 'No GA4 or Clarity script src in HTML, even on inert tags');
     if (attrs.type === 'application/ld+json') { JSON.parse(textContent(script)); continue; }
     if (attrs.type === 'text/plain') {
       assert.ok(['analytics', 'marketing'].includes(attrs['data-consent']), 'Inert optional scripts need a category gate');
@@ -45,9 +50,13 @@ assert.ok(cookieWrite.test('document["cookie"] = "x=1"'));
 assert.throws(() => checkScripts('<script src="https://example.org/tracker.js"></script>'));
 assert.throws(() => checkScripts('<script>fetch("/track")</script>'));
 assert.throws(() => checkScripts('<script type="text/plain" data-src="/tracker.js"></script>'));
+for (const src of ['https://www.googletagmanager.com/gtag/js?id=G-ABC123', 'https://www.clarity.ms/tag/abc123']) {
+  assert.throws(() => checkScripts(`<script src="${src}"></script>`));
+  assert.throws(() => checkScripts(`<script type="text/plain" data-consent="analytics" src="${src}"></script>`));
+}
 checkScripts('<script type="text/plain" data-consent="analytics" data-src="/tracker.js"></script>');
 
-for (const file of ['consent', 'newsletter']) assert.equal(await read(`_site/js/${file}.js`), await read(`src/js/${file}.js`));
+for (const file of ['consent', 'analytics', 'newsletter']) assert.equal(await read(`_site/js/${file}.js`), await read(`src/js/${file}.js`));
 assert.equal(await read('_site/css/style.css'), css, 'Build must contain current CSS');
 const sourceFiles = (await fs.readdir('src', { recursive: true })).filter(file => /\.(js|njk|md|html|css)$/.test(file)).map(file => 'src/' + file);
 sourceFiles.push('eleventy.config.js');
@@ -92,12 +101,20 @@ for (const file of pages) {
   assert.doesNotMatch(html, /\ssrc="https:\/\/subscribe-forms\.beehiiv\.com/, 'beehiiv never loads from static markup');
   const attribution = nodes(dom).filter(node => node.name === 'script' && node.attribs['data-src'] === 'https://subscribe-forms.beehiiv.com/attribution.js');
   assert.equal(attribution.length, 1); assert.equal(attribution[0].attribs.type, 'text/plain'); assert.equal(attribution[0].attribs['data-consent'], 'analytics');
-  for (const script of ['consent', 'newsletter']) assert.match(html, new RegExp(`src="/js/${script}\\.js\\?v=[a-f0-9]{10}" defer`));
+  for (const script of ['consent', 'analytics', 'newsletter']) assert.match(html, new RegExp(`src="/js/${script}\\.js\\?v=[a-f0-9]{10}" defer`));
+  const analyticsScript = nodes(dom).find(node => node.name === 'script' && node.attribs.src?.startsWith('/js/analytics.js?'));
+  assert.equal(analyticsScript.attribs['data-ga4-id'], site.analytics.GA4_ID);
+  assert.equal(analyticsScript.attribs['data-clarity-id'], site.analytics.CLARITY_ID);
+  assert.ok(html.indexOf('src="/js/consent.js?') < html.indexOf('src="/js/analytics.js?'));
+  for (const link of nodes(dom).filter(node => node.name === 'link' && /preconnect|dns-prefetch|preload|prefetch/.test(node.attribs.rel || ''))) {
+    assert.doesNotMatch(link.attribs.href || '', /googletagmanager|google-analytics|clarity\.ms/i, 'No analytics resource hints before consent');
+  }
   const [banner] = hook(dom, 'data-consent-banner');
   assert.ok(banner && banner.attribs.role === 'region' && banner.attribs['aria-labelledby'] === 'consent-banner-heading');
   assert.ok(Object.hasOwn(banner.attribs, 'hidden'));
   const buttons = nodes(banner).filter(node => node.name === 'button');
-  assert.deepEqual(buttons.map(node => textContent(node)), ['Accept all', 'Reject all', 'Settings']);
+  assert.deepEqual(buttons.map(node => textContent(node)), ['Accept', 'Decline', 'Settings']);
+  assert.equal(textContent(nodes(banner).find(node => node.name === 'p')), 'We use Google Analytics and Microsoft Clarity to understand how readers use the site. They load and use cookies only after you click Accept. Decline keeps them off. You can change your choice in Cookie settings. Cookie policy.');
   assert.equal(new Set(buttons.map(node => node.attribs.class)).size, 1);
   const dialog = hook(dom, 'data-consent-dialog')[0];
   assert.equal(dialog.name, 'dialog');
@@ -135,7 +152,9 @@ for (const [page, headings] of Object.entries(requiredHeadings)) {
   const html = await read(`_site/${page}/index.html`), dom = parseDocument(html);
   const actual = nodes(dom).filter(node => /^h[12]$/.test(node.name)).map(node => textContent(node));
   headings.forEach(heading => assert.ok(actual.includes(heading), heading));
-  assert.ok(html.includes('Last updated 11 October 2026'));
+  assert.ok(html.includes('Last updated 15 October 2026'));
+  for (const phrase of ['Google Analytics', 'GA4', 'Microsoft Clarity', 'Accept', 'Decline', 'Cookie settings']) assert.ok(html.includes(phrase), page + ': ' + phrase);
+  assert.doesNotMatch(html, /We use no analytics|No ads or analytics tools are active today/);
   assert.ok((await read('_site/sitemap.xml')).includes(`/${page}/</loc>`));
 }
 const placeholderDoc = await read('docs/LEGAL-PLACEHOLDERS.md');
@@ -167,4 +186,24 @@ assert.equal(styleAt(parsedCSS, '.privacy-button', 1440, 900).height, '44px');
 assert.match(newsletter, /banner && !banner.hidden/);
 assert.match(consent, /popup|is-leaving/);
 await verifyConsentRuntime({ consent, newsletter, fields, sentence });
-console.log(`CONSENT VERIFIED: ${pages.length} pages, equal consent classes, gated script allowlist, no cookie writes, defaults/version/API, footer controls, legal headings, ${listed.size} visible placeholders, forms, fixed geometry, beehiiv embed slots and gated attribution, Node behavior. Browser checks were not run.`);
+verifyAnalyticsRuntime({ consent, analytics, ads: await read('src/js/ads.js') });
+const sources = ['telegram', 'instagram', 'facebook', 'threads', 'meta_ads'];
+const links = utmLinks('https://example.org/story?ref=home&utm_source=old&utm_medium=old&utm_campaign=old#reading', 'autumn-reading');
+assert.equal(links.length, 5);
+for (const [index, value] of links.entries()) {
+  const url = new URL(value), source = sources[index];
+  assert.equal(url.searchParams.get('ref'), 'home'); assert.equal(url.hash, '#reading');
+  assert.deepEqual(url.searchParams.getAll('utm_source'), [source]);
+  assert.deepEqual(url.searchParams.getAll('utm_medium'), [source === 'meta_ads' ? 'paid_social' : 'social']);
+  assert.deepEqual(url.searchParams.getAll('utm_campaign'), ['autumn-reading']);
+  assert.equal(utmLinks('https://example.org/story', 'autumn-reading', source).length, 1);
+}
+assert.equal(new URL(utmLinks('https://example.org/story', 'reading & research', 'telegram')[0]).searchParams.get('utm_campaign'), 'reading & research');
+for (const args of [['bad-url', 'slug'], ['javascript:alert(1)', 'slug'], ['https://example.org', ' '], ['https://example.org', 'slug', 'unknown']]) assert.throws(() => utmLinks(...args));
+const cli = spawnSync(process.execPath, ['scripts/utm-link.mjs', 'https://example.org/story?ref=home#reading', 'autumn-reading'], { encoding: 'utf8' });
+assert.equal(cli.status, 0); assert.equal(cli.stdout.trim().split('\n').length, 5);
+const paid = spawnSync(process.execPath, ['scripts/utm-link.mjs', 'https://example.org/story', 'autumn-reading', 'meta_ads'], { encoding: 'utf8' });
+assert.equal(paid.status, 0); assert.match(paid.stdout, /utm_source=meta_ads&utm_medium=paid_social&utm_campaign=autumn-reading/);
+const invalid = spawnSync(process.execPath, ['scripts/utm-link.mjs'], { encoding: 'utf8' });
+assert.equal(invalid.status, 1); assert.match(invalid.stderr, /Usage:/); assert.equal(invalid.stdout, '');
+console.log(`CONSENT VERIFIED: ${pages.length} pages, Accept/Decline copy, no static GA4/Clarity URLs or resource hints, denied v2 defaults, acceptance/decline/return/withdrawal, placeholder guards, ads compatibility, existing storage/API, ${listed.size} legal placeholders, fixed geometry, exclusive pop-ups, gated beehiiv, UTM links and Node behavior. Browser checks were not run.`);

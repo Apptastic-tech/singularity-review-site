@@ -7,6 +7,10 @@ export default {
   legacyHosts: ["singularity-review.web.app", "singularity-review.firebaseapp.com"],
   language: "en",
   updated: "2026-10-10T17:45:21.964Z",
+  analytics: {
+    GA4_ID: 'G-J3LMTMP4VN',
+    CLARITY_ID: 'XXXXXXX',
+  },
   adsense: {
     // Empty client disables every ad slot and the loader in the default build.
     client: "",
