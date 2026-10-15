@@ -535,5 +535,67 @@
         "provenance": "2026-10-14 SOURCES.md (links checked 2026-10-14)."
       }
     ]
+  },
+  {
+    "article": "2026-10-15-anthropic-q3-revenue-ahead-of-ipo.md",
+    "url": "/articles/anthropic-q3-revenue-ahead-of-ipo/",
+    "sources": [
+      {
+        "title": "Anthropic Q3 revenue, compute efficiency and adjusted profitability",
+        "publisher": "Financial Times",
+        "url": "https://www.ft.com/content/11632d03-358c-454b-af95-d06d4072932b",
+        "date": "",
+        "dateKnown": false,
+        "provenance": "2026-10-15 SOURCES.md (links checked 2026-10-15)."
+      },
+      {
+        "title": "Anthropic revenue jumps to $16.8 billion in quarter before IPO",
+        "publisher": "Bloomberg",
+        "url": "https://www.bloomberg.com/news/articles/2026-10-14/anthropic-revenue-jumps-to-16-8-billion-in-quarter-before-ipo",
+        "date": "2026-10-14",
+        "dateKnown": true,
+        "provenance": "2026-10-15 SOURCES.md (links checked 2026-10-15)."
+      },
+      {
+        "title": "Anthropic's third-quarter revenue hits $16.8 billion",
+        "publisher": "CNBC",
+        "url": "https://www.cnbc.com/2026/10/15/anthropics-third-quarter-revenue-hits-16point8-billion-ipo.html",
+        "date": "2026-10-15",
+        "dateKnown": true,
+        "provenance": "2026-10-15 SOURCES.md (links checked 2026-10-15)."
+      },
+      {
+        "title": "Anthropic revenue report",
+        "publisher": "BBC News",
+        "url": "https://www.bbc.com/news/articles/cqzjx448vxkgo",
+        "date": "",
+        "dateKnown": false,
+        "provenance": "2026-10-15 SOURCES.md (links checked 2026-10-15)."
+      },
+      {
+        "title": "Anthropic's Q3 revenue surges 45% to nearly $17 billion",
+        "publisher": "Reuters via Investing.com",
+        "url": "https://www.investing.com/news/stock-market-news/anthropics-q3-revenue-surges-45-to-nearly-17-billion-4950208",
+        "date": "",
+        "dateKnown": false,
+        "provenance": "2026-10-15 SOURCES.md (links checked 2026-10-15)."
+      },
+      {
+        "title": "Anthropic shifts planned IPO to November",
+        "publisher": "The Wall Street Journal",
+        "url": "https://www.wsj.com/tech/ai/anthropic-shifts-planned-ipo-to-november-8874dffc",
+        "date": "",
+        "dateKnown": false,
+        "provenance": "2026-10-15 SOURCES.md (links checked 2026-10-15)."
+      },
+      {
+        "title": "Attorney General Hilgers announces lawsuit against OpenAI for deceiving Nebraskans about safety",
+        "publisher": "Nebraska Attorney General",
+        "url": "https://ago.nebraska.gov/news/attorney-general-hilgers-announces-lawsuit-against-openai-deceiving-nebraskans-about-safety",
+        "date": "2026-10-14",
+        "dateKnown": true,
+        "provenance": "2026-10-15 SOURCES.md (links checked 2026-10-15)."
+      }
+    ]
   }
 ]
