@@ -10,6 +10,7 @@ export default {
   analytics: {
     GA4_ID: 'G-J3LMTMP4VN',
     CLARITY_ID: 'XXXXXXX',
+    CLOUDFLARE_BEACON_TOKEN: 'e405ec1a865b4ff4a5990cf7f53967a0',
   },
   adsense: {
     // Empty client disables every ad slot and the loader in the default build.

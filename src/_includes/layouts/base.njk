@@ -66,6 +66,7 @@
   {% if homeFeed and pagination.pageNumber == 0 %}<script type="module" src="{{ '/js/lensing.js' | asset }}"></script>{% endif %}
   {% if hasCarousel and collections.featured.length and (not homeFeed or pagination.pageNumber == 0) %}<script src="{{ '/js/carousel.js' | asset }}" defer></script>{% endif %}
   <script type="application/ld+json">{% if jsonld %}{{ jsonld | safe }}{% else %}{% seoGraph %}{% endif %}</script>
+  {% if site.analytics.CLOUDFLARE_BEACON_TOKEN %}<!-- Cloudflare Web Analytics --><script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "{{ site.analytics.CLOUDFLARE_BEACON_TOKEN | escape }}"}'></script><!-- End Cloudflare Web Analytics -->{% endif %}
 </head>
 <body{% if homeFeed and pagination.pageNumber == 0 %} class="skyline-home"{% endif %}>
   <a class="skip" href="#main">Skip to content</a>

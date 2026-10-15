@@ -28,6 +28,8 @@ With your permission, we use Google Analytics 4 (GA4) and Microsoft Clarity to u
 
 GA4 and Microsoft Clarity only load after you click Accept on the cookie pop-up or enable Analytics and save in Cookie settings. Before acceptance, neither tool loads, sends analytics requests or sets cookies. Decline keeps both off. A saved acceptance applies on later visits. Use Cookie settings in the footer to change your choice at any time. Turning Analytics off saves your choice and reloads the page to stop previously loaded tools. This does not erase data already sent to their providers. You can clear existing cookies through your browser's site data settings.
 
+Cloudflare Web Analytics is cookieless. It loads on every visit without a cookie choice and does not use cookies or local storage to identify you. See [Cloudflare's privacy policy](https://www.cloudflare.com/privacypolicy/) for how Cloudflare handles the limited request data it receives.
+
 After you sign up, beehiiv's script can set a cookie on this site so the form knows you have subscribed. beehiiv can also record how you arrived at the site (for example a campaign link or referring site) for newsletter attribution. We load beehiiv's separate attribution script only if you accept Analytics in Cookie settings; otherwise we remove its attribution cookies. Fonts are served from this site's /fonts directory. Ads are not active yet.
 
 ## Advertising
