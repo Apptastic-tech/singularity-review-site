@@ -489,5 +489,51 @@
         "provenance": "2026-10-13 SOURCES.md (links checked 2026-10-13)."
       }
     ]
+  },
+  {
+    "article": "2026-10-14-google-gemini-4-argon.md",
+    "url": "/articles/google-gemini-4-argon/",
+    "sources": [
+      {
+        "title": "Gemini 4 Argon is now available for everyone",
+        "publisher": "Google",
+        "url": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/introducing-gemini-4-argon/",
+        "date": "2026-10-13",
+        "dateKnown": true,
+        "provenance": "2026-10-14 SOURCES.md (links checked 2026-10-14)."
+      },
+      {
+        "title": "Gemini 4 Argon Model Card",
+        "publisher": "Google DeepMind",
+        "url": "https://deepmind.google/models/model-cards/gemini-4-argon/",
+        "date": "2026-10-13",
+        "dateKnown": true,
+        "provenance": "2026-10-14 SOURCES.md (links checked 2026-10-14)."
+      },
+      {
+        "title": "Vals Index Leaderboard and Methodology",
+        "publisher": "Vals AI",
+        "url": "https://vals-ai.com/benchmarks/vals_index",
+        "date": "2026-10-13",
+        "dateKnown": true,
+        "provenance": "2026-10-14 SOURCES.md (links checked 2026-10-14)."
+      },
+      {
+        "title": "Google finally releases Gemini 4 Argon",
+        "publisher": "The Verge",
+        "url": "https://www.theverge.com/ai-artificial-intelligence/1009862/google-releases-gemini-4-argon",
+        "date": "2026-10-13",
+        "dateKnown": true,
+        "provenance": "2026-10-14 SOURCES.md (links checked 2026-10-14)."
+      },
+      {
+        "title": "Gemini 4 Argon begins rolling out in Gemini app and Antigravity, but only if you pay",
+        "publisher": "Ars Technica",
+        "url": "https://arstechnica.com/ai/2026/10/gemini-4-argon-begins-rolling-out-in-gemini-app-and-antigravity-but-only-if-you-pay/",
+        "date": "2026-10-13",
+        "dateKnown": true,
+        "provenance": "2026-10-14 SOURCES.md (links checked 2026-10-14)."
+      }
+    ]
   }
 ]
