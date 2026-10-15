@@ -6,10 +6,13 @@
   window.dataLayer = window.dataLayer || [];
   const gtag = window.gtag = window.gtag || function () { window.dataLayer.push(arguments); };
   // This must run before any Google tag is inserted, including for saved decisions.
-  gtag('consent', 'default', {
-    ad_storage: 'denied', ad_user_data: 'denied',
-    ad_personalization: 'denied', analytics_storage: 'denied', wait_for_update: 500,
-  });
+  if (!window.srGoogleConsentInitialized) {
+    gtag('consent', 'default', {
+      ad_storage: 'denied', ad_user_data: 'denied',
+      ad_personalization: 'denied', analytics_storage: 'denied', wait_for_update: 500,
+    });
+    window.srGoogleConsentInitialized = true;
+  }
   const slots = [...document.querySelectorAll('[data-ad-slot]')];
   const near = new Set(), filled = new Set(), entered = new Set();
   let decision = null, requested = false, ready = false;

@@ -1,9 +1,9 @@
 ---
 layout: layouts/base.njk
-updated: "2026-10-11T00:00:00Z"
+updated: "2026-10-15T00:00:00Z"
 title: Cookie policy
 description: Cookies, device storage and choices on Singularity Review.
-seoDescription: "Singularity Review's cookie policy explains device storage, animation and reaction preferences, newsletter prompts and how to change your choices."
+seoDescription: "Singularity Review's cookie policy explains Google Analytics, Microsoft Clarity, device storage and how to accept, decline or change your choices."
 permalink: /cookies/
 eleventyExcludeFromCollections: true
 ---
@@ -11,11 +11,13 @@ eleventyExcludeFromCollections: true
 
 # Cookie policy
 
-<p class="legal-version">Last updated 11 October 2026</p>
+<p class="legal-version">Last updated 15 October 2026</p>
 
 ## Cookies today
 
-We set no cookies of our own. The beehiiv newsletter signup form, loaded only when a signup is shown, can set the cookies listed below. We use local storage and session storage, which are browser storage features separate from cookies, to provide features and remember choices you request. We use no analytics tools, ads or pixels. Fonts are self-hosted. Google receives hosting and Firestore reaction requests, and beehiiv receives signup form requests, including IP addresses, as described in our [Privacy policy](/privacy/).
+Google Analytics 4 (GA4) measures visits, interactions and how readers find the site. Microsoft Clarity uses heatmaps and session recordings to show how readers click and scroll. Both tools and their cookies only run after you click Accept or enable Analytics and save in Cookie settings. Before acceptance, neither tool loads or sets cookies. Decline keeps both off. We remember your choice on this device and apply it on later visits.
+
+We set no cookies of our own. The beehiiv newsletter signup form loads only after Analytics acceptance and when a signup is shown, and can set the cookies listed below. Without acceptance, a link lets you subscribe on beehiiv's own site. We use local storage and session storage, which are browser storage features separate from cookies, to provide features and remember choices you request. Ads are not active yet. Fonts are self-hosted. Google receives hosting and Firestore reaction requests, and beehiiv receives accepted signup form requests, including IP addresses, as described in our [Privacy policy](/privacy/).
 
 ## Storage on your device
 
@@ -25,13 +27,15 @@ We set no cookies of our own. The beehiiv newsletter signup form, loaded only wh
 | `sr-react:<slug>:<key>` (local storage) | Remembers your reaction for an article | Necessary / functional | Until you remove the reaction or clear storage | Singularity Review |
 | `sr-consent` (local storage) | Records your cookie choices, version and decision time | Necessary / functional | Until cleared or replaced; a new version asks again | Singularity Review |
 | `sr-newsletter` (local storage) | Remembers dismissal or a submitted subscription on this device | Functional, reader choice | Dismissal suppresses for 30 days; submitted subscription suppresses until cleared. The record remains until cleared or replaced | Singularity Review |
+| `_ga`, `_ga_<measurement ID>` (cookies) | GA4 recognises browsers and sessions to measure visits, interactions and campaign sources | Analytics, only after Accept | Provider configuration determines expiry; clear through browser site data settings | Google |
+| `_clck`, `_clsk` and related provider cookies | Clarity recognises browsers and groups interactions into session recordings and heatmaps | Analytics, only after Accept | Provider configuration determines expiry; clear through browser site data settings | Microsoft |
 | Planned Google AdSense cookies and similar technologies | Advertising, measurement and personalisation according to choices | Advertising / Marketing | Planned, set by Google only after consent when ads are enabled; durations depend on Google's configuration | Google and advertising partners |
 | `bhv_<publication>_subscribed` (cookie) | Set by the beehiiv form after you sign up, so it does not ask again | Functional, reader choice | 1 year | beehiiv |
 | `bhv_attribution`, `attribution_data` (cookies) | Record how you arrived (campaign link or referring site) for newsletter attribution | Analytics | 30 days; removed by this site unless you accept Analytics | beehiiv |
 | Cookies inside the beehiiv form | Bot protection and security for signups, set on beehiiv's own domain | Necessary for the signup you request | Set by beehiiv and its security providers | beehiiv |
 | `sr-newsletter-session` (session storage) | Counts visible time across pages and remembers whether and when this tab has seen the prompt | Functional, prompt presentation | This tab's browsing session; browser session restore may preserve it | Singularity Review |
 
-Necessary storage is always available for these requested features. Analytics and marketing are off by default. No ads or analytics tools are active today. Marketing will map to personalised ads when advertising is enabled. Optional tools will have to respect your stored choices and the consent version.
+Necessary storage is always available for these requested features. Analytics and marketing are off by default. Google Analytics, Microsoft Clarity and beehiiv attribution use the Analytics choice. Marketing will map to personalised ads when advertising is enabled. Optional tools respect your stored choices and the consent version.
 
 ## Advertising category
 
@@ -45,7 +49,7 @@ A Google-certified CMP integrated with the IAB TCF is required before serving ad
 
 <button class="privacy-button" type="button" data-consent-open hidden>Cookie settings</button>
 
-You can use the Cookie settings control above or in the footer at any time without reloading. Choose Accept all, Reject all, or save individual settings. The three banner buttons have equal prominence. Closing settings without saving leaves your existing decision unchanged. Newsletter consent is given only by submitting the signup form; it is not granted by accepting cookie categories.
+You can open Cookie settings above or in the footer at any time. Choose Accept, Decline, or save individual settings. Turning Analytics off saves your choice and reloads the page so previously loaded tools stop running. Existing analytics cookies may remain until expiry; clear them through your browser's site data settings. Withdrawal does not erase data already sent. The three banner buttons have equal prominence. Closing settings without saving leaves your existing decision unchanged. Newsletter consent is given only by submitting the signup form; it is not granted by accepting cookie categories.
 
 ## How to clear storage
 

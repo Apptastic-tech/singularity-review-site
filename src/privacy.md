@@ -1,8 +1,8 @@
 ---
 layout: layouts/base.njk
 title: Privacy policy
-description: How Singularity Review handles newsletter signups through beehiiv, reactions and site preferences.
-updated: "2026-10-11T00:00:00Z"
+description: How Singularity Review handles consent, Google Analytics, Microsoft Clarity, newsletter signups and reactions.
+updated: "2026-10-15T00:00:00Z"
 permalink: /privacy/
 eleventyExcludeFromCollections: true
 ---
@@ -10,7 +10,7 @@ eleventyExcludeFromCollections: true
 
 # Privacy policy
 
-<p class="legal-version">Last updated 11 October 2026</p>
+<p class="legal-version">Last updated 15 October 2026</p>
 
 ## Who we are
 
@@ -18,13 +18,17 @@ Singularity Review is the publication name. The controller responsible for perso
 
 ## What we collect
 
-Newsletter signups are handled by beehiiv, our newsletter provider. The signup form on this site is a beehiiv embed form. It loads from beehiiv only when a signup is shown: when the newsletter prompt appears, or when you scroll near the signup in an article or the footer. When it loads, beehiiv receives your IP address, browser details and the address of the page you are reading, and runs bot protection inside the form. When you sign up, beehiiv collects the email address you enter, the time of your signup and the page where you signed up, and stores your subscription. This site no longer stores newsletter signups itself.
+Newsletter signups are handled by beehiiv, our newsletter provider. The signup form on this site is a beehiiv embed form. It loads from beehiiv only after you accept Analytics and a signup is shown: when the newsletter prompt appears, or when you scroll near the signup in an article or the footer. Otherwise a link lets you subscribe on beehiiv's own site. When the embed loads, beehiiv receives your IP address, browser details and the address of the page you are reading, and runs bot protection inside the form. When you sign up, beehiiv collects the email address you enter, the time of your signup and the page where you signed up, and stores your subscription. This site no longer stores newsletter signups itself.
 
 Reactions store aggregate counts against an article. Your own reaction choices are remembered on your device, without a site account or reader identifier in the reaction payload. Requests to load counts or change a reaction reach Google, which processes your IP address and request metadata. Counts normally load when the reaction block approaches the viewport, or on article load if that visibility feature is unavailable. We do not describe these requests as anonymous to Google.
 
 Google Firebase Hosting serves this site and may process IP addresses and request metadata in hosting and security logs. Device storage remembers your animation setting, reaction choices, cookie settings and newsletter prompt choice or signup. Session storage counts visible time across pages and records whether and when you have seen the prompt in the current tab. The [Cookie policy](/cookies/) lists those items.
 
-We use no analytics, advertising or pixels today. The only third-party script is the beehiiv signup form, loaded only when a signup is shown. After you sign up, beehiiv's script sets a cookie on this site so the form knows you have subscribed. beehiiv can also record how you arrived at the site (for example a campaign link or referring site) for newsletter attribution. We keep that attribution cookie, and load beehiiv's separate attribution script, only if you accept Analytics in Cookie settings; otherwise we remove it. Fonts are served from this site's /fonts directory.
+With your permission, we use Google Analytics 4 (GA4) and Microsoft Clarity to understand how readers use the site. GA4 measures page visits, interactions, device and browser details, and where readers arrive from, including campaign links. Clarity provides heatmaps and session recordings of clicks, scrolling and page interactions to help us improve the reading experience. Their providers receive usage and device information, including network request details, and can use cookies to recognise browsers and sessions.
+
+GA4 and Microsoft Clarity only load after you click Accept on the cookie pop-up or enable Analytics and save in Cookie settings. Before acceptance, neither tool loads, sends analytics requests or sets cookies. Decline keeps both off. A saved acceptance applies on later visits. Use Cookie settings in the footer to change your choice at any time. Turning Analytics off saves your choice and reloads the page to stop previously loaded tools. This does not erase data already sent to their providers. You can clear existing cookies through your browser's site data settings.
+
+After you sign up, beehiiv's script can set a cookie on this site so the form knows you have subscribed. beehiiv can also record how you arrived at the site (for example a campaign link or referring site) for newsletter attribution. We load beehiiv's separate attribution script only if you accept Analytics in Cookie settings; otherwise we remove its attribution cookies. Fonts are served from this site's /fonts directory. Ads are not active yet.
 
 ## Advertising
 
@@ -48,11 +52,13 @@ Exact cookies depend on Google's configuration and reader choices. No AdSense co
 
 We use your newsletter signup only to send the newsletter you asked for, and any confirmation email beehiiv sends on our behalf. The legal basis is your consent under Article 6(1)(a) of the GDPR, given when you submit the signup form. Signing up is separate from cookie settings. Rejecting optional cookie categories does not prevent a signup you request. Newsletter signup attribution relies on your Analytics choice.
 
-Hosting, security and providing the reactions feature rely on legitimate interests under Article 6(1)(f): operating a reliable publication, protecting it from abuse and letting readers react to articles. You can object to this processing. Necessary device storage supports features and choices you request. Analytics controls only beehiiv's optional signup attribution today. Marketing will control personalised advertising when planned ads are enabled; no ads are active yet.
+Hosting, security and providing the reactions feature rely on legitimate interests under Article 6(1)(f): operating a reliable publication, protecting it from abuse and letting readers react to articles. You can object to this processing. Necessary device storage supports features and choices you request. GA4, Microsoft Clarity and beehiiv's optional signup attribution rely on your Analytics consent under Article 6(1)(a). You can withdraw it through Cookie settings. Marketing will control personalised advertising when planned ads are enabled; no ads are active yet.
 
 ## Processors and international transfers
 
 Google Firebase / Google Cloud processes hosting requests and the Firestore reaction requests on our behalf. Firestore database location: [Firestore database location to confirm].
+
+Google provides GA4 and Microsoft provides Clarity. Read [Google's privacy policy](https://policies.google.com/privacy) and the [Microsoft privacy statement](https://privacy.microsoft.com/privacystatement) for their data practices. These analytics services receive data only after Analytics acceptance.
 
 beehiiv, Inc., based in the United States, is our newsletter processor. It provides the signup form, stores subscriber records and sends the newsletter. See [beehiiv's privacy policy](https://www.beehiiv.com/privacy) for its own practices. Processing terms: beehiiv's [Data Protection Addendum](https://www.beehiiv.com/dpa), which forms part of its Terms of Use, names us as controller and beehiiv as our processor, and includes the EU Standard Contractual Clauses (with the UK addendum and Swiss terms) for transfers to the United States. beehiiv lists its current sub-processors at [subprocessors.beehiiv.com](https://subprocessors.beehiiv.com/sub-processor-list).
 
@@ -63,6 +69,7 @@ Data may be processed outside your country, including outside the European Econo
 - Newsletter records are held by beehiiv: [Retention period for confirmed subscriptions and consent evidence]. We propose retaining an active subscription until you unsubscribe, then keeping only the consent evidence needed for [Retention period for consent evidence after unsubscribe]. These are proposals, not configured retention rules.
 - Unconfirmed signups: [retention period for unconfirmed signups, proposed 30 days]. Deletion after 30 days is proposed; no automatic deletion job exists yet.
 - Reaction counts: [Retention period for reaction counts]. Hosting and security logs: [Hosting and security log retention period to confirm].
+- GA4 and Clarity data retention depends on the settings of the configured provider projects. Their analytics cookies can remain until expiry or until you clear them, even after you turn Analytics off. See the [Cookie policy](/cookies/) for storage details.
 - Device preferences remain until you clear them, except that a newsletter dismissal suppresses the prompt for 30 days. Cookie decisions must be renewed when our consent version changes. Session storage lasts for the tab's browsing session. Browser session restore may preserve it.
 
 ## Your rights

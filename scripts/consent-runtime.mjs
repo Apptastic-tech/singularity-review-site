@@ -16,7 +16,7 @@ function surface() {
     focus() { this.document.activeElement = this; },
   };
 }
-function environment(options = {}) {
+export function environment(options = {}) {
   const window = surface(), document = surface();
   const clock = { time: 0, wall: Date.parse('2026-10-10T12:00:00Z') }, timers = new Map();
   let nextTimer = 0;
@@ -26,6 +26,13 @@ function environment(options = {}) {
   };
   const localStorage = storage(options.local), sessionStorage = storage(options.session);
   const requests = [], responses = [];
+  const vendorScripts = [], navigation = { reloads: 0 };
+  document.currentScript = { dataset: options.analyticsConfig || {} };
+  document.head = { appendChild(script) {
+    script.commandsAtInsertion = Array.from(window.dataLayer || [], command => Array.from(command));
+    script.clarityAtInsertion = Array.from(window.clarity?.q || [], command => Array.from(command));
+    vendorScripts.push(script);
+  } };
   const main = surface(), heading = surface(), banner = surface(), dialog = surface(), consentForm = surface();
   const closeSettings = surface(), open = surface(), accept = surface(), reject = surface();
   accept.dataset.consentChoice = 'accept'; reject.dataset.consentChoice = 'reject';
@@ -94,7 +101,7 @@ function environment(options = {}) {
     window, document, localStorage, sessionStorage, Date: ClockDate, URLSearchParams,
     matchMedia: () => ({ matches: options.reducedMotion === true }),
     performance: { now: () => clock.time }, crypto: webcrypto, TextEncoder, AbortController,
-    location: { hostname: options.hostname || 'localhost', search: options.search || '', pathname: options.pathname || '/' },
+    location: { hostname: options.hostname || 'localhost', search: options.search || '', pathname: options.pathname || '/', reload() { navigation.reloads++; } },
     CustomEvent: class { constructor(type, init) { this.type = type; this.detail = init?.detail; } },
     setTimeout(callback, delay) { const id = ++nextTimer; timers.set(id, { callback, at: clock.time + delay }); return id; },
     clearTimeout(id) { timers.delete(id); },
@@ -115,7 +122,7 @@ function environment(options = {}) {
   const embed = source => forms.find(value => value.dataset.source === source);
   const reveal = source => observers.intersection.forEach(observer => observer.reveal(embed(source)));
   const size = source => { embed(source).frame.iframe = { sized: true, contentWindow: { source } }; observers.mutation.forEach(observer => observer.fire()); };
-  return { window, document, run, advance, localStorage, sessionStorage, requests, responses, banner, dialog, consentForm, main, heading, open, accept, reject, closeSettings, prompt, promptHeading, promptClose, forms, placeholders, embed, reveal, size, cookieWrites };
+  return { window, document, run, advance, localStorage, sessionStorage, requests, responses, banner, dialog, consentForm, main, heading, open, accept, reject, closeSettings, prompt, promptHeading, promptClose, forms, placeholders, embed, reveal, size, cookieWrites, vendorScripts, navigation };
 }
 
 export async function verifyConsentRuntime({ consent, newsletter, fields, sentence }) {
@@ -161,7 +168,7 @@ export async function verifyConsentRuntime({ consent, newsletter, fields, senten
   timer.promptClose.emit('click'); timer.advance(100000);
   assert.equal(timer.prompt.hidden, true);
   assert.equal(JSON.parse(timer.localStorage.getItem('sr-newsletter')).state, 'dismissed');
-  const fresh = () => { const test = environment({ local: { 'sr-consent': JSON.stringify(record) } }); test.run(consent); test.run(newsletter); return test; };
+  const fresh = (analytics = false) => { const test = environment({ local: { 'sr-consent': JSON.stringify({ ...record, analytics }) } }); test.run(consent); test.run(newsletter); return test; };
   const overlapping = fresh(); overlapping.advance(61000);
   assert.equal(overlapping.prompt.hidden, false);
   overlapping.open.emit('click');
@@ -201,8 +208,24 @@ export async function verifyConsentRuntime({ consent, newsletter, fields, senten
   assert.equal(restored.prompt.hidden, false, 'A restored session can show again after the 30-day suppression expires');
   const loader = 'https://subscribe-forms.beehiiv.com/v3/loader.js', formId = 'e785ea2e-cba3-470a-8d47-87fb1c73e623';
   const scripts = (test, source) => test.embed(source).frame.scripts;
-  // Nothing loads from beehiiv until a signup is shown.
-  const lazy = fresh();
+  // No beehiiv requests or cookie writes before acceptance or after Decline,
+  // including inline slots, the timed prompt and the observer fallback.
+  for (const declined of [false, true]) {
+    const test = environment(); test.run(consent); test.run(newsletter);
+    if (declined) test.reject.emit('click');
+    for (const source of ['footer', 'article-end']) test.reveal(source);
+    test.advance(61000);
+    assert.equal(test.forms.flatMap(embed => embed.frame.scripts).length, 0);
+    assert.equal(test.requests.length, 0); assert.deepEqual(test.cookieWrites, []);
+    test.accept.emit('click');
+    assert.equal(scripts(test, 'footer').length, 1, 'Accept mounts an already approached signup');
+    assert.equal(scripts(test, 'article-end').length, 1);
+  }
+  const fallback = environment(); delete fallback.window.IntersectionObserver;
+  fallback.run(consent); fallback.run(newsletter);
+  assert.equal(fallback.forms.flatMap(embed => embed.frame.scripts).length, 0, 'No observer still requires acceptance');
+  // Accepted visitors still load only a signup that is shown or near view.
+  const lazy = fresh(true);
   for (const source of ['prompt', 'article-end', 'footer']) { assert.equal(scripts(lazy, source).length, 0, source + ': no loader before shown'); assert.equal(lazy.embed(source).dataset.state, 'idle'); }
   lazy.reveal('footer');
   assert.equal(scripts(lazy, 'footer').length, 1); assert.equal(scripts(lazy, 'article-end').length, 0); assert.equal(scripts(lazy, 'prompt').length, 0);
@@ -216,12 +239,12 @@ export async function verifyConsentRuntime({ consent, newsletter, fields, senten
   lazy.size('prompt'); assert.equal(lazy.embed('prompt').dataset.state, 'ready');
   // Footer never sized: falls back to the beehiiv page link after 10 seconds.
   assert.equal(lazy.embed('footer').dataset.state, 'fallback');
-  const slow = fresh(); slow.reveal('footer'); slow.embed('footer').frame.iframe = { sized: false, contentWindow: {} }; slow.advance(10000);
+  const slow = fresh(true); slow.reveal('footer'); slow.embed('footer').frame.iframe = { sized: false, contentWindow: {} }; slow.advance(10000);
   assert.equal(slow.embed('footer').dataset.state, 'slow', 'An unsized iframe stays visible beside the fallback link');
-  const failing = fresh(); failing.reveal('article-end'); scripts(failing, 'article-end')[0].emit('error');
+  const failing = fresh(true); failing.reveal('article-end'); scripts(failing, 'article-end')[0].emit('error');
   assert.equal(failing.embed('article-end').dataset.state, 'fallback');
   // Completed signup reported by the beehiiv iframe suppresses the prompt.
-  const signup = fresh(); signup.advance(61000); signup.size('prompt');
+  const signup = fresh(true); signup.advance(61000); signup.size('prompt');
   const frameWindow = signup.embed('prompt').frame.iframe.contentWindow;
   signup.window.emit('message', { origin: 'https://example.org', data: { type: 'beehiiv:submitted' }, source: frameWindow });
   assert.equal(signup.localStorage.getItem('sr-newsletter'), null, 'Other origins are ignored');
@@ -232,9 +255,9 @@ export async function verifyConsentRuntime({ consent, newsletter, fields, senten
   // Attribution cookies survive only with Analytics consent.
   for (const analytics of [false, true]) {
     const test = environment({ cookie: 'bhv_attribution=%7B%7D; other=1', local: { 'sr-consent': JSON.stringify({ ...record, analytics }) } });
-    test.run(consent); test.run(newsletter); test.reveal('footer'); scripts(test, 'footer')[0].emit('load');
+    test.run(consent); test.run(newsletter); test.reveal('footer'); scripts(test, 'footer')[0]?.emit('load');
     assert.deepEqual(test.cookieWrites, analytics ? [] : ['bhv_attribution=; Max-Age=0; path=/; SameSite=Lax']);
   }
-  const clean = fresh(); clean.reveal('footer'); scripts(clean, 'footer')[0].emit('load');
+  const clean = fresh(true); clean.reveal('footer'); scripts(clean, 'footer')[0].emit('load');
   assert.deepEqual(clean.cookieWrites, [], 'No cookie write when no attribution cookie exists');
 }
