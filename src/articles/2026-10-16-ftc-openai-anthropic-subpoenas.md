@@ -1,5 +1,5 @@
 ---
-title: "FTC subpoenas OpenAI and Anthropic: consumer protection meets AI safety incidents"
+title: "FTC demands OpenAI and Anthropic's files: consumer protection meets AI safety incidents"
 description: "Civil investigative demands landed at OpenAI and Anthropic on Wednesday. The FTC wants documents on safety incidents, safeguards, privacy, and marketing that may have misled consumers. Chair Ferguson rejects the 'agents act alone' story."
 date: 2026-10-16T14:10:00Z
 category: Policy
@@ -38,7 +38,7 @@ updated: "2026-10-16T14:10:00Z"
 section: news
 ---
 
-On Wednesday, October 15, 2026, the Federal Trade Commission put paper on the table. Civil investigative demands, the agency's formal document subpoenas, went to OpenAI and Anthropic. Axios broke the scoop. An FTC spokesperson confirmed the move to CBS News and The Hill. That sequence matters: first report, then on-the-record confirmation. What the FTC wants is not a press release. It wants files.
+On Wednesday, October 15, 2026, the Federal Trade Commission put paper on the table. Civil investigative demands, the agency's formal document subpoenas (legal orders to hand over documents), went to OpenAI and Anthropic. Axios broke the scoop. An FTC spokesperson confirmed the move to CBS News and The Hill. That sequence matters: first report, then on-the-record confirmation. What the FTC wants is not a press release. It wants files.
 
 ## What the CIDs are asking for
 
