@@ -1,6 +1,6 @@
 import { parseDocument } from 'htmlparser2';
 import { findAll, textContent } from 'domutils';
-import { sentenceTitle } from './editorial.js';
+
 
 export const slugify = value => String(value).toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 export const absolute = (url, site) => new URL(url || '/', site.url).href;
@@ -12,7 +12,7 @@ export const latestModified = items => items?.length ? isoDate(new Date(Math.max
 export function pageMetadata(data) {
   const { site, page, pagination, cat, person } = data;
   const number = (pagination?.pageNumber || 0) + 1;
-  let title = `${sentenceTitle(data.title)} | ${site.title}`;
+  let title = `${data.title} | ${site.title}`;
   let description = data.seoDescription || data.description;
   let type = 'WebPage';
   let updated = data.updated ? isoDate(data.updated) : undefined;
@@ -77,7 +77,7 @@ export function pageGraph(data, image) {
   }];
   const trail = [{ name: 'Singularity headline news', url: `${site.url}/` }];
   if (data.ogType === 'article') trail.push({ name: data.category, url: absolute(`/category/${slugify(data.category)}/`, site) });
-  if (page.url !== '/') trail.push({ name: data.homeFeed ? `Singularity headline news: Page ${(data.pagination?.pageNumber || 0) + 1}` : person?.name || sentenceTitle(data.title), url });
+  if (page.url !== '/') trail.push({ name: data.homeFeed ? `Singularity headline news: Page ${(data.pagination?.pageNumber || 0) + 1}` : person?.name || data.title, url });
   const breadcrumbId = `${url}#breadcrumb`;
   graph.push({
     '@type': 'BreadcrumbList', '@id': breadcrumbId,
@@ -107,7 +107,7 @@ export function pageGraph(data, image) {
     const newsId = `${url}#article`;
     webPage.mainEntity = ref(newsId);
     graph.push({
-      '@type': 'NewsArticle', '@id': newsId, headline: sentenceTitle(data.title), description: meta.description,
+      '@type': 'NewsArticle', '@id': newsId, headline: data.title, description: meta.description,
       image: [absolute(image || data.hero, site)],
       datePublished: isoDate(page.date), dateModified: isoDate(data.updated || page.date),
       author, publisher: ref(orgId), mainEntityOfPage: ref(webPage['@id']),

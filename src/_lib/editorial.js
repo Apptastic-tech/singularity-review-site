@@ -1,4 +1,4 @@
-// Normalize display headings while editors own article frontmatter.
+// Normalize non-article display headings. Article titles render exactly as written in frontmatter.
 // Preserve publication vocabulary and proper nouns, including possessives.
 export const properWords = new Set(['Claude', 'OpenAI', 'Wikimedia', 'Wikipedia', 'Europe', 'Washington', 'Mistral', 'Anthropic', 'Singularity', 'Review', 'Good', 'House', 'Britain', 'Microsoft', 'Maia', 'Meta', 'Muse', 'Wonder', 'Gemini', 'Argon']);
 export function sentenceTitle(value) {

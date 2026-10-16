@@ -5,7 +5,7 @@ import { parseDocument } from 'htmlparser2';
 import { findAll, textContent } from 'domutils';
 import { cssRules, styleAt } from './static-layout.mjs';
 import { publishedArticles, articleUrl } from './verification-helpers.mjs';
-import { sentenceTitle } from '../src/_lib/editorial.js';
+
 
 // Source and generated-file checks only. This script never starts a browser or server.
 const css = await fs.readFile('_site/css/style.css', 'utf8');
@@ -70,7 +70,7 @@ function checkGrid(dom, expected, heading, label) {
     const titles = byClass(links[0], 'story-block-title');
     assert.equal(titles.length, 1);
     assert.equal(titles[0].name, heading, `${label}: correct heading level`);
-    assert.equal(textContent(titles[0]), sentenceTitle(item.title));
+    assert.equal(textContent(titles[0]), item.title);
     const deks = byClass(body, 'story-block-dek');
     assert.equal(deks.length, 1);
     assert.equal(textContent(deks[0]), item.description);

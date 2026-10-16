@@ -4,7 +4,7 @@ import { parseDocument } from 'htmlparser2';
 import { findAll, textContent } from 'domutils';
 import { cssRules, styleAt, length } from './static-layout.mjs';
 import { publishedArticles, articleUrl } from './verification-helpers.mjs';
-import { sentenceTitle } from '../src/_lib/editorial.js';
+
 import { verifyCardRowRuntime } from './card-row-runtime.mjs';
 
 const css = await fs.readFile('_site/css/style.css', 'utf8');
@@ -50,7 +50,7 @@ function checkCards(root, expected, heading, sizes, eager = true) {
     assert.equal(textContent(date), item.date.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }));
     assert.equal(title.name, heading);
     assert.ok(hasClass(title, 'post-card-title'));
-    assert.equal(textContent(title), sentenceTitle(item.title));
+    assert.equal(textContent(title), item.title);
     assert.ok(hasClass(excerpt, 'post-card-excerpt'));
     assert.equal(textContent(excerpt), item.description);
     const links = nodes(card).filter(node => node.name === 'a');

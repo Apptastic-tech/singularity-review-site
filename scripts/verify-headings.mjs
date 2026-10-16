@@ -7,6 +7,7 @@ import { properWords } from '../src/_lib/editorial.js';
 import { parseDocument } from 'htmlparser2';
 import { findAll, textContent } from 'domutils';
 const names = [...experts.map(x => x.name), ...orgs.map(x => x.name), ...(await publishedArticles(process.cwd())).map(x => x.author)].filter(Boolean);
+const articleTitles = new Set((await publishedArticles(process.cwd())).map(x => String(x.title || '').trim()));
 export function sentenceHeading(text) {
   for (const name of names) text = text.replaceAll(name, 'name');
   return [...text.matchAll(/\b[A-Z][a-z]+\b/g)].every(x => x.index === 0 || properWords.has(x[0]));
@@ -21,6 +22,7 @@ for (const file of (await fs.readdir('_site', { recursive: true })).filter(x => 
   const dom = parseDocument(html);
   for (const heading of findAll(node => node.type === 'tag' && /^h[123]$/.test(node.name), dom.children)) {
     const text = textContent(heading).replace(/\s+/g, ' ').trim();
+    if (articleTitles.has(text)) continue; // article titles render exactly as written
     assert.ok(sentenceHeading(text), `${file}: sentence case: ${text}`);
   }
 }

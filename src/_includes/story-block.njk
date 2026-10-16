@@ -5,7 +5,7 @@
   <div class="story-block-body">
     <a class="story-block-category" href="/category/{{ item.data.category | slugify }}/">{{ item.data.category }}</a>
     <a class="story-block-link" href="{{ item.url }}" data-story-link>
-      <{{ storyHeading or "h2" }} class="story-block-title">{{ item.data.title | sentenceTitle }}</{{ storyHeading or "h2" }}>
+      <{{ storyHeading or "h2" }} class="story-block-title">{{ item.data.title }}</{{ storyHeading or "h2" }}>
     </a>
     <p class="story-block-dek">{{ item.data.description }}</p>
     <time class="story-block-date" datetime="{{ item.date | isoDate }}">{{ item.date | readableDate }}</time>
