@@ -21,7 +21,7 @@ layout: layouts/base.njk
     <ul>{% for takeaway in takeaways %}<li>{{ takeaway }}</li>{% endfor %}</ul>
   </section>{% endif %}
   <figure class="article-hero" data-article-hero>
-    {% picture hero, heroAlt, "(min-width: 1440px) 1440px, 100vw", "eager", "high", "hero-image", title %}
+    {% picture hero, heroAlt, "(min-width: 800px) 760px, calc(100vw - 40px)", "eager", "high", "hero-image", title %}
     {% if heroCaption %}<figcaption>{{ heroCaption }}</figcaption>{% endif %}
   </figure>
   <div class="prose reading-width article-body">{{ content | articleAds(site.adsense, adSlot("articleA", site), adSlot("articleB", site)) | safe }}</div>

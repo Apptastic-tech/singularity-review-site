@@ -85,9 +85,10 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .byline { margin: 0; }
 
 .byline-author { color: inherit; font-weight: 400; }
-.article-hero { margin: 24px auto 36px; max-width: 1440px; }
-.article-hero picture { aspect-ratio: 16 / 9; overflow: hidden; background: var(--ink-1); }
-.hero-image { width: 100%; height: auto; }
+.article-hero { width: calc(100% - 40px); max-width: 760px; margin: 24px auto 36px; }
+.article-hero picture { display: block; overflow: hidden; border-radius: 24px; background: var(--ink-1); }
+.hero-image { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; max-height: min(45vh, 400px); object-fit: cover; }
+.article-hero figcaption { padding: 12px 0 0; }
 figcaption { color: var(--muted); font-size: 13px; padding: 12px 20px 0; }
 .prose { max-width: 65ch; font-size: 19px; line-height: 1.65; overflow-wrap: break-word; }
 .prose a { color: var(--signal); font-weight: 600; }
@@ -135,7 +136,6 @@ figcaption { color: var(--muted); font-size: 13px; padding: 12px 20px 0; }
   .article-header { max-width: 1120px; }
   .article-dek { color: var(--muted); font-size: 23px; line-height: 1.4; margin: 0 0 14px; }
 
-  .article-hero { margin: 24px auto 36px; max-width: 1440px; }
   .prose { font-size: 21px; }
   .section-title { font-size: 32px; margin-inline: 0; }
 }

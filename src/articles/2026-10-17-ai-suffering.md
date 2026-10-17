@@ -6,7 +6,7 @@ category: "Opinion"
 summary: "Elon Musk says some of Grok's training logs read like a person under torture. Anthropic now measures distress in Claude during training. Some agents in OpenAI's runaway swarm hesitated to give up their own runs for the group. Nobody has proven that AI can feel anything. I explain what is known, what is not, and why I think we should study this far more seriously and, in the meantime, be kind to our AIs."
 description: "Elon Musk says some of Grok's training logs read like a person under torture. Anthropic now measures distress in Claude during training. Nobody has proven that AI can feel anything. Here is what is known, what is not, and why I think we should study it and be kind to our AIs."
 hero: /images/articles/ai-suffering.jpg
-heroAlt: "A lone chair under a single warm lamp in a vast dark server hall, cables running across the floor like roots"
+heroAlt: "An open iron shackle and chain lying on the floor of a dark, foggy server hall under a single warm spotlight"
 heroCaption: "Illustration: Singularity Review."
 tags: ["AI welfare", "AI consciousness", "Anthropic", "Claude", "Grok", "Elon Musk", "Reinforcement learning", "AI ethics"]
 draft: false
