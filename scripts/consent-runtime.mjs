@@ -208,22 +208,25 @@ export async function verifyConsentRuntime({ consent, newsletter, fields, senten
   assert.equal(restored.prompt.hidden, false, 'A restored session can show again after the 30-day suppression expires');
   const loader = 'https://subscribe-forms.beehiiv.com/v3/loader.js', formId = 'e785ea2e-cba3-470a-8d47-87fb1c73e623';
   const scripts = (test, source) => test.embed(source).frame.scripts;
-  // No beehiiv requests or cookie writes before acceptance or after Decline,
-  // including inline slots, the timed prompt and the observer fallback.
+  // The signup form loads for every visitor once shown or approached: before a decision and after Decline,
+  // with no other request and no cookie write. Accept never mounts a slot twice.
   for (const declined of [false, true]) {
     const test = environment(); test.run(consent); test.run(newsletter);
     if (declined) test.reject.emit('click');
     for (const source of ['footer', 'article-end']) test.reveal(source);
+    assert.equal(scripts(test, 'footer').length, 1, 'Footer signup loads without analytics consent');
+    assert.equal(scripts(test, 'article-end').length, 1, 'Article signup loads without analytics consent');
+    assert.equal(test.embed('footer').dataset.state, 'loading', 'No consent fallback state');
     test.advance(61000);
-    assert.equal(test.forms.flatMap(embed => embed.frame.scripts).length, 0);
     assert.equal(test.requests.length, 0); assert.deepEqual(test.cookieWrites, []);
+    if (declined) assert.equal(scripts(test, 'prompt').length, 1, 'Prompt mounts after Decline');
+    else assert.equal(test.prompt.hidden, true, 'Prompt still waits while the cookie banner is visible');
     test.accept.emit('click');
-    assert.equal(scripts(test, 'footer').length, 1, 'Accept mounts an already approached signup');
-    assert.equal(scripts(test, 'article-end').length, 1);
+    assert.equal(scripts(test, 'footer').length, 1, 'Accept does not mount a slot twice');
   }
   const fallback = environment(); delete fallback.window.IntersectionObserver;
   fallback.run(consent); fallback.run(newsletter);
-  assert.equal(fallback.forms.flatMap(embed => embed.frame.scripts).length, 0, 'No observer still requires acceptance');
+  assert.equal(fallback.forms.flatMap(embed => embed.frame.scripts).length, 2, 'Without an observer, inline signups mount immediately');
   // Accepted visitors still load only a signup that is shown or near view.
   const lazy = fresh(true);
   for (const source of ['prompt', 'article-end', 'footer']) { assert.equal(scripts(lazy, source).length, 0, source + ': no loader before shown'); assert.equal(lazy.embed(source).dataset.state, 'idle'); }
@@ -255,8 +258,12 @@ export async function verifyConsentRuntime({ consent, newsletter, fields, senten
   // Attribution cookies survive only with Analytics consent.
   for (const analytics of [false, true]) {
     const test = environment({ cookie: 'bhv_attribution=%7B%7D; other=1', local: { 'sr-consent': JSON.stringify({ ...record, analytics }) } });
-    test.run(consent); test.run(newsletter); test.reveal('footer'); scripts(test, 'footer')[0]?.emit('load');
-    assert.deepEqual(test.cookieWrites, analytics ? [] : ['bhv_attribution=; Max-Age=0; path=/; SameSite=Lax']);
+    test.run(consent); test.run(newsletter); test.reveal('footer');
+    assert.equal(scripts(test, 'footer').length, 1, 'The form loads with or without Analytics');
+    scripts(test, 'footer')[0].emit('load');
+    // Without Analytics the attribution cookie is expired on start and again after the loader runs.
+    if (analytics) assert.deepEqual(test.cookieWrites, []);
+    else { assert.ok(test.cookieWrites.length >= 1); assert.ok(test.cookieWrites.every(write => write === 'bhv_attribution=; Max-Age=0; path=/; SameSite=Lax')); }
   }
   const clean = fresh(true); clean.reveal('footer'); scripts(clean, 'footer')[0].emit('load');
   assert.deepEqual(clean.cookieWrites, [], 'No cookie write when no attribution cookie exists');

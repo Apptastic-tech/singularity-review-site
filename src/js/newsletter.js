@@ -3,12 +3,13 @@
   const NEWSLETTER_DISMISS_MS = 30 * 24 * 60 * 60 * 1000;
   const NEWSLETTER_KEY = 'sr-newsletter';
   const SESSION_KEY = 'sr-newsletter-session';
-  // Signups are handled by the beehiiv embed form. Its loader is fetched only when a signup is shown.
+  // Signups are handled by the beehiiv embed form for every visitor. Its loader is fetched only when a signup is shown or near view.
   const BEEHIIV_ORIGIN = 'https://subscribe-forms.beehiiv.com';
   const BEEHIIV_LOADER = BEEHIIV_ORIGIN + '/v3/loader.js';
   const BEEHIIV_FORM = 'e785ea2e-cba3-470a-8d47-87fb1c73e623';
   const EMBED_TIMEOUT_MS = 10000;
-  // First-party attribution cookies written by the beehiiv loader or attribution.js. Kept only with analytics consent.
+  // First-party attribution cookies written by the beehiiv loader or attribution.js. Kept only with analytics consent;
+  // attribution.js itself stays an inert data-consent="analytics" placeholder handled by consent.js.
   const ATTRIBUTION_COOKIES = ['bhv_attribution', 'attribution_data'];
   const prompt = document.querySelector('[data-newsletter-prompt]');
   const announcement = document.querySelector('[data-newsletter-announcement]');
@@ -24,7 +25,6 @@
   clearAttribution();
   const mount = embed => {
     if (!embed || (embed.dataset.state && embed.dataset.state !== 'idle')) return;
-    if (!analyticsGranted()) { embed.dataset.state = 'fallback'; return; }
     embed.dataset.state = 'loading';
     const frame = embed.querySelector('[data-newsletter-frame]');
     const ready = () => {
@@ -98,7 +98,7 @@
     clearTimeout(timer);
     if (seen && shownAt !== null && Date.now() - shownAt >= NEWSLETTER_DISMISS_MS) seen = false;
     persistSession();
-    if (document.hidden || excludedPage || suppressed() || seen || !window.srConsent.get() ||
+    if (document.hidden || excludedPage || suppressed() || seen ||
       consentVisible() || document.documentElement.classList.contains('menu-open')) {
       // Retry while a dialog or mobile menu is open, without stealing focus.
       if (!document.hidden && !excludedPage && !seen && !suppressed()) timer = setTimeout(tick, 1000);
@@ -139,7 +139,7 @@
     if (!event.persisted) return;
     preference = read('localStorage', NEWSLETTER_KEY);
     visibleSince = document.hidden ? null : performance.now();
-    if (suppressed() || !window.srConsent.get()) hidePrompt();
+    if (suppressed() || consentVisible()) hidePrompt();
     tick();
   });
   window.addEventListener('storage', event => {
@@ -156,10 +156,6 @@
   window.srConsent.onChange(value => {
     if (!value || consentVisible()) hidePrompt();
     clearAttribution();
-    if (analyticsGranted()) {
-      // Only slots already shown or approached may load after a later Accept.
-      embeds.filter(embed => embed.dataset.state === 'fallback').forEach(embed => { embed.dataset.state = 'idle'; mount(embed); });
-    }
     tick();
   });
   // beehiiv reports a completed signup from its own iframe; remember it so the prompt stays away.
@@ -167,6 +163,7 @@
     if (event.origin !== BEEHIIV_ORIGIN || event.data?.type !== 'beehiiv:submitted') return;
     if (!embeds.some(embed => embed.querySelector('iframe')?.contentWindow === event.source)) return;
     remember('subscribed');
+    clearAttribution();
     clearTimeout(timer);
   });
   tick();

@@ -33,7 +33,7 @@ This is [Google's basic consent mode](https://developers.google.com/tag-platform
 
 Turning Analytics off, clearing the saved decision in another tab, or restoring a page with a withdrawn decision disables GA4 collection, signals denied consent to loaded tools and reloads the page. Reload discards running libraries and pending loads so cookieless tracking does not continue in a denied mode. Already transmitted data is not erased, and existing vendor cookies may remain until expiry or browser removal. Opening or closing settings alone does not reload. The reload also stops previously activated beehiiv attribution and embeds.
 
-The beehiiv embed loader now requires Analytics acceptance as well as a visible or approached signup. Without acceptance, the signup link remains available on beehiiv's own site. This prevents the embed from making third-party script requests or setting cookies before acceptance or after Decline. The newsletter prompt can still present that link after a decision, with the same timing and exclusive popup rules.
+The beehiiv embed loader no longer depends on cookie consent: it loads for every visitor when a signup is visible or approached, because a signup is a service the reader requests. Attribution stays consent-gated: attribution.js remains an inert Analytics placeholder, and without Analytics consent newsletter.js expires the bhv_attribution and attribution_data cookies. The newsletter prompt keeps the same timing and never appears while the cookie banner or settings dialog is visible.
 
 ## Advertising and regional CMP requirement
 

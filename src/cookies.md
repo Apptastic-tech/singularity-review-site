@@ -19,7 +19,7 @@ Google Analytics 4 (GA4) measures visits, interactions and how readers find the 
 
 Cloudflare Web Analytics is cookieless and always on. It does not set cookies and does not wait for Analytics acceptance.
 
-We set no cookies of our own. The beehiiv newsletter signup form loads only after Analytics acceptance and when a signup is shown, and can set the cookies listed below. Without acceptance, a link lets you subscribe on beehiiv's own site. We use local storage and session storage, which are browser storage features separate from cookies, to provide features and remember choices you request. Ads are not active yet. Fonts are self-hosted. Google receives hosting and Firestore reaction requests, and beehiiv receives accepted signup form requests, including IP addresses, as described in our [Privacy policy](/privacy/).
+We set no cookies of our own. The beehiiv newsletter signup form loads when a signup is shown, whatever your cookie choices, and can set the cookies listed below. Its attribution cookies are removed unless you accept Analytics. If the form cannot load, a link lets you subscribe on beehiiv's own site. We use local storage and session storage, which are browser storage features separate from cookies, to provide features and remember choices you request. Ads are not active yet. Fonts are self-hosted. Google receives hosting and Firestore reaction requests, and beehiiv receives signup form requests, including IP addresses, as described in our [Privacy policy](/privacy/).
 
 ## Storage on your device
 
