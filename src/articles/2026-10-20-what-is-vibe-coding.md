@@ -77,7 +77,7 @@ draft: false
 
 *Editor's note: Many of our readers had not heard about vibe coding, also called agentic coding, so our editors felt it was important to bring it to our readers' attention. It is changing how software is made and how we live, and keeping our readers informed is our mission. That is why we prepared this piece.*
 
-When we asked about vibe coding in a poll on our Telegram channel, about 1,900 people voted, and 30 percent of them picked the same answer: "What is vibe coding?" That is a fair question, and an important one. The idea has gone from a joke on social media to the normal way software gets built at some of the largest companies in the world in under two years. Most people outside the industry have barely noticed.
+When we asked about vibe coding in a [poll on our Telegram channel](https://t.me/singularityreview/54), 30 percent of those who voted picked the same answer: "What is vibe coding?" That is a fair question, and an important one. The idea has gone from a joke on social media to the normal way software gets built at some of the largest companies in the world in under two years. Most people outside the industry have barely noticed.
 
 ## What vibe coding is
 
