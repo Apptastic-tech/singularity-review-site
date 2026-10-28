@@ -14,7 +14,7 @@ eleventyExcludeFromCollections: true
 
 ## Who we are
 
-Singularity Review is the publication name. The controller responsible for personal data is [Company legal name], at [Registered address], established in [Country of establishment]. Contact: [Contact email]. Data protection officer: [Data protection officer, if any]. These bracketed details need confirmation before this draft is published as a final policy.
+Singularity Review is the publication name. The controller responsible for personal data is Apptastic Tech Sp. z o.o., at Marsz. Józefa Piłsudskiego 74/320, 50-020 Wrocław, established in Poland. Contact: [ararat@apptastic.mobi](mailto:ararat@apptastic.mobi). Data protection officer: [TODO: data protection officer, if any].
 
 ## What we collect
 
@@ -58,35 +58,35 @@ Hosting, security and providing the reactions feature rely on legitimate interes
 
 ## Processors and international transfers
 
-Google Firebase / Google Cloud processes hosting requests and the Firestore reaction requests on our behalf. Firestore database location: [Firestore database location to confirm].
+Google Firebase / Google Cloud processes hosting requests and the Firestore reaction requests on our behalf. Firestore database location: [TODO: Firestore database location].
 
 Google provides GA4 and Microsoft provides Clarity. Read [Google's privacy policy](https://policies.google.com/privacy) and the [Microsoft privacy statement](https://privacy.microsoft.com/privacystatement) for their data practices. These analytics services receive data only after Analytics acceptance.
 
 beehiiv, Inc., based in the United States, is our newsletter processor. It provides the signup form, stores subscriber records and sends the newsletter. See [beehiiv's privacy policy](https://www.beehiiv.com/privacy) for its own practices. Processing terms: beehiiv's [Data Protection Addendum](https://www.beehiiv.com/dpa), which forms part of its Terms of Use, names us as controller and beehiiv as our processor, and includes the EU Standard Contractual Clauses (with the UK addendum and Swiss terms) for transfers to the United States. beehiiv lists its current sub-processors at [subprocessors.beehiiv.com](https://subprocessors.beehiiv.com/sub-processor-list).
 
-Data may be processed outside your country, including outside the European Economic Area. Google offers safeguards including the EU-US Data Privacy Framework for eligible transfers and Standard Contractual Clauses. The applicable Google entity, contracts, processing locations and transfer mechanism for this service must be confirmed before launch: [Google contracting entity and applicable transfer safeguards to confirm]. beehiiv also processes newsletter data in the United States under the safeguards in its Data Protection Addendum.
+Data may be processed outside your country, including outside the European Economic Area. Google offers safeguards including the EU-US Data Privacy Framework for eligible transfers and Standard Contractual Clauses. The applicable Google entity, contracts, processing locations and transfer mechanism for this service must be confirmed before launch: [TODO: Google contracting entity and transfer safeguards]. beehiiv also processes newsletter data in the United States under the safeguards in its Data Protection Addendum.
 
 ## Retention
 
-- Newsletter records are held by beehiiv: [Retention period for confirmed subscriptions and consent evidence]. We propose retaining an active subscription until you unsubscribe, then keeping only the consent evidence needed for [Retention period for consent evidence after unsubscribe]. These are proposals, not configured retention rules.
-- Unconfirmed signups: [retention period for unconfirmed signups, proposed 30 days]. Deletion after 30 days is proposed; no automatic deletion job exists yet.
-- Reaction counts: [Retention period for reaction counts]. Hosting and security logs: [Hosting and security log retention period to confirm].
+- Newsletter records are held by beehiiv: [TODO: retention period for confirmed subscriptions and consent evidence]. We propose retaining an active subscription until you unsubscribe, then keeping only the consent evidence needed for [TODO: retention period for consent evidence after unsubscribe]. These are proposals, not configured retention rules.
+- Unconfirmed signups: [TODO: retention period for unconfirmed signups, proposed 30 days]. Deletion after 30 days is proposed; no automatic deletion job exists yet.
+- Reaction counts: [TODO: retention period for reaction counts]. Hosting and security logs: [TODO: hosting and security log retention period].
 - GA4 and Clarity data retention depends on the settings of the configured provider projects. Their analytics cookies can remain until expiry or until you clear them, even after you turn Analytics off. See the [Cookie policy](/cookies/) for storage details.
 - Device preferences remain until you clear them, except that a newsletter dismissal suppresses the prompt for 30 days. Cookie decisions must be renewed when our consent version changes. Session storage lasts for the tab's browsing session. Browser session restore may preserve it.
 
 ## Your rights
 
-Where the GDPR applies, you have rights to access your personal data, correct it, request erasure, restrict processing, receive portable data where applicable and object to processing based on legitimate interests. You can withdraw newsletter consent anytime; withdrawal does not affect the lawfulness of earlier processing. Every newsletter includes an unsubscribe link, or you can contact [Contact email].
+Where the GDPR applies, you have rights to access your personal data, correct it, request erasure, restrict processing, receive portable data where applicable and object to processing based on legitimate interests. You can withdraw newsletter consent anytime; withdrawal does not affect the lawfulness of earlier processing. Every newsletter includes an unsubscribe link, or you can contact [ararat@apptastic.mobi](mailto:ararat@apptastic.mobi).
 
-You can complain to [Supervisory authority] or the competent data protection authority where you live, work or believe an infringement occurred.
+You can complain to the President of the Personal Data Protection Office in Poland (Prezes Urzędu Ochrony Danych Osobowych, UODO, [uodo.gov.pl](https://uodo.gov.pl)) or the competent data protection authority where you live, work or believe an infringement occurred.
 
 ## How to exercise your rights
 
-Write to [Contact email] with your request. For newsletter data, give the email address you used. We may ask for proportionate information to verify ownership of that address. Local device preferences can be removed in your browser; clearing them does not delete a newsletter record held by beehiiv or aggregate reaction counts stored in Firestore.
+Write to [ararat@apptastic.mobi](mailto:ararat@apptastic.mobi) with your request. For newsletter data, give the email address you used. We may ask for proportionate information to verify ownership of that address. Local device preferences can be removed in your browser; clearing them does not delete a newsletter record held by beehiiv or aggregate reaction counts stored in Firestore.
 
 ## Children
 
-The newsletter is intended for adults. Please do not sign up if you are under 18. We do not intentionally solicit children's newsletter data. If you believe a child has provided an email address, contact [Contact email] so we can investigate and arrange deletion.
+The newsletter is intended for adults. Please do not sign up if you are under 18. We do not intentionally solicit children's newsletter data. If you believe a child has provided an email address, contact [ararat@apptastic.mobi](mailto:ararat@apptastic.mobi) so we can investigate and arrange deletion.
 
 ## Changes
 

@@ -18,13 +18,13 @@ These terms apply when you read or use Singularity Review. By using the site, yo
 
 ## Who we are
 
-Singularity Review is operated by [Company legal name], at [Registered address], established in [Country of establishment]. Contact [Contact email]. These details remain draft placeholders until confirmed by the operator.
+Singularity Review is operated by Apptastic Tech Sp. z o.o., at Marsz. Józefa Piłsudskiego 74/320, 50-020 Wrocław, established in Poland. Contact [ararat@apptastic.mobi](mailto:ararat@apptastic.mobi).
 
 ## Use of content
 
 Our articles and original material are protected by copyright. You may read them and retain a copy for your personal, non-commercial use. You may quote short passages with clear attribution to Singularity Review, the author's name where given, and a link to the original article. This permission does not cover reproducing full articles, selling our material or presenting it as your own. Statutory exceptions and other rights provided by applicable law remain available.
 
-Third-party photographs, quotations and other material may have separate rights and licence conditions. Follow the credit or licence provided with that material. Contact [Contact email] about broader reuse or permissions.
+Third-party photographs, quotations and other material may have separate rights and licence conditions. Follow the credit or licence provided with that material. Contact [ararat@apptastic.mobi](mailto:ararat@apptastic.mobi) about broader reuse or permissions.
 
 ## User submissions and newsletter
 
@@ -38,7 +38,7 @@ Our reporting, analysis and opinion provide general information. They are not in
 
 ## Accuracy and corrections
 
-We aim to report accurately and distinguish sourced claims from interpretation. Articles can become outdated and mistakes can occur. We do not guarantee that every statement remains complete or current. Send errors to [Contact email] with the article URL and supporting information. Our [Editorial standards](/editorial-standards/) explain corrections and opinion labelling.
+We aim to report accurately and distinguish sourced claims from interpretation. Articles can become outdated and mistakes can occur. We do not guarantee that every statement remains complete or current. Send errors to [ararat@apptastic.mobi](mailto:ararat@apptastic.mobi) with the article URL and supporting information. Our [Editorial standards](/editorial-standards/) explain corrections and opinion labelling.
 
 ## Third-party links and advertising
 
@@ -54,12 +54,12 @@ We may update these terms when the publication or its services change. The date 
 
 ## Governing law and jurisdiction
 
-[Governing law and jurisdiction]
+[TODO: governing law and jurisdiction]
 
 The operator must confirm this detail before the terms are final. Any governing-law provision remains subject to mandatory rights and jurisdiction rules that apply to you.
 
 ## Contact
 
-For questions about these terms or content permissions, write to [Contact email] or [Company legal name] at [Registered address]. Our [Contact page](/contact/) also covers corrections, privacy requests and advertising enquiries.
+For questions about these terms or content permissions, write to [ararat@apptastic.mobi](mailto:ararat@apptastic.mobi) or Apptastic Tech Sp. z o.o. at Marsz. Józefa Piłsudskiego 74/320, 50-020 Wrocław, Poland. Our [Contact page](/contact/) also covers corrections, privacy requests and advertising enquiries.
 
 </div>

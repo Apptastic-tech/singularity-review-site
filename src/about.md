@@ -21,7 +21,7 @@ We follow new AI models, the systems trained to produce responses or solve tasks
 
 ## Who runs Singularity Review
 
-The publication is operated by [Company legal name], established in [Country of establishment]. The founder and editor is [Founder and editor name]. These operator and editor details are awaiting confirmation.
+The publication is operated by Apptastic Tech Sp. z o.o., established in Poland. The founder and editor is [TODO: founder and editor name].
 
 ## How we publish
 
@@ -29,7 +29,7 @@ Singularity headline news follows model releases, research and policy developmen
 
 ## Contact the publication
 
-Write to [Contact email] for questions, corrections, privacy requests or advertising enquiries. Include an article link when your message concerns a story. Our [Contact page](/contact/) explains what to include and lists the postal address. Read our [Privacy policy](/privacy/), [Cookie policy](/cookies/) and [Terms of use](/terms/) for information about data and use of the site.
+Write to [ararat@apptastic.mobi](mailto:ararat@apptastic.mobi) for questions, corrections, privacy requests or advertising enquiries. Include an article link when your message concerns a story. Our [Contact page](/contact/) explains what to include and lists the postal address. Read our [Privacy policy](/privacy/), [Cookie policy](/cookies/) and [Terms of use](/terms/) for information about data and use of the site.
 
 ## Sections
 
