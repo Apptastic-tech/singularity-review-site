@@ -14,7 +14,7 @@ eleventyExcludeFromCollections: true
 
 ## Who we are
 
-Singularity Review is the publication name. The controller responsible for personal data is Apptastic Tech Sp. z o.o., at Marsz. Józefa Piłsudskiego 74/320, 50-020 Wrocław, established in Poland. Contact: [ararat@apptastic.mobi](mailto:ararat@apptastic.mobi). Data protection officer: [TODO: data protection officer, if any].
+Singularity Review is the publication name. The controller responsible for personal data is Apptastic Tech Sp. z o.o., at Marsz. Józefa Piłsudskiego 74/320, 50-020 Wrocław, established in Poland. Contact: [ararat@apptastic.mobi](mailto:ararat@apptastic.mobi). Privacy contact: Ararat Ovsepian, [ararat@apptastic.mobi](mailto:ararat@apptastic.mobi).
 
 ## What we collect
 
@@ -58,19 +58,19 @@ Hosting, security and providing the reactions feature rely on legitimate interes
 
 ## Processors and international transfers
 
-Google Firebase / Google Cloud processes hosting requests and the Firestore reaction requests on our behalf. Firestore database location: [TODO: Firestore database location].
+Google Firebase / Google Cloud processes hosting requests and the Firestore reaction requests on our behalf. Firestore database location: europe-west1 (Belgium), as shown in the Firebase project configuration.
 
 Google provides GA4 and Microsoft provides Clarity. Read [Google's privacy policy](https://policies.google.com/privacy) and the [Microsoft privacy statement](https://privacy.microsoft.com/privacystatement) for their data practices. These analytics services receive data only after Analytics acceptance.
 
 beehiiv, Inc., based in the United States, is our newsletter processor. It provides the signup form, stores subscriber records and sends the newsletter. See [beehiiv's privacy policy](https://www.beehiiv.com/privacy) for its own practices. Processing terms: beehiiv's [Data Protection Addendum](https://www.beehiiv.com/dpa), which forms part of its Terms of Use, names us as controller and beehiiv as our processor, and includes the EU Standard Contractual Clauses (with the UK addendum and Swiss terms) for transfers to the United States. beehiiv lists its current sub-processors at [subprocessors.beehiiv.com](https://subprocessors.beehiiv.com/sub-processor-list).
 
-Data may be processed outside your country, including outside the European Economic Area. Google offers safeguards including the EU-US Data Privacy Framework for eligible transfers and Standard Contractual Clauses. The applicable Google entity, contracts, processing locations and transfer mechanism for this service must be confirmed before launch: [TODO: Google contracting entity and transfer safeguards]. beehiiv also processes newsletter data in the United States under the safeguards in its Data Protection Addendum.
+Data may be processed outside your country, including outside the European Economic Area. Google processes this data as our processor under the [Firebase Data Processing and Security Terms](https://firebase.google.com/terms/data-processing-terms). Those terms name Google LLC, Google Ireland Limited or another Google affiliate as the contracting party, as applicable. [TODO: confirm the Google contracting entity for our account]. For transfers outside the EEA to countries without an adequacy decision, the terms rely on Google's certification under the EU-US Data Privacy Framework and, where that is not available, the EU Standard Contractual Clauses. beehiiv also processes newsletter data in the United States under the safeguards in its Data Protection Addendum.
 
 ## Retention
 
 - Newsletter records are held by beehiiv: [TODO: retention period for confirmed subscriptions and consent evidence]. We propose retaining an active subscription until you unsubscribe, then keeping only the consent evidence needed for [TODO: retention period for consent evidence after unsubscribe]. These are proposals, not configured retention rules.
-- Unconfirmed signups: [TODO: retention period for unconfirmed signups, proposed 30 days]. Deletion after 30 days is proposed; no automatic deletion job exists yet.
-- Reaction counts: [TODO: retention period for reaction counts]. Hosting and security logs: [TODO: hosting and security log retention period].
+- Unconfirmed signups: 30 days.
+- Reaction counts: [TODO: retention period for reaction counts]. Hosting, server and security logs: 12 months.
 - GA4 and Clarity data retention depends on the settings of the configured provider projects. Their analytics cookies can remain until expiry or until you clear them, even after you turn Analytics off. See the [Cookie policy](/cookies/) for storage details.
 - Device preferences remain until you clear them, except that a newsletter dismissal suppresses the prompt for 30 days. Cookie decisions must be renewed when our consent version changes. Session storage lasts for the tab's browsing session. Browser session restore may preserve it.
 

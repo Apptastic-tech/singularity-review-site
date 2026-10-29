@@ -14,7 +14,7 @@ eleventyExcludeFromCollections: true
 
 ## Who runs the publication
 
-Singularity Review is the publication name. Its operator is Apptastic Tech Sp. z o.o., established in Poland. Contact: [ararat@apptastic.mobi](mailto:ararat@apptastic.mobi).
+Singularity Review is the publication name. Its operator is Apptastic Tech Sp. z o.o., established in Poland. The founder and editor is Ararat Ovsepian. Contact: [ararat@apptastic.mobi](mailto:ararat@apptastic.mobi).
 
 ## Sources and links
 
@@ -30,7 +30,7 @@ The explainer labels its "Our view" section as speculative editorial opinion. Ar
 
 ## AI tools in production
 
-[TODO: AI tool use disclosure, to be confirmed by the editor]
+AI tools help us with research, summarising sources and drafting. A human editor, Ararat Ovsepian, reviews, edits and approves everything before it is published, and remains responsible for what appears on Singularity Review. AI tools do not publish articles on their own. The same disclosure appears in our [Terms of use](/terms/), under "Use of AI tools".
 
 ## Independence and funding
 

@@ -36,6 +36,10 @@ If you send a correction, suggestion or other material by email, share only mate
 
 Our reporting, analysis and opinion provide general information. They are not individual financial, legal, medical or other professional advice. Make decisions using your own circumstances and seek an appropriately qualified adviser when needed. Predictions about AI or the technological singularity are uncertain.
 
+## Use of AI tools
+
+AI tools help us with research, summarising sources and drafting. A human editor, Ararat Ovsepian, reviews, edits and approves everything before it is published, and remains responsible for what appears on Singularity Review. AI tools do not publish articles on their own.
+
 ## Accuracy and corrections
 
 We aim to report accurately and distinguish sourced claims from interpretation. Articles can become outdated and mistakes can occur. We do not guarantee that every statement remains complete or current. Send errors to [ararat@apptastic.mobi](mailto:ararat@apptastic.mobi) with the article URL and supporting information. Our [Editorial standards](/editorial-standards/) explain corrections and opinion labelling.
@@ -54,9 +58,7 @@ We may update these terms when the publication or its services change. The date 
 
 ## Governing law and jurisdiction
 
-[TODO: governing law and jurisdiction]
-
-The operator must confirm this detail before the terms are final. Any governing-law provision remains subject to mandatory rights and jurisdiction rules that apply to you.
+These terms are governed by Polish law. Disputes are subject to the courts of Wrocław, Poland. This does not remove any mandatory consumer rights or jurisdiction rules that apply to you where you live.
 
 ## Contact
 

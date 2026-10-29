@@ -21,7 +21,7 @@ We follow new AI models, the systems trained to produce responses or solve tasks
 
 ## Who runs Singularity Review
 
-The publication is operated by Apptastic Tech Sp. z o.o., established in Poland. The founder and editor is [TODO: founder and editor name].
+The publication is operated by Apptastic Tech Sp. z o.o., established in Poland. The founder and editor is Ararat Ovsepian.
 
 ## How we publish
 
