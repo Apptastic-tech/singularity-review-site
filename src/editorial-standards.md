@@ -36,7 +36,7 @@ AI tools help us with research, summarising sources and drafting. A human editor
 
 Ads never influence coverage. Advertising and editorial are separate: an advertiser does not receive a right to choose our conclusions, remove criticism or approve articles. Paid placements must be identified as advertising, and opinion must be labelled independently of any advertising relationship. An advertising enquiry is not an editorial commission.
 
-Singularity Review is owned and published by Apptastic Tech Sp. z o.o. [TODO: funding sources]
+Singularity Review is owned and published by Apptastic Tech Sp. z o.o. Singularity Review is funded by Apptastic Tech Sp. z o.o. and, in future, by advertising.
 
 ## Contact and related policies
 
