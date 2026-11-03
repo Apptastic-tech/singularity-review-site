@@ -55,7 +55,7 @@ You can open Cookie settings above or in the footer at any time. Choose Accept, 
 
 ## How to clear storage
 
-Use your browser's settings for site data or storage, select this site's address, and clear its local and session storage. This removes your preferences and may cause the consent banner or newsletter prompt to return. It does not unsubscribe you, delete a newsletter signup held by beehiiv or reverse aggregate reaction counts. To withdraw newsletter consent, use the unsubscribe link in any newsletter or contact [Contact email].
+Use your browser's settings for site data or storage, select this site's address, and clear its local and session storage. This removes your preferences and may cause the consent banner or newsletter prompt to return. It does not unsubscribe you, delete a newsletter signup held by beehiiv or reverse aggregate reaction counts. To withdraw newsletter consent, use the unsubscribe link in any newsletter or contact [ararat@apptastic.mobi](mailto:ararat@apptastic.mobi).
 
 ## Without JavaScript
 
@@ -63,6 +63,6 @@ No consent banner is needed without JavaScript because no non-essential tools ru
 
 ## Who is responsible
 
-Controller: [Company legal name], [Registered address], [Country of establishment]. Contact: [Contact email]. Read the [Privacy policy](/privacy/) for processors, proposed retention periods and your rights.
+Controller: Apptastic Tech Sp. z o.o., Marsz. Józefa Piłsudskiego 74/320, 50-020 Wrocław, Poland. Contact: [ararat@apptastic.mobi](mailto:ararat@apptastic.mobi). Read the [Privacy policy](/privacy/) for processors, proposed retention periods and your rights.
 
 </div>

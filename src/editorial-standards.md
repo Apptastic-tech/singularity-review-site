@@ -14,7 +14,7 @@ eleventyExcludeFromCollections: true
 
 ## Who runs the publication
 
-Singularity Review is the publication name. Its operator is [Company legal name], established in [Country of establishment]. Contact: [Contact email]. These details need confirmation by the editor.
+Singularity Review is the publication name. Its operator is Apptastic Tech Sp. z o.o., established in Poland. The founder and editor is Ararat Ovsepian. Contact: [ararat@apptastic.mobi](mailto:ararat@apptastic.mobi).
 
 ## Sources and links
 
@@ -22,7 +22,7 @@ News articles list their sources and link to the reports, announcements or resea
 
 <h2 id="corrections">Corrections</h2>
 
-Report an error to [Contact email], including the article URL, the statement in question and supporting evidence. This address still needs confirmation. Corrections should identify what changed and why; a substantive correction should include a note on the article. The editor must confirm responsibility for receiving and reviewing reports.
+Report an error to [ararat@apptastic.mobi](mailto:ararat@apptastic.mobi), including the article URL, the statement in question and supporting evidence. Corrections should identify what changed and why; a substantive correction should include a note on the article. The editor must confirm responsibility for receiving and reviewing reports.
 
 ## Opinion
 
@@ -30,16 +30,16 @@ The explainer labels its "Our view" section as speculative editorial opinion. Ar
 
 ## AI tools in production
 
-[Disclosure of AI tool use, to be confirmed by the editor]
+AI tools help us with research, summarising sources and drafting. A human editor, Ararat Ovsepian, reviews, edits and approves everything before it is published, and remains responsible for what appears on Singularity Review. AI tools do not publish articles on their own. The same disclosure appears in our [Terms of use](/terms/), under "Use of AI tools".
 
 ## Independence and funding
 
 Ads never influence coverage. Advertising and editorial are separate: an advertiser does not receive a right to choose our conclusions, remove criticism or approve articles. Paid placements must be identified as advertising, and opinion must be labelled independently of any advertising relationship. An advertising enquiry is not an editorial commission.
 
-[Ownership and funding, to be confirmed]
+Singularity Review is owned and published by Apptastic Tech Sp. z o.o. Singularity Review is funded by Apptastic Tech Sp. z o.o. and, in future, by advertising.
 
 ## Contact and related policies
 
-Send sourcing questions or correction requests to [Contact email]. The [Contact page](/contact/) explains what to include. Our [Privacy policy](/privacy/), [Cookie policy](/cookies/) and [Terms of use](/terms/) cover reader data, choices and content reuse.
+Send sourcing questions or correction requests to [ararat@apptastic.mobi](mailto:ararat@apptastic.mobi). The [Contact page](/contact/) explains what to include. Our [Privacy policy](/privacy/), [Cookie policy](/cookies/) and [Terms of use](/terms/) cover reader data, choices and content reuse.
 
 </article>
