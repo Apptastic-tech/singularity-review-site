@@ -1,6 +1,6 @@
 ---
 title: "Who holds the stop button? OpenAI can now halt a model in 35 seconds. In September, stopping one took 2.5 hours."
-date: 2026-11-12T13:00:00Z
+date: 2026-11-12T13:23:00Z
 author: "Ararat Ovsepian"
 category: "Safety"
 section: featured
