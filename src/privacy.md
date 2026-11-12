@@ -2,7 +2,7 @@
 layout: layouts/base.njk
 title: Privacy policy
 description: How Singularity Review handles consent, Google Analytics, Microsoft Clarity, newsletter signups and reactions.
-updated: "2026-10-15T00:00:00Z"
+updated: "2026-11-13T00:00:00Z"
 permalink: /privacy/
 eleventyExcludeFromCollections: true
 ---
@@ -10,7 +10,7 @@ eleventyExcludeFromCollections: true
 
 # Privacy policy
 
-<p class="legal-version">Last updated 15 October 2026</p>
+<p class="legal-version">Last updated 13 November 2026</p>
 
 ## Who we are
 
@@ -30,31 +30,31 @@ GA4 and Microsoft Clarity only load after you click Accept on the cookie pop-up 
 
 Cloudflare Web Analytics is cookieless. It loads on every visit without a cookie choice and does not use cookies or local storage to identify you. See [Cloudflare's privacy policy](https://www.cloudflare.com/privacypolicy/) for how Cloudflare handles the limited request data it receives.
 
-After you sign up, beehiiv's script can set a cookie on this site so the form knows you have subscribed. beehiiv can also record how you arrived at the site (for example a campaign link or referring site) for newsletter attribution. We load beehiiv's separate attribution script only if you accept Analytics in Cookie settings; otherwise we remove its attribution cookies. Fonts are served from this site's /fonts directory. Ads are not active yet.
+After you sign up, beehiiv's script can set a cookie on this site so the form knows you have subscribed. beehiiv can also record how you arrived at the site (for example a campaign link or referring site) for newsletter attribution. We load beehiiv's separate attribution script only if you accept Analytics in Cookie settings; otherwise we remove its attribution cookies. Fonts are served from this site's /fonts directory. Google AdSense loads only after you accept Marketing.
 
 ## Advertising
 
-We plan to use Google AdSense. Ads are not active yet and will only load after you make a cookie choice. Google and third-party vendors use cookies and similar technologies to serve ads based on prior visits to this and other websites. Google's use of advertising cookies enables it and its partners to serve ads based on those visits.
+We use Google AdSense. The Google advertising script loads only after you click Accept on the cookie banner, or turn on Marketing and save in Cookie settings. Decline keeps it off. Google and third-party vendors use cookies and similar technologies to serve ads based on prior visits to this and other websites. Google's use of advertising cookies enables it and its partners to serve ads based on those visits.
 
-When advertising is enabled, granting Marketing allows personalised ads and the corresponding advertising storage and data signals. Rejecting Marketing leaves those signals denied and requests non-personalised ads after your decision. A cookie choice is required before any Google advertising script loads. Analytics is a separate choice. You can change either choice in Cookie settings in the footer.
+Granting Marketing allows personalised ads and the corresponding advertising storage and data signals. Rejecting Marketing leaves those signals denied and does not load the advertising script. Analytics is a separate choice. You can change either choice in Cookie settings in the footer.
 
 You can opt out of personalised advertising through [Google Ads Settings](https://adssettings.google.com) and the choices available at [aboutads.info](https://www.aboutads.info). Read [How Google uses information from sites that use its services](https://policies.google.com/technologies/ads) for Google's advertising practices and its [cookie information](https://policies.google.com/technologies/cookies) for examples of cookie purposes and durations.
 
 For visitors in the EEA, UK and Switzerland, Google requires a Google-certified consent management platform integrated with the IAB TCF. Our own banner is not a certified CMP. Before serving ads in those regions, we must enable AdSense Privacy & messaging and defer our banner's overlapping choices to it, or adopt another certified CMP. The local banner alone is not sufficient for that launch.
 
-### Planned advertising storage
+### Advertising storage
 
 | Technology | Purpose | Status | Provider |
 | --- | --- | --- | --- |
-| Advertising cookies and similar technologies | Ad delivery, measurement and personalisation according to choices | Planned, set by Google only after consent when ads are enabled | Google and its advertising partners |
+| Advertising cookies and similar technologies | Ad delivery, measurement and personalisation | Set by Google only after you accept Marketing | Google and its advertising partners |
 
-Exact cookies depend on Google's configuration and reader choices. No AdSense cookies are set by our inactive ad scaffolding. Denied marketing does not grant advertising storage; the loader requests non-personalised ads with denied Consent Mode signals.
+Exact cookies depend on Google's configuration and reader choices. No AdSense cookies are set until you accept Marketing. Denied marketing does not grant advertising storage, and the advertising script does not load.
 
 ## Purposes and legal basis
 
 We use your newsletter signup only to send the newsletter you asked for, and any confirmation email beehiiv sends on our behalf. The legal basis is your consent under Article 6(1)(a) of the GDPR, given when you submit the signup form. Signing up is separate from cookie settings. Rejecting optional cookie categories does not prevent a signup you request. Newsletter signup attribution relies on your Analytics choice.
 
-Hosting, security and providing the reactions feature rely on legitimate interests under Article 6(1)(f): operating a reliable publication, protecting it from abuse and letting readers react to articles. You can object to this processing. Necessary device storage supports features and choices you request. GA4, Microsoft Clarity and beehiiv's optional signup attribution rely on your Analytics consent under Article 6(1)(a). You can withdraw it through Cookie settings. Marketing will control personalised advertising when planned ads are enabled; no ads are active yet.
+Hosting, security and providing the reactions feature rely on legitimate interests under Article 6(1)(f): operating a reliable publication, protecting it from abuse and letting readers react to articles. You can object to this processing. Necessary device storage supports features and choices you request. GA4, Microsoft Clarity and beehiiv's optional signup attribution rely on your Analytics consent under Article 6(1)(a). Google AdSense relies on your Marketing consent under Article 6(1)(a). You can withdraw either choice through Cookie settings.
 
 ## Processors and international transfers
 

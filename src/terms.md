@@ -46,7 +46,7 @@ We aim to report accurately and distinguish sourced claims from interpretation. 
 
 ## Third-party links and advertising
 
-Links point to sources and other resources operated by third parties. We do not control their content, availability or privacy practices. A link does not by itself endorse a product or service. Planned advertising will be labelled Advertisement and kept separate from editorial coverage. Ads are not active yet. Any purchase or interaction with an advertiser is governed by that third party's terms.
+Links point to sources and other resources operated by third parties. We do not control their content, availability or privacy practices. A link does not by itself endorse a product or service. Advertising is labelled Advertisement and kept separate from editorial coverage. Google AdSense loads only after you accept Marketing in the cookie banner or Cookie settings. Any purchase or interaction with an advertiser is governed by that third party's terms.
 
 ## Liability
 

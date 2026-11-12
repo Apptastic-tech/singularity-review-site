@@ -15,7 +15,7 @@ const setup = async options => {
   const context = await browser.newContext({ reducedMotion: 'reduce', ...options });
   await context.route('**/*', route => new URL(route.request().url()).origin === base.origin ? route.continue() : route.abort());
   await context.addInitScript(() => {
-    localStorage.setItem('sr-consent', JSON.stringify({ version:'2026-10-10', necessary:true, analytics:false, marketing:false, decidedAt:new Date().toISOString() }));
+    localStorage.setItem('sr-consent', JSON.stringify({ version:'2026-11-13', necessary:true, analytics:false, marketing:false, decidedAt:new Date().toISOString() }));
     localStorage.setItem('sr-newsletter', JSON.stringify({state:'dismissed',at:new Date().toISOString()}));
     window.rowCLS = 0;
     if (PerformanceObserver.supportedEntryTypes.includes('layout-shift')) new PerformanceObserver(list => { for (const entry of list.getEntries()) if (!entry.hadRecentInput) window.rowCLS += entry.value; }).observe({type:'layout-shift',buffered:true});

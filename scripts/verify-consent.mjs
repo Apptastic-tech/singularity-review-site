@@ -33,6 +33,10 @@ function checkScripts(html) {
       assert.equal(attrs.src, undefined, 'Inert scripts use data-src');
       continue;
     }
+    if (attrs.src && attrs.src.startsWith('https://static.cloudflareinsights.com/beacon.min.js')) {
+      assert.ok(site.analytics.CLOUDFLARE_BEACON_TOKEN, 'Cloudflare beacon only when a token is set');
+      continue;
+    }
     if (attrs.src) {
       assert.ok(allowedScripts.has(attrs.src.split('?')[0]), `Unknown executable script: ${attrs.src}`);
       if (attrs.src.startsWith('/js/ads.js')) {
@@ -71,7 +75,7 @@ assert.deepEqual(storageUsers.sort(), ['src/js/article.js', 'src/js/consent.js',
 const storageSource = (await Promise.all(storageUsers.map(read))).join('\n');
 const declaredKeys = new Set([...storageSource.matchAll(/['"`](sr-[^'"`]+)['"`]/g)].map(match => match[1]));
 assert.deepEqual([...declaredKeys].sort(), ['sr-consent', 'sr-newsletter', 'sr-newsletter-session', 'sr-react:${slug}:${k}', 'sr-sky-paused', 'sr-lensing-debug'].sort(), 'Storage inventory must be updated for any new key');
-assert.match(consent, /const CONSENT_VERSION = '2026-10-10'/);
+assert.match(consent, /const CONSENT_VERSION = '2026-11-13'/);
 assert.match(consent, /value\.version === CONSENT_VERSION/);
 for (const text of ["'sr-consent'", 'window.srConsent', "CustomEvent('sr:consent'", 'onChange(callback)', 'dialog.showModal()', "event.key !== 'Tab'", "'cancel'"]) assert.ok(consent.includes(text));
 assert.match(newsletter, /NEWSLETTER_DELAY_MS = 60 \* 1000/);
@@ -101,6 +105,11 @@ for (const file of pages) {
   assert.doesNotMatch(html, /\ssrc="https:\/\/subscribe-forms\.beehiiv\.com/, 'beehiiv never loads from static markup');
   const attribution = nodes(dom).filter(node => node.name === 'script' && node.attribs['data-src'] === 'https://subscribe-forms.beehiiv.com/attribution.js');
   assert.equal(attribution.length, 1); assert.equal(attribution[0].attribs.type, 'text/plain'); assert.equal(attribution[0].attribs['data-consent'], 'analytics');
+  const adsense = nodes(dom).filter(node => node.name === 'script' && (node.attribs['data-src'] || '').includes('pagead2.googlesyndication.com/pagead/js/adsbygoogle.js'));
+  assert.equal(adsense.length, 1); assert.equal(adsense[0].attribs.type, 'text/plain'); assert.equal(adsense[0].attribs['data-consent'], 'marketing');
+  assert.equal(adsense[0].attribs.src, undefined);
+  assert.match(adsense[0].attribs['data-src'], /client=ca-pub-3478045513744031/);
+  assert.doesNotMatch(html, /<script async src="https:\/\/pagead2\.googlesyndication\.com/);
   for (const script of ['consent', 'analytics', 'newsletter']) assert.match(html, new RegExp(`src="/js/${script}\\.js\\?v=[a-f0-9]{10}" defer`));
   const analyticsScript = nodes(dom).find(node => node.name === 'script' && node.attribs.src?.startsWith('/js/analytics.js?'));
   assert.equal(analyticsScript.attribs['data-ga4-id'], site.analytics.GA4_ID);
@@ -114,7 +123,7 @@ for (const file of pages) {
   assert.ok(Object.hasOwn(banner.attribs, 'hidden'));
   const buttons = nodes(banner).filter(node => node.name === 'button');
   assert.deepEqual(buttons.map(node => textContent(node)), ['Accept', 'Decline', 'Settings']);
-  assert.equal(textContent(nodes(banner).find(node => node.name === 'p')), 'We use Google Analytics and Microsoft Clarity to understand how readers use the site. They load and use cookies only after you click Accept. Decline keeps them off. You can change your choice in Cookie settings. Cookie policy.');
+  assert.equal(textContent(nodes(banner).find(node => node.name === 'p')), 'We use Google Analytics and Microsoft Clarity to understand how readers use the site. We would like to show ads from Google AdSense. These tools load and use cookies only after you click Accept. Decline keeps them off. You can change your choice in Cookie settings. Cookie policy.');
   assert.equal(new Set(buttons.map(node => node.attribs.class)).size, 1);
   const dialog = hook(dom, 'data-consent-dialog')[0];
   assert.equal(dialog.name, 'dialog');
@@ -152,7 +161,7 @@ for (const [page, headings] of Object.entries(requiredHeadings)) {
   const html = await read(`_site/${page}/index.html`), dom = parseDocument(html);
   const actual = nodes(dom).filter(node => /^h[12]$/.test(node.name)).map(node => textContent(node));
   headings.forEach(heading => assert.ok(actual.includes(heading), heading));
-  assert.ok(html.includes('Last updated 15 October 2026'));
+  assert.ok(html.includes('Last updated 13 November 2026'));
   for (const phrase of ['Google Analytics', 'GA4', 'Microsoft Clarity', 'Accept', 'Decline', 'Cookie settings']) assert.ok(html.includes(phrase), page + ': ' + phrase);
   assert.doesNotMatch(html, /We use no analytics|No ads or analytics tools are active today/);
   assert.ok((await read('_site/sitemap.xml')).includes(`/${page}/</loc>`));

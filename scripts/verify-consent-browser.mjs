@@ -15,7 +15,7 @@ const mime = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript
 const fieldSet = ['email', 'consentAt', 'consentTextVersion', 'consentText', 'sourcePage', 'source', 'status'].sort();
 const sentence = 'Send me the Singularity Review newsletter. Unsubscribe anytime.';
 const successText = "Thanks. We'll email you to confirm your subscription before sending anything.";
-const decision = { version: '2026-10-10', necessary: true, analytics: false, marketing: false, decidedAt: '2026-10-10T12:00:00.000Z' };
+const decision = { version: '2026-11-13', necessary: true, analytics: false, marketing: false, decidedAt: '2026-10-10T12:00:00.000Z' };
 const browser = await chromium.launch({ headless: true });
 const contexts = [];
 async function setup({ viewport = { width: 1440, height: 1000 }, seed = {}, javaScriptEnabled = true, reducedMotion = 'reduce' } = {}) {

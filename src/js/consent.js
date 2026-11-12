@@ -1,6 +1,6 @@
 // Necessary preferences only. Non-essential scripts must use the inert gate below.
 (() => {
-  const CONSENT_VERSION = '2026-10-10';
+  const CONSENT_VERSION = '2026-11-13';
   const CONSENT_KEY = 'sr-consent';
   const banner = document.querySelector('[data-consent-banner]');
   const dialog = document.querySelector('[data-consent-dialog]');
