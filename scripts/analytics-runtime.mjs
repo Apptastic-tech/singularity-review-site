@@ -4,7 +4,7 @@ import { environment } from './consent-runtime.mjs';
 // Vendor libraries are never executed. All insertions and consent queues are simulated.
 export function verifyAnalyticsRuntime({ consent, analytics, ads }) {
   const ga4Id = 'G-ABC1234567', clarityId = 'abc1234567';
-  const record = { version: '2026-10-10', necessary: true, analytics: true, marketing: false, decidedAt: '2026-10-10T12:00:00Z' };
+  const record = { version: '2026-11-13', necessary: true, analytics: true, marketing: false, decidedAt: '2026-10-10T12:00:00Z' };
   const boot = ({ saved, config = { ga4Id, clarityId } } = {}) => {
     const test = environment({ analyticsConfig: config, local: saved === undefined ? {} : { 'sr-consent': typeof saved === 'string' ? saved : JSON.stringify(saved) } });
     test.run(consent); test.run(analytics); return test;

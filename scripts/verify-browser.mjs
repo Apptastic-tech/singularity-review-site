@@ -42,7 +42,7 @@ try {
   const context=await browser.newContext({viewport:{width:390,height:844}});
   await routeSite(context,out);
   await context.addInitScript(() => {
-    localStorage.setItem('sr-consent', JSON.stringify({version:'2026-10-10',necessary:true,analytics:false,marketing:false,decidedAt:new Date().toISOString()}));
+    localStorage.setItem('sr-consent', JSON.stringify({version:'2026-11-13',necessary:true,analytics:false,marketing:false,decidedAt:new Date().toISOString()}));
     localStorage.setItem('sr-newsletter', JSON.stringify({state:'dismissed',at:new Date().toISOString()}));
   });
   const page=await context.newPage();

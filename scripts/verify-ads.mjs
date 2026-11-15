@@ -14,14 +14,13 @@ const root = process.cwd(), read = p => fs.readFile(p, 'utf8');
 const nodes = root => findAll(node => ['tag', 'script'].includes(node.type), root.children || []);
 const hasClass = (node, name) => (node.attribs?.class || '').split(/\s+/).includes(name);
 const slots = dom => nodes(dom).filter(node => node.name === 'aside' && node.attribs['data-ad-slot']);
-const exact = 'google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0';
+const exact = 'google.com, pub-3478045513744031, DIRECT, f08c47fec0942fa0';
 const checkAdsTxt = value => {
   const lines = value.trim().split(/\r?\n/);
   assert.deepEqual(lines.filter(line => !line.startsWith('#')), [exact]);
-  assert.ok(lines.some(line => /^# TODO:/.test(line)));
 };
 checkAdsTxt(await read('_site/ads.txt'));
-assert.throws(() => checkAdsTxt(exact)); assert.throws(() => checkAdsTxt('# TODO: configure\n' + exact.replace('DIRECT', 'RESELLER')));
+assert.throws(() => checkAdsTxt(exact.replace('DIRECT', 'RESELLER')));
 assert.equal(site.adsense.client, ''); assert.equal(site.adsense.verificationMeta, ''); assert.equal(site.adsense.preview, false, 'Run the verifier against the default build');
 const header = JSON.parse(await read('firebase.json')).hosting[0].headers.find(item => item.source === '/ads.txt');
 assert.equal(header.headers.find(item => item.key === 'Content-Type').value, 'text/plain; charset=utf-8');
@@ -52,7 +51,7 @@ const adSource = await read('src/js/ads.js');
 for (const key of ['ad_storage', 'ad_user_data', 'ad_personalization', 'analytics_storage']) assert.match(adSource, new RegExp(key + ": 'denied'"));
 assert.match(adSource, /gtag\('consent', 'default'/); assert.match(adSource, /gtag\('consent', 'update'/);
 assert.match(adSource, /addEventListener\('sr:consent'/); assert.match(adSource, /rootMargin: '600px'/);
-assert.match(adSource, /if \(preview \|\| !decision \|\| requested/);
+assert.match(adSource, /if \(preview \|\| !decision\?\.marketing \|\| requested/);
 assert.doesNotMatch(adSource, /fetch\(|document\.cookie|firestore|data-consent=/);
 verifyAdsRuntime(adSource);
 
@@ -118,19 +117,19 @@ try {
 const required = {
   about: ['What we cover', 'Who runs Singularity Review', 'How we publish', 'Contact the publication'],
   contact: ['General enquiries', 'Corrections', 'Privacy requests', 'Advertising enquiries', 'Postal address'],
-  privacy: ['Advertising', 'Planned advertising storage'], cookies: ['Advertising category', 'Planned Google AdSense'],
+  privacy: ['Advertising', 'Advertising storage'], cookies: ['Advertising category', 'Google AdSense cookies'],
   terms: ['Acceptance', 'Who we are', 'Use of content', 'User submissions and newsletter', 'No professional advice', 'Accuracy and corrections', 'Third-party links and advertising', 'Liability', 'Changes', 'Governing law and jurisdiction', 'Contact'],
   'editorial-standards': ['Sources and links', 'Corrections', 'Opinion', 'AI tools in production', 'Independence and funding', 'Ads never influence coverage'],
 };
 const sitemap = await read('_site/sitemap.xml'), llms = await read('_site/llms.txt');
 for (const [page, sections] of Object.entries(required)) {
   const html = await read('_site/' + page + '/index.html');
-  const policyDate = ['privacy', 'cookies'].includes(page) ? '15 October 2026' : '11 October 2026';
+  const policyDate = ['privacy', 'cookies'].includes(page) ? '13 November 2026' : '11 October 2026';
   assert.ok(html.includes('Last updated ' + policyDate)); sections.forEach(section => assert.ok(html.includes(section), page + ': ' + section));
   assert.ok(sitemap.includes('/' + page + '/</loc>')); assert.ok(llms.split('## Policies')[1].includes('/' + page + '/'));
   if (['privacy','cookies'].includes(page)) {
     for (const url of ['https://policies.google.com/technologies/ads','https://policies.google.com/technologies/cookies','https://adssettings.google.com','https://www.aboutads.info']) assert.ok(html.includes('href="' + url + '"'));
-    assert.ok(html.includes('Ads are not active yet') || html.includes('not active yet'));
+    assert.ok(html.includes('no Google advertising script loads') || html.includes('The Google advertising script loads only after you click Accept'));
   }
   if (page === 'contact') assert.equal(nodes(nodes(parseDocument(html)).find(node => node.name === 'main')).some(node => node.name === 'form'), false);
 }

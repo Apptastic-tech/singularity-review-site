@@ -1,6 +1,6 @@
 # AdSense readiness
 
-Last updated 11 October 2026. Stage preparation only. Ads are disabled by default, no publisher ID is configured and no live Google requests were made during verification.
+Last updated 13 November 2026. Reserved ad slots stay off by default because adsense.client is empty. The Google AdSense publisher script is present as an inert Marketing placeholder and loads only after Marketing consent.
 
 ## Regional CMP requirement
 
@@ -8,9 +8,9 @@ Last updated 11 October 2026. Stage preparation only. Ads are disabled by defaul
 
 ## Configuration
 
-In src/_data/site.js, adsense.client is an empty string. Empty means no slot markup, labels, reservations or loader tags on generated pages. Later use the approved ca-pub publisher ID. adsense.verificationMeta is also empty; set the account value requested by Google. The base layout renders google-adsense-account only when verificationMeta or client is set, preferring verificationMeta and otherwise using client. An HTML comment marks the disabled location.
+In src/_data/site.js, adsense.client is an empty string. Empty means no slot markup, labels, reservations or ads.js on generated pages. The base layout still includes the publisher script as an inert Marketing placeholder that uses ca-pub-3478045513744031, so the script can load after Accept without enabling reserved slots. Later, set adsense.client to that approved publisher ID to turn on slots and hand loading to ads.js. adsense.verificationMeta is also empty; set the account value requested by Google. The base layout renders google-adsense-account only when verificationMeta or client is set, preferring verificationMeta and otherwise using client. An HTML comment marks the disabled location.
 
-adsense.slots contains articleA, articleB and homeGrid, each initially [AdSense ad unit ID]. Replace each with its numeric AdSense unit ID. The loader deliberately refuses to submit placeholders. The publisher placeholder pub-XXXXXXXXXXXXXXXX in src/ads.njk also needs replacement, retaining the exact Google seller record and text/plain header.
+adsense.slots contains articleA, articleB and homeGrid, each initially [AdSense ad unit ID]. Replace each with its numeric AdSense unit ID. The loader deliberately refuses to submit placeholders. src/ads.njk already has the live Google seller record for pub-3478045513744031 and a text/plain header. Keep that line as it is.
 
 ## Placement and reserved geometry
 
@@ -18,13 +18,13 @@ Article slots follow the third and seventh top-level paragraph of the rendered a
 
 Each slot has a muted Inter Tight Advertisement label and a fixed reserved container. Article containers are 280px on mobile and 250px from 640px width. The homepage container is 250px at all widths. Height equals min-height and overflowing creative content is contained, so a fill cannot move following content. The label adds a reserved 26px. All reservations are present in the initial HTML when enabled.
 
-A MutationObserver watches data-ad-status on the slot and its descendants. An unfilled slot collapses only while it has never intersected the real viewport and still lies below it. Slots seen before, currently visible or above the reader keep their reservation. This avoids a visible collapse or a change in the reader's scroll position. Rejection or revocation never removes visible reservations. Real CLS requires the prepared browser check; static geometry is a model.
+Slots start collapsed in the markup and stay hidden until Marketing is granted (or until preview mode shows the layout). After Marketing is granted, a MutationObserver watches data-ad-status on the slot and its descendants. An unfilled slot then collapses only while it has never intersected the real viewport and still lies below it. Slots seen before, currently visible or above the reader keep their reservation. This avoids a visible collapse or a change in the reader's scroll position once ads are allowed. Real CLS requires the prepared browser check; static geometry is a model.
 
 ## Consent and loader behavior
 
-ads.js is a normal deferred local file only in enabled or preview builds. It is intentionally not data-consent=marketing: non-personalised requests can run after a reader rejects Marketing. Before any Google tag, the local bootstrap queues Consent Mode v2 default denied for ad_storage, ad_user_data, ad_personalization and analytics_storage, with wait_for_update 500. It reads window.srConsent.get() for a saved decision and listens for sr:consent updates.
+While adsense.client is empty, the publisher script is an inert Marketing placeholder in the base layout. It is not executable until consent.js grants Marketing. Preview builds omit that placeholder so they make no Google request. When adsense.client is set, the placeholder is omitted and ads.js is a normal deferred local file. Before any Google tag, that bootstrap queues Consent Mode v2 default denied for ad_storage, ad_user_data, ad_personalization and analytics_storage, with wait_for_update 500. It reads window.srConsent.get() for a saved decision and listens for sr:consent updates.
 
-Marketing true grants all three advertising signals. Analytics true grants only analytics_storage. Missing or withdrawn decisions deny all four. Before any decision, Google loads nothing. After any valid decision, the loader may insert the AdSense script once. With Marketing denied it explicitly sets adsbygoogle.requestNonPersonalizedAds to 1 before loading and keeps Consent Mode advertising signals denied. Granting Marketing changes that flag to 0. This supplements Consent Mode instead of relying on denied signals alone. Rejection does not grant advertising cookie storage.
+Marketing true grants all three advertising signals. Analytics true grants only analytics_storage. Missing or withdrawn decisions deny all four. Before any decision, Google loads nothing. The advertising script loads only after Marketing is granted, either on Accept or on a later visit with stored consent. After reject, no advertising request is made. Granting Marketing sets adsbygoogle.requestNonPersonalizedAds to 0. Marketing denied keeps that flag at 1 and keeps ad slots collapsed. Rejection does not grant advertising cookie storage.
 
 IntersectionObserver uses rootMargin 600px to fill nearby slots after the Google script is ready, inserting responsive ins elements and pushing once per slot. A separate real-viewport observer records whether the reader has seen a slot. The scroll/resize fallback maintains the same distance and visibility rules. Consent changes update signals and block new filling without a valid decision. Previously loaded Google code cannot be unloaded, and filled ads are not silently refreshed; the certified CMP integration must handle Google's regional revocation and storage behavior before launch.
 
@@ -33,7 +33,7 @@ Preview mode renders neutral reservations with a 1px line border and the Adverti
 ## Go-live checklist
 
 - Obtain AdSense approval: original content, substantial About, Contact, Editorial standards, Privacy, Cookies and Terms pages, clear navigation and compliance with Google's content and advertising policies. Replace all legal placeholders and confirm actual practices before final publication.
-- Add the approved publisher ID to adsense.client and replace the ads.txt publisher placeholder. Set verificationMeta if Google asks for account verification separately.
+- Add the approved publisher ID to adsense.client. ads.txt already has the live seller record. Set verificationMeta if Google asks for account verification separately.
 - Create ad units and replace articleA, articleB and homeGrid IDs.
 - Enable Privacy & messaging or a certified CMP for EEA, UK and Switzerland, including deferral or removal of duplicate local choices. Do this before any ads reach those regions.
 - Check Consent Mode v2 defaults, saved decisions, accept, reject, mixed choices and revocation with the configured CMP. Ensure Google is absent before a decision.

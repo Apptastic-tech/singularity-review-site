@@ -1,4 +1,4 @@
-// Executable local bootstrap, with its own decision gate rather than a marketing-only gate.
+// Executable local bootstrap. The Google script loads only after Marketing consent.
 (() => {
   const config = document.currentScript?.dataset || {};
   const preview = config.adPreview === 'true';
@@ -30,7 +30,7 @@
     }
   };
   const fill = slot => {
-    if (preview || !decision || !ready || filled.has(slot) || slot.classList.contains('ad-slot--collapsed')) return;
+    if (preview || !decision?.marketing || !ready || filled.has(slot) || slot.classList.contains('ad-slot--collapsed')) return;
     const unit = slot.dataset.adUnit;
     // Never submit the documented placeholder as a real unit.
     if (!/^\d+$/.test(unit || '')) return;
@@ -45,7 +45,7 @@
     (window.adsbygoogle = window.adsbygoogle || []).push({});
   };
   const loadGoogle = () => {
-    if (preview || !decision || requested || !/^ca-pub-\d+$/.test(client)) return;
+    if (preview || !decision?.marketing || requested || !/^ca-pub-\d+$/.test(client)) return;
     requested = true;
     const tag = document.createElement('script');
     tag.async = true;
@@ -62,10 +62,17 @@
       ad_personalization: decision?.marketing ? 'granted' : 'denied',
       analytics_storage: decision?.analytics ? 'granted' : 'denied',
     });
-    // Explicit non-personalised requests supplement the denied Consent Mode signals.
+    // Keep the flag in sync, but the script itself loads only after Marketing is granted.
     (window.adsbygoogle = window.adsbygoogle || []).requestNonPersonalizedAds = decision?.marketing ? 0 : 1;
-    loadGoogle();
-    for (const slot of near) fill(slot);
+    const show = preview || decision?.marketing === true;
+    for (const slot of slots) {
+      if (show) slot.classList.remove('ad-slot--collapsed');
+      else slot.classList.add('ad-slot--collapsed');
+    }
+    if (show) {
+      loadGoogle();
+      for (const slot of near) fill(slot);
+    }
   };
   window.addEventListener('sr:consent', event => update(event.detail));
   update(window.srConsent?.get() || null);

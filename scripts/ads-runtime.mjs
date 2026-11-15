@@ -10,7 +10,7 @@ export function verifyAdsRuntime(source) {
       const classes = new Set(), ads = [];
       const value = { dataset: { adUnit: unit }, top,
         getBoundingClientRect() { return { top: this.top, bottom: this.top + 306 }; },
-        classList: { contains: name => classes.has(name), add: name => classes.add(name) },
+        classList: { contains: name => classes.has(name), add: name => classes.add(name), remove: name => classes.delete(name) },
         querySelector: selector => selector === '.ad-slot-reserved' ? { appendChild: ad => ads.push(ad) } : ads.find(ad => ad.dataset.adStatus === 'unfilled'),
         closest: () => value, ads, classes };
       slots.push(value); return value;
@@ -31,11 +31,17 @@ export function verifyAdsRuntime(source) {
   }
   const env = runtime();
   assert.equal(env.scripts.length, 0, 'Nothing loads before a decision');
+  assert.ok(env.visible.classes.has('ad-slot--collapsed'), 'Slots stay collapsed before a decision');
   assert.deepEqual({ ...env.window.dataLayer[0][2] }, { ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied', analytics_storage: 'denied', wait_for_update: 500 });
   env.approach(env.visible); assert.equal(env.visible.ads.length, 0);
-  env.decide(false); assert.equal(env.scripts.length, 1, 'Reject is a decision and permits a denied, non-personalised request');
+  env.decide(false); assert.equal(env.scripts.length, 0, 'Reject does not load the advertising script');
   assert.equal(env.window.adsbygoogle.requestNonPersonalizedAds, 1);
+  assert.equal(env.visible.ads.length, 0);
+  assert.ok(env.visible.classes.has('ad-slot--collapsed'), 'Slots stay collapsed after reject');
+  env.decide(true); assert.equal(env.scripts.length, 1, 'Accept loads the advertising script');
+  assert.equal(env.window.adsbygoogle.requestNonPersonalizedAds, 0);
   assert.ok(env.scripts[0].src.startsWith('https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-'));
+  assert.ok(!env.visible.classes.has('ad-slot--collapsed'), 'Slots are shown after Marketing is granted');
   assert.equal(env.visible.ads.length, 0, 'Filling waits for script readiness');
   env.scripts[0].onload(); assert.equal(env.visible.ads.length, 1);
   assert.equal(env.visible.ads[0].name, 'ins'); assert.equal(env.visible.ads[0].dataset.adSlot, '1234567890');
@@ -44,17 +50,22 @@ export function verifyAdsRuntime(source) {
   env.decide(true, true); assert.equal(env.scripts.length, 1); assert.equal(env.window.adsbygoogle.requestNonPersonalizedAds, 0);
   assert.deepEqual({ ...env.window.dataLayer.at(-1)[2] }, { ad_storage: 'granted', ad_user_data: 'granted', ad_personalization: 'granted', analytics_storage: 'granted' });
   env.decide(false, true); assert.equal(env.window.dataLayer.at(-1)[2].analytics_storage, 'granted'); assert.equal(env.window.dataLayer.at(-1)[2].ad_storage, 'denied');
+  assert.equal(env.scripts.length, 1, 'A later reject does not add another script');
   env.decide(null); env.approach(env.below); assert.equal(env.below.ads.length, 0, 'No new fill after decision removal');
-  env.status(env.visible); assert.ok(!env.visible.classes.has('ad-slot--collapsed'), 'Visible unfilled slot retains space');
-  env.status(env.below); assert.ok(env.below.classes.has('ad-slot--collapsed'), 'Unseen slot below viewport may collapse');
-  const seen = runtime(); seen.observers[0].callback([{ target: seen.below, isIntersecting: true }]); seen.status(seen.below); assert.ok(!seen.below.classes.has('ad-slot--collapsed'), 'Previously seen slot retains space');
+  const granted = runtime();
+  granted.approach(granted.visible); granted.decide(true); granted.scripts[0].onload();
+  granted.status(granted.visible); assert.ok(!granted.visible.classes.has('ad-slot--collapsed'), 'Visible unfilled slot retains space');
+  granted.status(granted.below); assert.ok(granted.below.classes.has('ad-slot--collapsed'), 'Unseen slot below viewport may collapse');
+  const seen = runtime(); seen.decide(true); seen.scripts[0].onload(); seen.observers[0].callback([{ target: seen.below, isIntersecting: true }]); seen.status(seen.below); assert.ok(!seen.below.classes.has('ad-slot--collapsed'), 'Previously seen slot retains space');
   for (const saved of [null, { necessary: true, marketing: false, analytics: false }, { necessary: true, marketing: true, analytics: true }]) {
     const test = runtime({ preview: true, saved }); test.approach(test.visible); test.decide(true); test.decide(false);
     assert.equal(test.scripts.length, 0, 'Preview makes no Google request with any decision'); assert.equal(test.visible.ads.length, 0);
   }
   const returning = runtime({ saved: { necessary: true, marketing: true, analytics: false } });
   assert.equal(returning.scripts.length, 1); assert.equal(returning.window.dataLayer[0][1], 'default', 'Default precedes saved-decision tag load');
+  const declined = runtime({ saved: { necessary: true, marketing: false, analytics: false } });
+  assert.equal(declined.scripts.length, 0, 'A saved reject does not load the advertising script');
   const placeholder = runtime({ unit: '[AdSense ad unit ID]' }); placeholder.approach(placeholder.visible); placeholder.decide(true); placeholder.scripts[0].onload(); assert.equal(placeholder.visible.ads.length, 0);
-  const fallback = runtime({ observer: false }); fallback.decide(false); fallback.scripts[0].onload(); assert.equal(fallback.visible.ads.length, 1); assert.equal(fallback.below.ads.length, 0);
+  const fallback = runtime({ observer: false }); fallback.decide(true); fallback.scripts[0].onload(); assert.equal(fallback.visible.ads.length, 1); assert.equal(fallback.below.ads.length, 0);
   fallback.below.top = 1000; fallback.handlers.scroll(); assert.equal(fallback.below.ads.length, 1);
 }

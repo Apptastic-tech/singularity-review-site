@@ -137,7 +137,7 @@ export async function verifyConsentRuntime({ consent, newsletter, fields, senten
   const record = JSON.parse(initial.localStorage.getItem('sr-consent'));
   assert.deepEqual(Object.keys(record).sort(), ['version', 'necessary', 'analytics', 'marketing', 'decidedAt'].sort());
   assert.equal(record.analytics, false); assert.equal(record.marketing, false);
-  assert.equal(record.version, '2026-10-10'); assert.equal(record.necessary, true);
+  assert.equal(record.version, '2026-11-13'); assert.equal(record.necessary, true);
   assert.equal(initial.placeholders.filter(value => value.activated).length, 0);
   assert.equal(changed, 1); remove();
   initial.open.emit('click');
