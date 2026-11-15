@@ -1,4 +1,6 @@
 ---
+# Thin post: kept out of search until it is expanded with more sourcing and analysis.
+noindex: true
 title: "Meta opens Muse Spark Open: 816B weights, two Mac Studios, and a US claim worth parsing"
 description: "Meta Superintelligence Labs released Muse Spark Open, an open-weight multimodal MoE built for coding and agents. The specs are real. The 'most capable US open-weight' line is Meta's marketing, and the desktop story needs two expensive machines."
 date: 2026-10-16T09:10:00Z

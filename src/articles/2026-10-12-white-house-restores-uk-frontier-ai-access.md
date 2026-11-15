@@ -1,4 +1,6 @@
 ---
+# Thin post: kept out of search until it is expanded with more sourcing and analysis.
+noindex: true
 title: White House restores Britain's access to frontier AI models after a 17-day freeze
 description: After blocking pre-release sharing with the UK's AI Security Institute on Sept. 24, Washington reversed course on Oct. 11. AISI again gets early access to models from OpenAI, Anthropic, and Google DeepMind.
 date: 2026-10-12T06:15:00Z

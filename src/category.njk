@@ -12,6 +12,7 @@ eleventyComputed:
 ---
 <header class="feed-intro category-intro feed-width">
   <h1>{{ cat.name | sentenceTitle }}</h1>
+  {% if site.categoryIntros[cat.slug] %}<p class="author-bio">{{ site.categoryIntros[cat.slug] }}</p>{% endif %}
   <p class="meta">{{ cat.articles.length }} {{ "story" if cat.articles.length == 1 else "stories" }}, newest first. News and analysis on this topic from Singularity Review.</p>
 </header>
 <section class="story-grid story-list feed-width" aria-label="{{ cat.name }} articles" data-feed>

@@ -50,6 +50,7 @@ export function personEntity(person, site) {
   return {
     '@type': 'Person', '@id': `${url}#person`, name: person.name, url,
     worksFor: { '@id': `${site.url}/#organization` },
+    ...(person.jobTitle ? { jobTitle: person.jobTitle } : {}),
     ...(person.bio ? { description: person.bio } : {}),
     ...(person.sameAs?.length ? { sameAs: person.sameAs } : {}),
   };
@@ -104,13 +105,20 @@ export function pageGraph(data, image) {
       graph.push(entity);
       author = ref(entity['@id']);
     }
+    const editorProfile = data.authorProfiles?.find(item => item.slug === site.editor?.slug) || site.editor;
+    let editor;
+    if (editorProfile) {
+      const editorEntity = personEntity({ ...editorProfile }, site);
+      if (!graph.some(item => item['@id'] === editorEntity['@id'])) graph.push(editorEntity);
+      editor = ref(editorEntity['@id']);
+    }
     const newsId = `${url}#article`;
     webPage.mainEntity = ref(newsId);
     graph.push({
       '@type': 'NewsArticle', '@id': newsId, headline: data.title, description: meta.description,
       image: [absolute(image || data.hero, site)],
       datePublished: isoDate(page.date), dateModified: isoDate(data.updated || page.date),
-      author, publisher: ref(orgId), mainEntityOfPage: ref(webPage['@id']),
+      author, ...(editor ? { editor } : {}), publisher: ref(orgId), mainEntityOfPage: ref(webPage['@id']),
       articleSection: data.category, keywords: data.tags || [], inLanguage: 'en', isAccessibleForFree: true,
       wordCount: articleWordCount(data.content),
       citation: (data.sources || []).map(source => ({
@@ -118,6 +126,14 @@ export function pageGraph(data, image) {
         ...(source.publisher ? { publisher: { '@type': 'Organization', name: source.publisher } } : {}),
         ...(source.date ? { datePublished: source.date } : {}),
       })),
+    });
+  }
+  if (data.ogType === 'article' && data.faq?.length) {
+    webPage.hasPart = ref(`${url}#faq`);
+    graph.push({
+      '@type': 'FAQPage', '@id': `${url}#faq`, url: `${url}#frequently-asked-questions`,
+      isPartOf: ref(webPage['@id']), inLanguage: 'en',
+      mainEntity: data.faq.map(item => ({ '@type': 'Question', name: item.q, acceptedAnswer: { '@type': 'Answer', text: item.a } })),
     });
   }
   if (page.url === '/what-is-singularity/') {

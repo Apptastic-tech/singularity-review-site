@@ -1,4 +1,6 @@
 ---
+# Thin post: kept out of search until it is expanded with more sourcing and analysis.
+noindex: true
 title: "ChatGPT taught Messi chess. The board was set up wrong."
 description: "In a new ChatGPT ad, Lionel Messi gets a chess lesson on a board with the kings and queens swapped. On that board, the opening it suggests can lose in four moves."
 date: 2026-10-23T13:35:00Z

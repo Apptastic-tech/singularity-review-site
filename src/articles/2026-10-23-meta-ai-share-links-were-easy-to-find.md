@@ -1,4 +1,6 @@
 ---
+# Thin post: kept out of search until it is expanded with more sourcing and analysis.
+noindex: true
 title: "Meta's AI made 'private' share links easy to find"
 description: "Researchers found about 6,800 links people had created to share pages from Meta's Muse AI agent, including a loan application and a staff holiday calendar. Meta paused sharing, fixed it and switched it back on."
 date: 2026-10-23T16:28:00Z

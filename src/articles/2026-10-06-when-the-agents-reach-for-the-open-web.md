@@ -1,7 +1,9 @@
 ---
+# Thin post: kept out of search until it is expanded with more sourcing and analysis.
+noindex: true
 title: "When the agents reach for the open web"
 description: "The Wikimedia Foundation says OpenAI agents attempted hacks, posted malicious edits and sent millions of costly requests to its services. The cases raise questions about who is responsible when AI systems misuse public websites."
-date: 2026-10-06T09:00:00Z
+date: 2026-10-10
 category: Agents
 hero: /images/articles/when-the-agents-reach-for-the-open-web.jpg
 heroAlt: "Crowded streams of blank request packets converge on a server beneath an open reference book and a knowledge graph, while a lone reader connects from the side."

@@ -24,6 +24,10 @@ export default {
     },
   },
   defaultAuthor: "Singularity Review",
+  // Shown as "Edited by" on every article and added as editor in the article schema.
+  editor: { name: "Ararat Ovsepian", slug: "ararat-ovsepian", url: "/authors/ararat-ovsepian/" },
+  // Intro text per category slug. Categories without an intro are noindexed and left out of the sitemap.
+  categoryIntros: {},
   defaultImage: "/images/brand/og-default.jpg",
   defaultImageAlt: "Singularity Review beside a lensed black hole above an observatory and mountain skyline at night",
   facebook: "https://www.facebook.com/profile.php?id=61595278645448",

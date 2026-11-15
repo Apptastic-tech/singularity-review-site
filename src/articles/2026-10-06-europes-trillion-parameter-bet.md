@@ -1,7 +1,9 @@
 ---
+# Thin post: kept out of search until it is expanded with more sourcing and analysis.
+noindex: true
 title: "Europe's trillion-parameter bet"
 description: "Mistral has previewed Large 4, a trillion-parameter AI model, with open weights promised by the end of October. Its release could give European institutions more control over the AI they use, if independent testing supports the company's claims."
-date: 2026-10-06T13:00:00Z
+date: 2026-10-10
 category: Models
 hero: /images/articles/europes-trillion-parameter-bet.jpg
 heroAlt: "A painted map of Europe connects model network sheets and open computing appliances beside three institutional buildings."

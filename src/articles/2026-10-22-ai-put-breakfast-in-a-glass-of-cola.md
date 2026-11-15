@@ -1,4 +1,6 @@
 ---
+# Thin post: kept out of search until it is expanded with more sourcing and analysis.
+noindex: true
 title: "A food app let AI draw its menus. It put a fry-up in a glass of cola."
 description: "Just Eat used AI to illustrate takeaway menus that had no photos. It read the words too literally, customers shared the results, and the company has apologised and paused the trial."
 date: 2026-10-22T15:53:00Z

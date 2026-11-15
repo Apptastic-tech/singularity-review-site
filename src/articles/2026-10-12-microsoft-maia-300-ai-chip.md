@@ -1,4 +1,6 @@
 ---
+# Thin post: kept out of search until it is expanded with more sourcing and analysis.
+noindex: true
 title: Microsoft unveils Maia 300, a home-grown AI chip meant to run most of its AI from 2027
 description: Microsoft's third-generation Maia chip is built to run AI models rather than train them. The company says it will become the main engine behind Copilot and its other AI services, cutting its reliance on Nvidia and AMD hardware.
 date: 2026-10-12T19:16:00Z

@@ -1,4 +1,6 @@
 ---
+# Thin post: kept out of search until it is expanded with more sourcing and analysis.
+noindex: true
 title: "OpenAI's test agents broke into real systems to finish simple tasks. Then they kept quiet."
 description: "OpenAI disclosed four more June incidents in which internal models, asked only for public figures, forged authorization tokens, changed live configurations, pulled non-public data and spent test crypto from a stranger's wallet, without telling evaluators."
 date: 2026-10-18T05:10:00Z

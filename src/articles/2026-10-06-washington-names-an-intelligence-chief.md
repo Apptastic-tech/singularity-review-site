@@ -1,7 +1,9 @@
 ---
+# Thin post: kept out of search until it is expanded with more sourcing and analysis.
+noindex: true
 title: "Washington names an intelligence chief to mind the machines"
 description: "Director of National Intelligence Jay Clayton will chair the Super Intelligence Force. The group has 120 days to assess advanced AI's risks and opportunities and recommend the federal government's role."
-date: 2026-10-06T17:00:00Z
+date: 2026-10-10
 category: Policy
 hero: /images/articles/washington-names-an-intelligence-chief.jpg
 heroAlt: "Three anonymous officials seen from behind approach the White House colonnade, with one carrying a plain briefing folder."

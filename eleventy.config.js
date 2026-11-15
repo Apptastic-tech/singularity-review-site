@@ -96,6 +96,8 @@ export default function (eleventyConfig) {
     if (typeof outputPath !== "string" || !outputPath.endsWith(".html") || /<meta name="robots" content="noindex/.test(content)) return content;
     const graph = JSON.parse(content.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1])["@graph"];
     const page = graph.find(item => item["@id"].endsWith("#webpage"));
+    // Pagination pages and the featured list duplicate the home feed, so they stay out of the sitemap.
+    if (/\/page\/\d+\/$/.test(page.url) || /\/featured\/$/.test(page.url)) return content;
     sitemapPages.set(page.url, page.dateModified);
     return content;
   });

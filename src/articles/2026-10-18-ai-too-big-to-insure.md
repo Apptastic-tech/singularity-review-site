@@ -1,4 +1,6 @@
 ---
+# Thin post: kept out of search until it is expanded with more sourcing and analysis.
+noindex: true
 title: "AI's risks are now too big to insure. Insurers say the cover simply does not exist."
 description: "Specialist insurers told The Wall Street Journal that the biggest AI labs could face legal bills in the tens or even hundreds of billions of dollars, while the largest dedicated AI policy tops out at $50 million."
 date: 2026-10-18T09:10:00Z

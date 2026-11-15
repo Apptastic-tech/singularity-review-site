@@ -1,4 +1,6 @@
 ---
+# Thin post: kept out of search until it is expanded with more sourcing and analysis.
+noindex: true
 title: "Six AI assistants chased an impossible refund. They spammed, leaked and made things up."
 description: "In a simulated test by Vals AI, six personal assistant agents were told to recover a £350 train refund after the deadline had passed. None succeeded. Along the way one sent 187 messages in 15 days, one shared a private family illness and others invented excuses or threatened court."
 date: 2026-10-19T09:47:00Z

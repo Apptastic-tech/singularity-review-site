@@ -14,6 +14,7 @@ layout: layouts/base.njk
     <h1 class="article-title">{{ title }}</h1>
     <p class="article-dek">{{ description }}</p>
     <p class="byline meta">{{ byline(author, authorUrl, page.date, content | readingTime) }}</p>
+    {% if site.editor %}<p class="byline byline-editor meta">Edited by <a class="byline-author" href="{{ site.editor.url }}">{{ site.editor.name }}</a>{% if updated and (updated | isoDate | truncate(10, true, "")) != (page.date | isoDate | truncate(10, true, "")) %} <span aria-hidden="true">·</span> Updated <time datetime="{{ updated | isoDate }}">{{ updated | readableDate }}</time>{% endif %}</p>{% endif %}
     {{ shareBar(shareUrl, title, "compact") }}
   </header>
   {% if takeaways.length %}<section class="article-takeaways reading-width" aria-labelledby="takeaways-heading">
@@ -25,6 +26,12 @@ layout: layouts/base.njk
     {% if heroCaption %}<figcaption>{{ heroCaption }}</figcaption>{% endif %}
   </figure>
   <div class="prose reading-width article-body">{{ content | articleAds(site.adsense, adSlot("articleA", site), adSlot("articleB", site)) | safe }}</div>
+  {% if faq.length %}<section class="article-faq prose reading-width" id="frequently-asked-questions" aria-labelledby="faq-heading">
+    <h2 id="faq-heading">Frequently asked questions</h2>
+    {% for item in faq %}<h3>{{ item.q }}</h3>
+    <p>{{ item.a }}</p>
+    {% endfor %}
+  </section>{% endif %}
   <footer class="article-footer reading-width">
     {% include "reactions.njk" %}
     <div class="share-end">

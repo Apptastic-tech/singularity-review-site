@@ -595,3 +595,8 @@ figcaption { color: var(--muted); font-size: 13px; padding: 12px 20px 0; }
 .newsletter-note { margin: 8px 0 0; color: var(--muted); font: 400 13px/1.5 var(--sans); }
 .popup-card .newsletter-note { margin: 8px 0 0; font-size: 13px; }
 .newsletter-footer .newsletter-embed { width: 100%; }
+
+/* Article FAQ and editor line */
+.byline-editor { margin-top: 4px; }
+.article-faq { margin-top: 40px; }
+.article-faq h3 { margin: 24px 0 8px; }

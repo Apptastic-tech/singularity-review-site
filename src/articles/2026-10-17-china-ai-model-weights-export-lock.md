@@ -1,4 +1,6 @@
 ---
+# Thin post: kept out of search until it is expanded with more sourcing and analysis.
+noindex: true
 title: "China just put its biggest AI models under export lock. APIs stay open."
 description: "Beijing's draft export catalogue would restrict the weights, code and training methods of models above 10^26 FLOPs, 2 trillion parameters or a global top 10 rank, plus large agent systems. Selling access by API, app or SaaS stays allowed."
 date: 2026-10-17T14:10:00Z

@@ -12,7 +12,10 @@ eleventyComputed:
 ---
 <header class="feed-intro category-intro feed-width">
   <h1>{{ person.name }}</h1>
+  {% if person.jobTitle %}<p class="plain-label">{{ person.jobTitle }}, Singularity Review</p>{% endif %}
   {% if person.bio %}<p class="author-bio">{{ person.bio }}</p>{% endif %}
+  {% if person.role %}<p class="author-bio">{{ person.role }} Read our <a href="/editorial-standards/">editorial standards</a> for how sources are checked and corrections are handled.</p>{% endif %}
+  {% if person.email %}<p class="author-bio">To report an error or ask about a source, write to <a href="mailto:{{ person.email }}">{{ person.email }}</a> with the article link and the passage in question.</p>{% endif %}
   <p class="meta">{{ person.articles.length }} {{ "article" if person.articles.length == 1 else "articles" }} by {{ person.name }} for Singularity Review, newest first</p>
 </header>
 <section class="story-grid story-list feed-width" aria-label="Articles by {{ person.name }}" data-feed>

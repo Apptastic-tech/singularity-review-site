@@ -1,4 +1,6 @@
 ---
+# Thin post: kept out of search until it is expanded with more sourcing and analysis.
+noindex: true
 title: Anthropic's Q3 surge puts an IPO in reach as the AI trade wobbles
 description: Prospective investors heard that Anthropic's Q3 2026 revenue hit $16.8 billion, up ~45% from Q2, with adjusted profitability and cash-flow positivity. An IPO is now aimed at November as Google and Meta crowd the frontier.
 date: 2026-10-15T17:08:00Z

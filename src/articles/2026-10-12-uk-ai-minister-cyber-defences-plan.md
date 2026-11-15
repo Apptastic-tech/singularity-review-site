@@ -1,4 +1,6 @@
 ---
+# Thin post: kept out of search until it is expanded with more sourcing and analysis.
+noindex: true
 title: Britain's AI minister says the country's cyber defences will likely be breached, and sets out a plan
 description: Speaking in London on Oct. 12, Kanishka Narayan announced that the UK will put frontier AI to work finding security holes in government systems, look at tougher incident reporting rules, and prepare for emergencies involving AI agents.
 date: 2026-10-12T19:16:00Z
