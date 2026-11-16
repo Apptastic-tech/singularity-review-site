@@ -8,7 +8,7 @@ summary: "Google DeepMind co-founder Shane Legg argues that human intelligence c
 description: "Shane Legg says human intelligence is not the ceiling. His argument, his 2028 forecast, the gaps that still have to close, and the caveats he states himself."
 seoDescription: "Shane Legg argues human intelligence is not the ceiling for AI. His physical argument, his 2028 forecast and what it would take, with sources."
 hero: /images/articles/shane-legg-human-intelligence-not-the-ceiling.jpg
-heroAlt: "A tall wooden ladder rising through a gap in a stone slab toward a pale band of light above"
+heroAlt: "Linocut style illustration of a tall wooden ladder rising through a round opening in a stone ceiling toward a starry sky"
 heroCaption: "Illustration: Singularity Review."
 tags: ["Shane Legg", "Google DeepMind", "AGI", "Superintelligence", "Levels of AGI", "AI safety", "Continual learning"]
 takeaways:
