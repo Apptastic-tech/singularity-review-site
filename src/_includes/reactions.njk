@@ -4,6 +4,6 @@
   <h2 class="plain-label" id="reactions-heading">Reactions</h2>
   <div class="reaction-list" role="group" aria-label="React to this article">
     <button type="button" class="reaction reaction--like" data-key="like" data-label="Like" aria-pressed="false" aria-label="Like"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false">{{ shareIcons.heart | safe }}</svg><span class="reaction-count" data-count></span></button>
-    {% for r in [["up", "👍", "Thumbs up"], ["fire", "🔥", "Fire"], ["mind", "🤯", "Mind blown"], ["think", "🤔", "Thinking"], ["sad", "😢", "Sad"]] %}<button type="button" class="reaction" data-key="{{ r[0] }}" data-label="{{ r[2] }}" aria-pressed="false" aria-label="{{ r[2] }}"><span class="reaction-emoji" aria-hidden="true">{{ r[1] }}</span><span class="reaction-count" data-count></span></button>{% endfor %}
+    {% for r in [["up", "Thumbs up"], ["fire", "Fire"], ["mind", "Mind blown"], ["think", "Thinking"], ["sad", "Sad"]] %}<button type="button" class="reaction" data-key="{{ r[0] }}" data-label="{{ r[1] }}" aria-pressed="false" aria-label="{{ r[1] }}"><span class="reaction-label" aria-hidden="true">{{ r[1] }}</span><span class="reaction-count" data-count></span></button>{% endfor %}
   </div>
 </section>

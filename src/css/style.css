@@ -176,7 +176,7 @@ figcaption { color: var(--muted); font-size: 13px; padding: 12px 20px 0; }
 .reaction { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: 50px; min-height: 48px; padding: 0 10px; border: 0; background: transparent; color: var(--muted); border-radius: 0; font: 600 15px/1 var(--sans); cursor: pointer; transition: color 180ms ease, transform 180ms ease; }
 .reaction:hover { color: var(--signal); transform: translateY(-2px); }
 .reaction:active { transform: scale(.96); }
-.reaction-emoji { font-size: 21px; line-height: 1; }
+.reaction-label { font: 600 15px/1 var(--sans); }
 .reaction--like svg { color: var(--muted); }
 .reaction[aria-pressed="true"] { color: var(--signal); font-weight: 750; }
 .reaction[aria-pressed="true"] .reaction-count::before { content: "✓"; margin-right: 4px; }
