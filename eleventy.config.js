@@ -160,6 +160,37 @@ export default function (eleventyConfig) {
     const metadata = await heroImages(src, article);
     return Image.generateHTML(metadata, { alt, sizes, loading, fetchpriority, class: classes, decoding: "async" });
   });
+
+  const youtubeId = (url) => {
+    const match = String(url || "").trim().match(
+      /(?:youtube(?:-nocookie)?\.com\/(?:shorts\/|embed\/|watch\?(?:[^#]*&)?v=)|youtu\.be\/)([A-Za-z0-9_-]{11})/
+    );
+    if (!match) throw new Error(`youtubePlayer needs a YouTube URL with a video id, received "${url}".`);
+    return match[1];
+  };
+  eleventyConfig.addShortcode("youtubePlayer", (url, caption, poster, title) => {
+    const id = youtubeId(url);
+    const href = String(url || "").trim();
+    const posterSrc = String(poster || "").trim();
+    if (!/^\/images\//.test(posterSrc)) {
+      throw new Error(`youtubePlayer needs a self-hosted poster under /images/, received "${poster}".`);
+    }
+    const heading = String(title || caption || "YouTube video").trim();
+    const label = `Play video: ${heading}`;
+    const captionHtml = caption
+      ? `<figcaption>${escapeXml(caption)}</figcaption>`
+      : "";
+    return `<figure class="youtube-player" data-youtube-player data-youtube-id="${escapeXml(id)}" data-youtube-title="${escapeXml(heading)}">
+  <div class="youtube-player-frame">
+    <a class="youtube-player-facade" href="${escapeXml(href)}" data-youtube-play aria-label="${escapeXml(label)}">
+      <img src="${escapeXml(posterSrc)}" alt="" width="1080" height="1920" decoding="async" loading="lazy">
+      <span class="youtube-player-icon" aria-hidden="true"></span>
+      <span class="youtube-player-label">Play video</span>
+    </a>
+  </div>
+  ${captionHtml}
+</figure>`;
+  });
   eleventyConfig.addNunjucksAsyncShortcode("preloadHero", async function (src, sizes = cardSizes, article = src) {
     const metadata = await heroImages(src, article);
     const variants = metadata.avif;

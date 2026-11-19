@@ -124,7 +124,7 @@ const required = {
 const sitemap = await read('_site/sitemap.xml'), llms = await read('_site/llms.txt');
 for (const [page, sections] of Object.entries(required)) {
   const html = await read('_site/' + page + '/index.html');
-  const policyDate = ['privacy', 'cookies'].includes(page) ? '13 November 2026' : '11 October 2026';
+  const policyDate = ['privacy', 'cookies'].includes(page) ? '19 November 2026' : '11 October 2026';
   assert.ok(html.includes('Last updated ' + policyDate)); sections.forEach(section => assert.ok(html.includes(section), page + ': ' + section));
   assert.ok(sitemap.includes('/' + page + '/</loc>')); assert.ok(llms.split('## Policies')[1].includes('/' + page + '/'));
   if (['privacy','cookies'].includes(page)) {

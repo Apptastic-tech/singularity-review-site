@@ -161,7 +161,7 @@ for (const [page, headings] of Object.entries(requiredHeadings)) {
   const html = await read(`_site/${page}/index.html`), dom = parseDocument(html);
   const actual = nodes(dom).filter(node => /^h[12]$/.test(node.name)).map(node => textContent(node));
   headings.forEach(heading => assert.ok(actual.includes(heading), heading));
-  assert.ok(html.includes('Last updated 13 November 2026'));
+  assert.ok(html.includes('Last updated 19 November 2026'));
   for (const phrase of ['Google Analytics', 'GA4', 'Microsoft Clarity', 'Accept', 'Decline', 'Cookie settings']) assert.ok(html.includes(phrase), page + ': ' + phrase);
   assert.doesNotMatch(html, /We use no analytics|No ads or analytics tools are active today/);
   assert.ok((await read('_site/sitemap.xml')).includes(`/${page}/</loc>`));

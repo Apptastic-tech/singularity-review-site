@@ -45,6 +45,8 @@ ads.js is included only when adsense.client is set or ADSENSE_PREVIEW=1. It read
 
 Marketing true grants the three advertising signals; Analytics true grants analytics_storage separately. Before a decision no Google advertising script loads. After reject, no advertising request is made. Granting Marketing loads the script once and sets adsbygoogle.requestNonPersonalizedAds to 0. Marketing denied keeps that flag at 1 and leaves ad slots collapsed. Preview mode loads no Google resources and never fills a real ad, whatever the decision.
 
+Click-to-load YouTube players use the same Marketing decision. Built HTML contains a self-hosted still, a play control and a caption, not a YouTube iframe or youtube-nocookie.com request. A click loads the privacy-enhanced embed only when Marketing is true. If Marketing is off, the existing Cookie settings dialog opens; granting Marketing then loads a player that was waiting, and withdrawing Marketing removes an embed that had already loaded. Without JavaScript the still remains a link to YouTube.
+
 Revocation updates all signals. Removing Marketing or the decision blocks new fills and collapses slots. Code already loaded cannot be unloaded. The future certified CMP integration must implement the applicable regional withdrawal and Google storage behavior, and must be checked before live ads. This scaffold does not claim TCF compliance.
 
 The consent record version is 2026-11-13, so earlier saved choices are asked again. Enabling reserved ad units still requires the certified CMP integration, matching runtime fixtures and policies. Newsletter subscription still requires submitting a signup; Accept alone never subscribes anyone.

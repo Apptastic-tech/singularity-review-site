@@ -60,7 +60,7 @@ Shane Legg is a co-founder of DeepMind, now Google DeepMind, and is credited wit
 
 The question is back in the news. On 11 November the University of Auckland, where Legg studied, announced that he will give a public lecture titled "AGI Incoming" on 4 December, and repeated his long-standing forecast. A 61-second clip of the key passage was posted on 15 November to the Singularity Clips channel. This article lays out the argument and what Legg says still has to happen.
 
-[Watch the 61-second Short on Singularity Clips](https://www.youtube.com/shorts/-o76ZIq0o6k)
+{% youtubePlayer "https://www.youtube.com/shorts/-o76ZIq0o6k", "Shane Legg: human intelligence is not the upper limit. A 61-second Short from the Singularity Clips channel.", "/images/articles/shane-legg-human-intelligence-not-the-ceiling-short.jpg" %}
 
 ## The argument: a brain against a data centre
 

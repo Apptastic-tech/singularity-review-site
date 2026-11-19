@@ -2,7 +2,7 @@
 layout: layouts/base.njk
 title: Privacy policy
 description: How Singularity Review handles consent, Google Analytics, Microsoft Clarity, newsletter signups and reactions.
-updated: "2026-11-13T00:00:00Z"
+updated: "2026-11-19T00:00:00Z"
 permalink: /privacy/
 eleventyExcludeFromCollections: true
 ---
@@ -10,7 +10,7 @@ eleventyExcludeFromCollections: true
 
 # Privacy policy
 
-<p class="legal-version">Last updated 13 November 2026</p>
+<p class="legal-version">Last updated 19 November 2026</p>
 
 ## Who we are
 
@@ -38,6 +38,8 @@ We use Google AdSense. The Google advertising script loads only after you click 
 
 Granting Marketing allows personalised ads and the corresponding advertising storage and data signals. Rejecting Marketing leaves those signals denied and does not load the advertising script. Analytics is a separate choice. You can change either choice in Cookie settings in the footer.
 
+Some articles include a click-to-load YouTube player. The still image is hosted on this site. No YouTube player, iframe or cookies load until you press play, and play loads a privacy-enhanced YouTube embed (youtube-nocookie.com) only if Marketing is on. If Marketing is off, Cookie settings opens so you can change that choice, or you can watch the video on YouTube instead. Once the embed loads, Google may set cookies and collect data as described in its [cookie information](https://policies.google.com/technologies/cookies). Turning Marketing off removes a player that has already loaded.
+
 You can opt out of personalised advertising through [Google Ads Settings](https://adssettings.google.com) and the choices available at [aboutads.info](https://www.aboutads.info). Read [How Google uses information from sites that use its services](https://policies.google.com/technologies/ads) for Google's advertising practices and its [cookie information](https://policies.google.com/technologies/cookies) for examples of cookie purposes and durations.
 
 For visitors in the EEA, UK and Switzerland, Google requires a Google-certified consent management platform integrated with the IAB TCF. Our own banner is not a certified CMP. Before serving ads in those regions, we must enable AdSense Privacy & messaging and defer our banner's overlapping choices to it, or adopt another certified CMP. The local banner alone is not sufficient for that launch.
@@ -47,14 +49,15 @@ For visitors in the EEA, UK and Switzerland, Google requires a Google-certified 
 | Technology | Purpose | Status | Provider |
 | --- | --- | --- | --- |
 | Advertising cookies and similar technologies | Ad delivery, measurement and personalisation | Set by Google only after you accept Marketing | Google and its advertising partners |
+| YouTube privacy-enhanced embed cookies and similar technologies | Video playback, measurement and advertising | Set by Google only after you press play with Marketing accepted | Google |
 
-Exact cookies depend on Google's configuration and reader choices. No AdSense cookies are set until you accept Marketing. Denied marketing does not grant advertising storage, and the advertising script does not load.
+Exact cookies depend on Google's configuration and reader choices. No AdSense cookies are set until you accept Marketing. Denied marketing does not grant advertising storage, and the advertising script does not load. YouTube embed cookies are not set until you press play with Marketing accepted.
 
 ## Purposes and legal basis
 
 We use your newsletter signup only to send the newsletter you asked for, and any confirmation email beehiiv sends on our behalf. The legal basis is your consent under Article 6(1)(a) of the GDPR, given when you submit the signup form. Signing up is separate from cookie settings. Rejecting optional cookie categories does not prevent a signup you request. Newsletter signup attribution relies on your Analytics choice.
 
-Hosting, security and providing the reactions feature rely on legitimate interests under Article 6(1)(f): operating a reliable publication, protecting it from abuse and letting readers react to articles. You can object to this processing. Necessary device storage supports features and choices you request. GA4, Microsoft Clarity and beehiiv's optional signup attribution rely on your Analytics consent under Article 6(1)(a). Google AdSense relies on your Marketing consent under Article 6(1)(a). You can withdraw either choice through Cookie settings.
+Hosting, security and providing the reactions feature rely on legitimate interests under Article 6(1)(f): operating a reliable publication, protecting it from abuse and letting readers react to articles. You can object to this processing. Necessary device storage supports features and choices you request. GA4, Microsoft Clarity and beehiiv's optional signup attribution rely on your Analytics consent under Article 6(1)(a). Google AdSense and click-to-load YouTube players rely on your Marketing consent under Article 6(1)(a). You can withdraw either choice through Cookie settings.
 
 ## Processors and international transfers
 

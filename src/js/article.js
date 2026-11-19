@@ -109,3 +109,69 @@
     load();
   }
 })();
+
+// Click-to-load YouTube: the iframe is created only after a click, and only when Marketing is granted.
+(() => {
+  const players = document.querySelectorAll('[data-youtube-player]');
+  if (!players.length) return;
+  const validId = id => /^[A-Za-z0-9_-]{11}$/.test(id || '');
+  const marketingOn = () => window.srConsent?.get()?.marketing === true;
+
+  const unload = player => {
+    player.querySelector('iframe')?.remove();
+    const facade = player.querySelector('[data-youtube-play]');
+    if (facade) facade.hidden = false;
+    delete player.dataset.loaded;
+  };
+
+  const load = player => {
+    if (player.dataset.loaded === 'true') return;
+    const id = player.dataset.youtubeId;
+    if (!validId(id)) return;
+    const frame = player.querySelector('.youtube-player-frame');
+    if (!frame) return;
+    const iframe = document.createElement('iframe');
+    iframe.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&playsinline=1`;
+    iframe.title = player.dataset.youtubeTitle || 'YouTube video';
+    iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+    iframe.setAttribute('allowfullscreen', '');
+    iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+    const facade = player.querySelector('[data-youtube-play]');
+    if (facade) facade.hidden = true;
+    frame.append(iframe);
+    player.dataset.loaded = 'true';
+  };
+
+  players.forEach(player => {
+    const trigger = player.querySelector('[data-youtube-play]');
+    if (!trigger) return;
+    trigger.addEventListener('click', event => {
+      event.preventDefault();
+      if (marketingOn()) {
+        delete player.dataset.pending;
+        load(player);
+        return;
+      }
+      if (window.srConsent?.open) {
+        player.dataset.pending = 'true';
+        window.srConsent.open();
+        return;
+      }
+      load(player);
+    });
+  });
+
+  window.srConsent?.onChange?.(decision => {
+    players.forEach(player => {
+      if (decision?.marketing === true) {
+        if (player.dataset.pending === 'true') {
+          delete player.dataset.pending;
+          load(player);
+        }
+      } else {
+        delete player.dataset.pending;
+        unload(player);
+      }
+    });
+  });
+})();
