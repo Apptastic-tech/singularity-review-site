@@ -4,9 +4,9 @@ description: On Oct. 13 Google made Gemini 4 Argon available worldwide for Pro a
 date: 2026-10-15T05:21:00Z
 category: Models
 hero: /images/articles/google-gemini-4-argon.jpg
-heroAlt: An empty glass research atrium at golden hour with an oak table, sealed folder and city lights through rainy windows
+heroAlt: "The Google logo"
 tags: [Google, Gemini 4 Argon, DeepMind, Vals Index, Antigravity, Frontier models]
-heroCaption: Editorial photograph. No real logos depicted.
+heroCaption: "Logo: Google LLC (public domain, via Wikimedia Commons)."
 author: Singularity Review
 seoDescription: "Google's Gemini 4 Argon tops the Vals Index for finance, coding, legal and tax work and launches with half-price API rates through November for paying users."
 takeaways:

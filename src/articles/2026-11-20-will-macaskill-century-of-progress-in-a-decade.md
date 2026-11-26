@@ -8,8 +8,8 @@ summary: "Philosopher Will MacAskill and Fin Moorhouse argue that AI able to do 
 description: "Will MacAskill argues AI could bring a century of technological progress in a decade. The argument, the numbers behind it, the three feedback loops, and what critics say about speed limits and bottlenecks."
 seoDescription: "Will MacAskill's 'century in a decade' AI argument explained: the research-effort maths, recursive improvement, and critiques from AI as Normal Technology and Epoch AI."
 hero: /images/articles/will-macaskill-century-of-progress-in-a-decade.jpg
-heroAlt: "A brass hourglass with white sand stands beside a small brass wheel ornament on a wooden table against a green wall"
-heroCaption: "Photo by Suohros (CC0, via Wikimedia Commons)."
+heroAlt: "Will MacAskill with Joseph Gordon-Levitt, Julia Galef and AJ Jacobs at a Centre for Effective Altruism event"
+heroCaption: "Photo by the Centre for Effective Altruism (CC BY-SA 4.0, via Wikimedia Commons)."
 tags: ["Will MacAskill", "Intelligence explosion", "Forethought", "AI progress", "AI as Normal Technology", "Epoch AI", "Analysis"]
 takeaways:
   - "Will MacAskill and Fin Moorhouse argue, in a March 2025 paper, that AI which can substitute for human researchers would drive a century of technological progress in less than a decade. They write that this is more likely than not on a default path where AI keeps scaling."

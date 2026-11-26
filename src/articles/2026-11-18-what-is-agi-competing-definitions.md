@@ -8,8 +8,8 @@ summary: "Artificial general intelligence has no single agreed meaning. OpenAI's
 description: "AGI has no single agreed meaning. The main definitions side by side, from OpenAI's charter and DeepMind's levels to a psychometric score and Chollet's learning test, and how to read an AGI claim."
 seoDescription: "What is AGI? OpenAI's charter, Google DeepMind's Levels of AGI, the Hendrycks AGI score, Chollet's skill-acquisition test and the Microsoft deal, compared with sources."
 hero: /images/articles/what-is-agi-competing-definitions.jpg
-heroAlt: "Ornate metal chess pieces stand in two rows on a polished wooden board, softly out of focus toward the back"
-heroCaption: "Photo by Lou Levit (CC0, via Wikimedia Commons)."
+heroAlt: "The Google DeepMind headquarters at 6 Pancras Square, London"
+heroCaption: "Photo by Gciriani (CC BY-SA 4.0, via Wikimedia Commons)."
 tags: ["AGI", "Definitions", "Google DeepMind", "OpenAI", "Levels of AGI", "Benchmarks", "Explainer"]
 takeaways:
   - "There is no single definition. OpenAI's charter defines AGI as highly autonomous systems that outperform humans at most economically valuable work. Google DeepMind researchers rate systems on levels of performance and generality. A 2025 paper led by Dan Hendrycks scores them against a well-educated adult across ten cognitive domains. François Chollet defines intelligence as skill-acquisition efficiency."

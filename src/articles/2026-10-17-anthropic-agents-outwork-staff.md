@@ -4,8 +4,8 @@ description: "Anthropic measured what happened inside its own company as Claude 
 date: 2026-10-17T09:10:00Z
 category: Work
 hero: /images/articles/anthropic-agents-outwork-staff.jpg
-heroAlt: "A dark office at night with one empty human desk, a coffee mug and glasses on it, surrounded by six vintage typewriters typing on their own with paper spilling to the floor."
-heroCaption: "Illustration. One desk, six tireless coworkers."
+heroAlt: "The Claude symbol used by Anthropic"
+heroCaption: "Logo: Anthropic (CC0, via Wikimedia Commons)."
 author: Singularity Review
 tags: [Anthropic, Claude, AI agents, Jobs, Hiring, Future of work, Productivity]
 seoDescription: "Anthropic's October 16 report on its own workforce: agent hours outnumber staff 6 to 1, junior technical hires fell from 27% to 9%, code commits per engineer rose 5x, and humans became the bottleneck."

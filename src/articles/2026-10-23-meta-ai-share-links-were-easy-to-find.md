@@ -6,8 +6,8 @@ description: "Researchers found about 6,800 links people had created to share pa
 date: 2026-10-23T16:28:00Z
 category: Everyday AI
 hero: /images/articles/meta-ai-share-links-were-easy-to-find.jpg
-heroAlt: "A paper folder marked only with a handwritten title, left open on a cafe counter beside a set of keys and a takeaway coffee, papers half sliding out"
-heroCaption: "Illustration."
+heroAlt: "Meta Platforms headquarters in Menlo Park, California"
+heroCaption: "Photo by LPS.1 (CC0, via Wikimedia Commons)."
 author: Singularity Review
 draft: false
 section: news

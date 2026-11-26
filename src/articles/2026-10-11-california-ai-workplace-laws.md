@@ -4,10 +4,10 @@ description: "Governor Gavin Newsom has signed a package of AI laws covering wor
 date: 2026-10-11T14:18:00Z
 category: Policy
 hero: /images/articles/california-ai-workplace-laws.jpg
-heroAlt: "A gouache painting of a warehouse office where a supervisor reads a paper personnel file beside an unplugged automated scoring terminal, with the California Capitol dome visible through the window."
+heroAlt: "The California State Capitol in Sacramento"
 author: Singularity Review
 tags: [California, Employment, Workplace surveillance, Regulation, Gavin Newsom]
-heroCaption: "Editorial illustration. No real people or logos depicted."
+heroCaption: "Photo by Tszeiler1 (CC BY-SA 4.0, via Wikimedia Commons)."
 seoDescription: "California's new AI laws require human review before automated firing, AI layoff disclosure and limits on workplace AI surveillance. Most start in 2027."
 takeaways:
   - On 30 September Governor Gavin Newsom signed 13 AI-related bills, adding to two AI oversight laws signed on 9 September.

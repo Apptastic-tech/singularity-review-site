@@ -6,9 +6,9 @@ description: Prospective investors heard that Anthropic's Q3 2026 revenue hit $1
 date: 2026-10-15T17:08:00Z
 category: Business
 hero: /images/articles/anthropic-q3-revenue-ahead-of-ipo.jpg
-heroAlt: "A pyramid of stacked gold bars and banknote bundles beside an open steel bank vault door glowing with warm light"
+heroAlt: "The Anthropic logo"
 tags: [Anthropic, IPO, Claude, Revenue, AI business, OpenAI, Regulation]
-heroCaption: Editorial photograph. No real logos depicted.
+heroCaption: "Logo: Anthropic (public domain, via Wikimedia Commons)."
 author: Singularity Review
 seoDescription: "Anthropic told investors its Q3 2026 revenue hit $16.8 billion, up about 45% from Q2, with adjusted profitability, as its IPO target moves to November."
 takeaways:

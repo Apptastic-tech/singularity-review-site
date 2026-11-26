@@ -8,8 +8,8 @@ summary: "On 20 November 2026 OpenAI published MedChemBench, a 99-problem test o
 description: "OpenAI's MedChemBench tests AI models on 99 medicinal-chemistry problems. What the benchmark measures, how GPT-6.2 Astra scored, where selection and prediction still lag, and why OpenAI says this does not show that models can discover drugs."
 seoDescription: "MedChemBench explained: OpenAI's 99-task medicinal chemistry benchmark, the 20 November 2026 scores, the gap between structure reconstruction and compound selection, and the official caveats."
 hero: /images/articles/openai-medchembench-drug-discovery-benchmark.jpg
-heroAlt: "A row of laboratory flasks holding green plant cuttings, covered in film, on a metal greenhouse shelf."
-heroCaption: "Photo by chuttersnap (CC0, via Unsplash / Wikimedia Commons)"
+heroAlt: "The OpenAI logo"
+heroCaption: "Logo: OpenAI (public domain, via Wikimedia Commons)."
 tags: ["MedChemBench", "OpenAI", "Drug discovery", "Medicinal chemistry", "GPT-6", "Analysis"]
 takeaways:
   - "MedChemBench, published by OpenAI on 20 November 2026, is a retrospective benchmark of 99 problems drawn from 117 papers and patents, covering 761 molecular structures. It tests whether a model can reconstruct molecules, explain evidence, rank or select compounds, and predict measured properties."

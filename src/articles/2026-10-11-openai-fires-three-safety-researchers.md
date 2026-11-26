@@ -4,10 +4,10 @@ description: "OpenAI says the researchers broke clear rules on handling sensitiv
 date: 2026-10-11T18:17:00Z
 category: Safety
 hero: /images/articles/openai-fires-three-safety-researchers.jpg
-heroAlt: "A documentary-style photograph of an open-plan office in flat overcast light, with three cleared desks side by side, each holding a closed cardboard box, and three empty chairs pushed back."
+heroAlt: "The Pioneer Building in San Francisco's Mission District, OpenAI's former headquarters"
 author: Singularity Review
 tags: [OpenAI, AI safety, Whistleblowing, Monitorability, Corporate governance]
-heroCaption: "Staged photograph for illustration. No real people or logos depicted."
+heroCaption: "Photo by HaeB (CC BY-SA 4.0, via Wikimedia Commons)."
 seoDescription: "OpenAI fired three safety researchers over alleged policy breaches. They deny it and warn of a chilling effect on safety work."
 takeaways:
   - OpenAI fired safety researchers Jasmine Wang, Tomek Korbak and Mikita Balesni, saying an investigation found they violated clear policies on handling sensitive information.

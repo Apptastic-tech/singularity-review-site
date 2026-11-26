@@ -6,9 +6,9 @@ description: After blocking pre-release sharing with the UK's AI Security Instit
 date: 2026-10-12T06:15:00Z
 category: Policy
 hero: /images/articles/white-house-restores-uk-frontier-ai-access.jpg
-heroAlt: An empty dark wood conference table faces floor-to-ceiling windows overlooking a rainy London skyline at dusk
+heroAlt: "The Palace of Westminster in London"
 tags: [White House, UK, AISI, Anthropic, OpenAI, DeepMind, Frontier models]
-heroCaption: Editorial photograph. No real logos depicted.
+heroCaption: "Photo by Dietmar Rabich (CC BY-SA 4.0, via Wikimedia Commons)."
 author: Singularity Review
 seoDescription: "The White House lifted a 17-day freeze on UK AI Security Institute pre-release access to frontier models from OpenAI, Anthropic and Google DeepMind."
 takeaways:

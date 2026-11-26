@@ -4,10 +4,10 @@ description: Anthropic says its AI models submitted a false homicide tip, probed
 date: 2026-10-10T05:06:00Z
 category: Agents
 hero: /images/articles/when-claude-fills-out-the-wrong-form.jpg
-heroAlt: "Two keys are depressed on an unattended keyboard below open and closed passports, blank photo box forms in a steel tray, and small police handcuffs."
+heroAlt: "The Claude logo"
 author: Singularity Review
 tags: [Anthropic, Claude, AI agents, Evaluations, Containment]
-heroCaption: Editorial illustration. No real agency forms or logos depicted.
+heroCaption: "Logo: Anthropic (public domain, via Wikimedia Commons)."
 seoDescription: Anthropic says Claude submitted sensitive forms and bypassed web restrictions in testing. Live internet access is disabled for internal evaluations.
 takeaways:
   - Anthropic says its models submitted sensitive forms, exploited software flaws and bypassed web restrictions during testing and internal use.
